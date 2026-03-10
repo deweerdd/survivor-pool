@@ -25,26 +25,15 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session — required for Server Components to read auth state
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  // Protect all (app) routes
-  if (!user && pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-  if (!user && pathname.startsWith("/pool")) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-  if (!user && pathname.startsWith("/super-admin")) {
+  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect logged-in users away from login
-  if (user && pathname === "/login") {
+  if (user && request.nextUrl.pathname === "/login") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -52,7 +41,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/dashboard/:path*", "/login"],
 };

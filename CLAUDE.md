@@ -1,89 +1,42 @@
-# Survivor Pool — Claude Code Guide
+# CLAUDE.md
 
-## What this app does
-A Survivor TV show office pool. Players get 20 points per week to allocate across any active survivors. Points earned = points placed on survivors who are eliminated that episode.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Stack
-- **Next.js 14** (App Router, TypeScript)
-- **Tailwind CSS** + **shadcn/ui** (components in `components/ui/`)
-- **Supabase** (Postgres database + Google OAuth)
-- **Zod** (input validation)
-- **TanStack Query** (client-side data fetching)
+## Commands
 
-## Common Commands
 ```bash
-npm run dev          # Start dev server (localhost:3000)
+npm run dev          # Start development server
 npm run build        # Production build
-npm run type-check   # TypeScript check without building
-
-# Supabase CLI (install separately: npm i -g supabase)
-supabase db push                    # Push migrations to Supabase
-supabase gen types typescript --project-id <id> --schema public > lib/types.ts
+npm run type-check   # TypeScript check (tsc --noEmit)
 ```
 
-## Project Structure
-```
-app/
-  (auth)/login/         # Sign-in page (Google OAuth)
-  (app)/dashboard/      # User's pools overview
-  (app)/pool/[id]/      # Pool view: leaderboard + episode list
-  (app)/pool/[id]/picks/  # Weekly pick allocation UI
-  (app)/pool/[id]/admin/  # Commissioner tools
-  (app)/super-admin/    # Super admin: seasons, cast, eliminations
-  api/auth/callback/    # Supabase OAuth callback handler
-components/
-  ui/                   # shadcn/ui primitives (never edit directly)
-  picks/                # Point allocation UI components
-  leaderboard/          # Leaderboard display components
-lib/
-  supabase/
-    client.ts           # Browser Supabase client
-    server.ts           # Server-side Supabase client (uses cookies)
-  db/
-    pools.ts            # All pool-related DB queries
-    picks.ts            # All picks-related DB queries
-    episodes.ts         # Episode/season DB queries
-    profiles.ts         # User profile DB queries
-  scoring.ts            # Score calculation logic (unit tested)
-  types.ts              # Shared TypeScript types (generated from Supabase)
-  validations.ts        # Zod schemas for all user input
-supabase/
-  migrations/           # SQL migrations (numbered, never hand-edit DB)
-middleware.ts           # Protects (app) routes, redirects to login
-docs/decisions/         # Architecture Decision Records (ADRs)
-```
+No test runner is configured yet.
 
-## Roles
-- **Super Admin** (`profiles.is_super_admin = true`): Manages global season data — cast, episodes, eliminations. Set manually in DB.
-- **Commissioner**: Creates and runs a specific pool. `pools.commissioner_id = user.id`
-- **Player**: Member of one or more pools. Submits weekly picks.
+## Environment
 
-## Key Business Rules
-- Points per user per episode must sum to ≤ 20
-- Picks lock at `episodes.picks_lock_at` (set by Super Admin)
-- Scores/leaderboard hidden until `episodes.results_release_at` (per pool? currently global via episode)
-- Survivors marked `is_active = false` when eliminated (set `eliminated_episode_id`)
+Copy `.env.example` to `.env.local` and fill in:
+- `NEXT_PUBLIC_SUPABASE_URL` — from supabase.com project API settings
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — from supabase.com project API settings
+- `SUPABASE_SERVICE_ROLE_KEY` — server-only, never expose to client
+- `NEXT_PUBLIC_SITE_URL` — e.g. `http://localhost:3000`
 
-## Database
-All schema changes go through `supabase/migrations/`. Never hand-edit the DB.
-Migration files: `YYYYMMDD_description.sql`
+Also add `http://localhost:3000/auth/callback` as an allowed redirect URL in Supabase and enable Google OAuth provider.
 
-Tables: `seasons`, `survivors`, `pools`, `pool_members`, `episodes`, `picks`, `profiles`
+## Architecture
 
-## Coding Conventions
-- **Server components** fetch data; add `// Server component` comment at top
-- **Client components** handle interaction; add `"use client" // reason` at top
-- All DB queries live in `lib/db/` — never scattered in components
-- Zod schemas in `lib/validations.ts` for all user input
-- One concern per file; colocate component logic near usage
+**Stack:** Next.js 16 (App Router) + Supabase + Tailwind CSS v4
 
-## Environment Variables
-- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL (client-safe)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon key (client-safe)
-- `SUPABASE_SERVICE_ROLE_KEY` — Service role key (server-only, never expose)
+**Auth flow:**
+1. `app/login/page.tsx` — server action triggers Google OAuth via `supabase.auth.signInWithOAuth`
+2. `app/auth/callback/route.ts` — exchanges OAuth code for session, redirects to `/dashboard`
+3. `middleware.ts` — protects `/dashboard/*`, redirects authenticated users away from `/login`
+4. `app/dashboard/page.tsx` — verifies session server-side, shows user info + sign-out
 
-## Known Gotchas
-- Supabase SSR: always use `@supabase/ssr` helpers, not the browser client, in Server Components and middleware
-- `middleware.ts` must refresh the session on every request to keep auth working
-- shadcn/ui components are in `components/ui/` and should not be edited — create wrappers instead
-- The `profiles` table mirrors `auth.users` — created automatically via DB trigger on signup
+**Supabase clients:**
+- `lib/supabase/server.ts` — async `createClient()` for Server Components and Server Actions (uses `@supabase/ssr`)
+- `lib/supabase/client.ts` — `createClient()` for Client Components (browser)
+- Always use `supabase.auth.getUser()` (not `getSession()`) for server-side auth checks
+
+**Next.js 16 notes:**
+- `params` and `searchParams` in page components are Promises — must be awaited
+- Path alias `@/` maps to the repo root
