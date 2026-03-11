@@ -6,7 +6,7 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 1: Database Foundation
 
-- [ ] **1.1 — Create `profiles` table + auto-create trigger**
+- [x] **1.1 — Create `profiles` table + auto-create trigger**
   SQL migration: `profiles` table with `id`, `email`, `display_name`, `is_admin`, `created_at`. Add `handle_new_user` trigger on `auth.users` insert. Enable RLS: users can read/update own row only.
   **Done when:** new Google login auto-creates a profile row.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Ready to start Phase 1.
-**Next task:** 1.1 — Create `profiles` table + auto-create trigger.
+**Current:** Phase 1 in progress.
+**Next task:** 1.2 — Create `seasons` and `contestants` tables.

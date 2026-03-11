@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "supabase:push": "supabase db push --linked",
+    "supabase:types": "supabase gen types typescript --project-id rnthsiomodacyoeyjssw > lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.9.0",
@@ -20,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "supabase": "^2.78.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
