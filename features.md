@@ -10,7 +10,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   SQL migration: `profiles` table with `id`, `email`, `display_name`, `is_admin`, `created_at`. Add `handle_new_user` trigger on `auth.users` insert. Enable RLS: users can read/update own row only.
   **Done when:** new Google login auto-creates a profile row.
 
-- [ ] **1.2 — Create `seasons` and `contestants` tables**
+- [x] **1.2 — Create `seasons` and `contestants` tables**
   SQL migration for both tables with all columns from architecture. RLS: public read, admin write only.
   **Done when:** tables exist with correct columns and RLS policies.
 

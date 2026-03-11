@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(export:*)",
-      "Bash(do sed:*)"
+      "Bash(do sed:*)",
+      "Bash(npm install:*)",
+      "Bash(npx supabase:*)"
     ]
   }
 }
