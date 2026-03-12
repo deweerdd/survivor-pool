@@ -14,7 +14,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   SQL migration for both tables with all columns from architecture. RLS: public read, admin write only.
   **Done when:** tables exist with correct columns and RLS policies.
 
-- [ ] **1.3 — Create `episodes` and `eliminations` tables**
+- [x] **1.3 — Create `episodes` and `eliminations` tables**
   SQL migration. RLS: public read, admin write only.
   **Done when:** tables exist with correct columns and RLS policies.
 
@@ -179,4 +179,4 @@ Work through these one at a time. Each feature is scoped for a single session.
 ## Progress
 
 **Current:** Phase 1 in progress.
-**Next task:** 1.2 — Create `seasons` and `contestants` tables.
+**Next task:** 1.4 — Create `pools` and `pool_members` tables.

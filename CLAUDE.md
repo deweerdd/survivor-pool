@@ -22,6 +22,21 @@ Copy `.env.example` to `.env.local` and fill in:
 
 Also add `http://localhost:3000/auth/callback` as an allowed redirect URL in Supabase and enable Google OAuth provider.
 
+## Migrations
+
+Migration files live in `supabase/migrations/`. Always name them with a **full 14-digit timestamp** (`YYYYMMDDHHmmss`) followed by a descriptive slug:
+
+```
+20260311175951_create_profiles_table.sql
+20260311180000_create_seasons_and_contestants.sql
+```
+
+Never use a date-only prefix like `20260311_` — Supabase uses the numeric prefix as the unique version ID and short names cause collisions and push failures.
+
+Push with: `npm run supabase:push`
+
+---
+
 ## Architecture
 
 **Stack:** Next.js 16 (App Router) + Supabase + Tailwind CSS v4
