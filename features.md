@@ -18,7 +18,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   SQL migration. RLS: public read, admin write only.
   **Done when:** tables exist with correct columns and RLS policies.
 
-- [ ] **1.4 — Create `pools` and `pool_members` tables**
+- [x] **1.4 — Create `pools` and `pool_members` tables**
   SQL migration. RLS: public read for pools; pool_members readable by member, insertable by authenticated user.
   **Done when:** tables exist with RLS allowing users to join pools.
 
