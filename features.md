@@ -22,7 +22,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   SQL migration. RLS: public read for pools; pool_members readable by member, insertable by authenticated user.
   **Done when:** tables exist with RLS allowing users to join pools.
 
-- [ ] **1.5 — Create `allocations` table**
+- [x] **1.5 — Create `allocations` table**
   SQL migration with unique constraint and check constraint. RLS: user can read/write own allocations; read blocked after episode locks.
   **Done when:** table exists with constraints and RLS.
 
