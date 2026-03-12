@@ -26,7 +26,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   SQL migration with unique constraint and check constraint. RLS: user can read/write own allocations; read blocked after episode locks.
   **Done when:** table exists with constraints and RLS.
 
-- [ ] **1.6 — Create `get_pool_scores` Postgres function**
+- [x] **1.6 — Create `get_pool_scores` Postgres function**
   SQL: scoring RPC as defined in architecture. Grant execute to `authenticated` role.
   **Done when:** `supabase.rpc('get_pool_scores', { p_pool_id: 1 })` returns expected shape.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 in progress.
-**Next task:** 1.4 — Create `pools` and `pool_members` tables.
+**Current:** Phase 1 complete. Starting Phase 2.
+**Next task:** 2.1 — Add service-role client (`lib/supabase/admin.ts`).
