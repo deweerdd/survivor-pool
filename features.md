@@ -34,7 +34,7 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 2: Service Client + DB Helpers
 
-- [ ] **2.1 — Add service-role client (`lib/supabase/admin.ts`)**
+- [x] **2.1 — Add service-role client (`lib/supabase/admin.ts`)**
   Create the admin client file. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.example`. Document server-only restriction in the file.
   **Done when:** file exists and is importable in server-only code.
 
