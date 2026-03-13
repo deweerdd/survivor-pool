@@ -38,12 +38,12 @@ Work through these one at a time. Each feature is scoped for a single session.
   Create the admin client file. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.example`. Document server-only restriction in the file.
   **Done when:** file exists and is importable in server-only code.
 
-- [ ] **2.2 — Add DB helper modules**
-  Create `lib/db/` with `seasons.ts`, `contestants.ts`, `episodes.ts`, `pools.ts`, `allocations.ts`. Each exports typed query functions used by Server Components and Server Actions.
-  **Done when:** helpers are importable with correct return types.
+- [dropped] **2.2 — Add DB helper modules**
+  ~~Create `lib/db/` with typed query functions.~~
+  **Dropped:** Absorbed into later features — helpers built inline as needed.
 
-- [ ] **2.3 — Type generation from Supabase**
-  Run `supabase gen types typescript` and save output to `lib/supabase/database.types.ts`. Wire into client and server clients.
+- [x] **2.3 — Type generation from Supabase**
+  Run `supabase gen types typescript` and save output to `lib/supabase/database.types.ts`. Wire `Database` generic into all three Supabase clients. Hardened `admin.ts` with `import 'server-only'`.
   **Done when:** `Database` type is available project-wide and `supabase.from('profiles')` is typed.
 
 ---
