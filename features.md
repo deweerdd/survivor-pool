@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 complete. Starting Phase 2.
-**Next task:** 2.1 — Add service-role client (`lib/supabase/admin.ts`).
+**Current:** Phase 2 complete. Security hardening complete (C1, H1, M2 fixed). Starting Phase 3.
+**Next task:** 3.1 — Admin layout + auth gate (`app/admin/layout.tsx`).
