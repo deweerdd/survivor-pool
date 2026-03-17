@@ -66,7 +66,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   Server Component shows episode list. Server Action: create episode with number and air date.
   **Done when:** admin can add episodes to a season.
 
-- [ ] **3.5 — Admin: lock episode**
+- [x] **3.5 — Admin: lock episode**
   Server Action: set `episodes.is_locked = true`. Button on episode list row.
   **Done when:** admin can lock an episode; locked episodes block further allocations.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1, 3.2, 3.3, and 3.4 complete.
-**Next task:** 3.5 — Admin: record eliminations.
+**Current:** Phase 3 in progress. 3.1, 3.2, 3.3, 3.4, and 3.5 complete.
+**Next task:** 3.6 — Admin: record eliminations.

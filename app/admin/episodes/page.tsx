@@ -5,6 +5,15 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Episode = Database["public"]["Tables"]["episodes"]["Row"];
 
+async function lockEpisode(formData: FormData) {
+  "use server";
+  const id = parseInt(formData.get("episode_id") as string, 10);
+  if (!id) return;
+  const adminClient = createAdminClient();
+  await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
+  revalidatePath("/admin/episodes");
+}
+
 async function createEpisode(formData: FormData) {
   "use server";
   const episode_number = parseInt(formData.get("episode_number") as string, 10);
@@ -114,7 +123,8 @@ export default async function EpisodesPage() {
                   <th className="pb-2 pr-6 font-medium">Title</th>
                   <th className="pb-2 pr-6 font-medium">Air Date</th>
                   <th className="pb-2 pr-6 font-medium">Locked</th>
-                  <th className="pb-2 font-medium">Created</th>
+                  <th className="pb-2 pr-6 font-medium">Created</th>
+                  <th className="pb-2 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -138,8 +148,21 @@ export default async function EpisodesPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-2 text-gray-500">
+                    <td className="py-2 pr-6 text-gray-500">
                       {new Date(episode.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-2">
+                      {!episode.is_locked && (
+                        <form action={lockEpisode}>
+                          <input type="hidden" name="episode_id" value={episode.id} />
+                          <button
+                            type="submit"
+                            className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
+                          >
+                            Lock
+                          </button>
+                        </form>
+                      )}
                     </td>
                   </tr>
                 ))}
