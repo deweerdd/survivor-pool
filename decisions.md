@@ -1,0 +1,83 @@
+# Survivor Pool — Decision Log
+
+Captures key decisions, the alternatives considered, and the reasoning. Newest first.
+
+---
+
+## 2026-03-17 — Scraper uses MediaWiki API, not direct page fetch
+
+**Decision:** Fetch wiki content via `{host}/api.php?action=parse&...` rather than scraping the rendered HTML page directly.
+
+**Alternatives considered:**
+- Direct `fetch(wikiUrl)` with browser-like User-Agent headers.
+
+**Reasoning:** Fandom pages are behind Cloudflare which returns 403 for bare Node.js fetches regardless of headers. The MediaWiki API endpoint is not behind the same protection and returns clean JSON with pre-rendered HTML. We dynamically look up the "Castaways" section index first, then fetch only that section — avoids downloading the whole page and is more robust to page layout changes elsewhere.
+
+---
+
+## 2026-03-17 — Scraper upsert key: `wiki_slug` over `(season_id, name)`
+
+**Decision:** Add a `wiki_slug` column to `contestants` and use it as the upsert key when importing from the Fandom wiki.
+
+**Alternatives considered:**
+- Upsert on `(season_id, name)` — simpler, no migration needed.
+
+**Reasoning:** Contestant names on the wiki can be inconsistent between scrape runs (first name only vs full name, nicknames). The wiki page href slug (e.g. `Jenna_Lewis`) is stable, unique per person, and doubles as a backlink to their wiki page for future features (images, bio). A partial unique index (`WHERE wiki_slug IS NOT NULL`) keeps existing manually-entered rows unaffected.
+
+---
+
+## 2026-03-17 — Two-mode scraper design
+
+**Decision:** The scraper is a single idempotent function that can be re-run at any point during the season. Rather than separate "initial" and "update" modes, all imports are upserts — safe to call after the premiere to seed data, and again each week to pick up eliminations and tribe changes.
+
+**Alternatives considered:**
+- Separate initial-import and weekly-update endpoints.
+
+**Reasoning:** Keeping one code path reduces surface area. Idempotent upserts mean there's no "already initialised" state to manage. A weekly cron or manual admin trigger can call the same endpoint every time.
+
+---
+
+## 2026-03-17 — Scraper error strategy: throw on structure failure, warn on row failure
+
+**Decision:** `scrapeContestants` throws if the page cannot be fetched or no wikitable is found. Individual row parse failures are collected in a `warnings` array and returned alongside the results.
+
+**Alternatives considered:**
+- Return empty results silently on any failure.
+- Throw on any individual row error.
+
+**Reasoning:** A structural failure (wrong URL, page redesign) should be loud — silently writing nothing to the DB would be worse than an error. Row-level failures are expected occasionally (header rows, recap links) and should not abort the whole import; surfacing them as warnings lets the admin see what was skipped.
+
+---
+
+## 2026-03-17 — Scraper lives in `lib/scraper.ts`, no DB calls
+
+**Decision:** The scraper module is pure parsing logic. It returns structured data; the Route Handler (3.8) owns the DB upserts.
+
+**Reasoning:** Separating fetch+parse from DB writes makes the scraper independently testable. The Route Handler can also apply additional validation before writing, and the same scraper output could be used for a dry-run/preview mode in future.
+
+---
+
+## 2026-03-13 — Service-role client is server-only, never in Client Components
+
+**Decision:** `lib/supabase/admin.ts` imports `server-only` to hard-fail at build time if accidentally bundled for the browser.
+
+**Reasoning:** The service-role key bypasses all RLS. A build-time error is far better than a runtime leak. All admin writes go through Server Actions or Route Handlers only.
+
+---
+
+## 2026-03-11 — Scoring via Postgres RPC, not application-layer aggregation
+
+**Decision:** Scores are computed by a `get_pool_scores(p_pool_id)` Postgres function rather than fetching raw allocations and summing in TypeScript.
+
+**Alternatives considered:**
+- Fetch all allocations + eliminations and aggregate in the server component.
+
+**Reasoning:** The join across allocations, eliminations, and profiles is exactly the kind of work Postgres is fast at. Keeping it in the DB means the leaderboard is a single RPC call regardless of pool size, and the logic lives in one place.
+
+---
+
+## 2026-03-11 — No separate `users` table; extend `auth.users` via `profiles`
+
+**Decision:** User data lives in a `profiles` table that mirrors `auth.users.id`, auto-created via a trigger on signup.
+
+**Reasoning:** Standard Supabase pattern. Keeps auth concerns in GoTrue and application data in the public schema under normal RLS rules. Avoids duplicating auth state.

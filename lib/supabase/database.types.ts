@@ -82,6 +82,7 @@ export type Database = {
           name: string
           season_id: number
           tribe: string | null
+          wiki_slug: string | null
         }
         Insert: {
           created_at?: string
@@ -91,6 +92,7 @@ export type Database = {
           name: string
           season_id: number
           tribe?: string | null
+          wiki_slug?: string | null
         }
         Update: {
           created_at?: string
@@ -100,6 +102,7 @@ export type Database = {
           name?: string
           season_id?: number
           tribe?: string | null
+          wiki_slug?: string | null
         }
         Relationships: [
           {

@@ -74,8 +74,10 @@ Work through these one at a time. Each feature is scoped for a single session.
   Server Action: insert into `eliminations`, set `contestants.is_active = false`. UI: episode row expands to show contestant picker.
   **Done when:** admin can record which contestant was eliminated per episode.
 
-- [ ] **3.7 — Scraper: install cheerio + write scrape logic (`lib/scraper.ts`)**
+- [x] **3.7 — Scraper: install cheerio + write scrape logic (`lib/scraper.ts`)**
   `npm install cheerio`. Write function that fetches wiki URL and parses contestant names, tribes, episode list.
+  Added `wiki_slug` column to `contestants` (migration `20260317120000`) for idempotent upserts.
+  Scraper returns `{ contestants, warnings }` — throws on structural failure, collects per-row warnings.
   **Done when:** scraper returns structured data from a real wiki URL.
 
 - [ ] **3.8 — Scraper: Route Handler (`app/api/admin/scrape/route.ts`)**
@@ -178,5 +180,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1–3.6 complete.
-**Next task:** 3.7 — Scraper: install cheerio + write scrape logic.
+**Current:** Phase 3 in progress. 3.1–3.7 complete.
+**Next task:** 3.8 — Scraper Route Handler (`app/api/admin/scrape/route.ts`).
