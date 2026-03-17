@@ -50,11 +50,11 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 3: Admin Panel
 
-- [ ] **3.1 — Admin layout + auth gate (`app/admin/layout.tsx`)**
+- [x] **3.1 — Admin layout + auth gate (`app/admin/layout.tsx`)**
   Server Component: fetch profile, check `is_admin`, redirect to `/dashboard` if false. Render admin nav.
   **Done when:** non-admin users are redirected; admin users see admin nav.
 
-- [ ] **3.2 — Admin: create/list seasons (`app/admin/seasons/page.tsx`)**
+- [x] **3.2 — Admin: create/list seasons (`app/admin/seasons/page.tsx`)**
   Server Component shows season list. Server Action: create season (name, wiki_url). Only one active season at a time (deactivate others on activate).
   **Done when:** admin can create a season and mark it active.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 2 complete. Security hardening complete (C1, H1, M2 fixed). Starting Phase 3.
-**Next task:** 3.1 — Admin layout + auth gate (`app/admin/layout.tsx`).
+**Current:** Phase 3 in progress. 3.1 and 3.2 complete.
+**Next task:** 3.3 — Admin: create/list contestants (`app/admin/contestants/page.tsx`).
