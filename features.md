@@ -58,11 +58,11 @@ Work through these one at a time. Each feature is scoped for a single session.
   Server Component shows season list. Server Action: create season (name, wiki_url). Only one active season at a time (deactivate others on activate).
   **Done when:** admin can create a season and mark it active.
 
-- [ ] **3.3 — Admin: create/list contestants (`app/admin/contestants/page.tsx`)**
+- [x] **3.3 — Admin: create/list contestants (`app/admin/contestants/page.tsx`)**
   Server Component shows contestants for active season. Server Action: create contestant manually.
   **Done when:** admin can add a contestant to a season.
 
-- [ ] **3.4 — Admin: create/list episodes (`app/admin/episodes/page.tsx`)**
+- [x] **3.4 — Admin: create/list episodes (`app/admin/episodes/page.tsx`)**
   Server Component shows episode list. Server Action: create episode with number and air date.
   **Done when:** admin can add episodes to a season.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1 and 3.2 complete.
-**Next task:** 3.3 — Admin: create/list contestants (`app/admin/contestants/page.tsx`).
+**Current:** Phase 3 in progress. 3.1, 3.2, 3.3, and 3.4 complete.
+**Next task:** 3.5 — Admin: record eliminations.
