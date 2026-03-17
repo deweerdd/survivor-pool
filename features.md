@@ -70,7 +70,7 @@ Work through these one at a time. Each feature is scoped for a single session.
   Server Action: set `episodes.is_locked = true`. Button on episode list row.
   **Done when:** admin can lock an episode; locked episodes block further allocations.
 
-- [ ] **3.6 — Admin: record elimination**
+- [x] **3.6 — Admin: record elimination**
   Server Action: insert into `eliminations`, set `contestants.is_active = false`. UI: episode row expands to show contestant picker.
   **Done when:** admin can record which contestant was eliminated per episode.
 
@@ -178,5 +178,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1, 3.2, 3.3, 3.4, and 3.5 complete.
-**Next task:** 3.6 — Admin: record eliminations.
+**Current:** Phase 3 in progress. 3.1–3.6 complete.
+**Next task:** 3.7 — Scraper: install cheerio + write scrape logic.

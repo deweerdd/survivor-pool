@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Episode = Database["public"]["Tables"]["episodes"]["Row"];
+type Contestant = Pick<Database["public"]["Tables"]["contestants"]["Row"], "id" | "name">;
 
 async function lockEpisode(formData: FormData) {
   "use server";
@@ -42,6 +43,18 @@ async function createEpisode(formData: FormData) {
   revalidatePath("/admin/episodes");
 }
 
+async function recordElimination(formData: FormData) {
+  "use server";
+  const episode_id = parseInt(formData.get("episode_id") as string, 10);
+  const contestant_id = parseInt(formData.get("contestant_id") as string, 10);
+  if (!episode_id || !contestant_id) return;
+
+  const adminClient = createAdminClient();
+  await adminClient.from("eliminations").insert({ episode_id, contestant_id });
+  await adminClient.from("contestants").update({ is_active: false }).eq("id", contestant_id);
+  revalidatePath("/admin/episodes");
+}
+
 export default async function EpisodesPage() {
   const supabase = await createClient();
 
@@ -51,13 +64,41 @@ export default async function EpisodesPage() {
     .eq("is_active", true)
     .single();
 
-  const { data: episodes } = activeSeason
+  const [episodesResult, contestantsResult] = activeSeason
+    ? await Promise.all([
+        supabase
+          .from("episodes")
+          .select("*")
+          .eq("season_id", activeSeason.id)
+          .order("episode_number", { ascending: true }),
+        supabase
+          .from("contestants")
+          .select("id, name")
+          .eq("season_id", activeSeason.id)
+          .eq("is_active", true)
+          .order("name", { ascending: true }),
+      ])
+    : [{ data: null }, { data: null }];
+
+  const episodes = episodesResult.data;
+  const activeContestants: Contestant[] = (contestantsResult.data ?? []) as Contestant[];
+
+  const episodeIds = (episodes ?? []).map((e: Episode) => e.id);
+  const { data: eliminations } = episodeIds.length > 0
     ? await supabase
-        .from("episodes")
-        .select("*")
-        .eq("season_id", activeSeason.id)
-        .order("episode_number", { ascending: true })
-    : { data: null };
+        .from("eliminations")
+        .select("episode_id, contestant_id, contestants(name)")
+        .in("episode_id", episodeIds)
+    : { data: [] };
+
+  // Group eliminations by episode_id
+  const eliminationsByEpisode = new Map<number, { contestant_id: number; name: string }[]>();
+  for (const elim of eliminations ?? []) {
+    const name = (elim.contestants as { name: string } | null)?.name ?? "Unknown";
+    const list = eliminationsByEpisode.get(elim.episode_id) ?? [];
+    list.push({ contestant_id: elim.contestant_id, name });
+    eliminationsByEpisode.set(elim.episode_id, list);
+  }
 
   return (
     <div>
@@ -116,44 +157,30 @@ export default async function EpisodesPage() {
           {!episodes || episodes.length === 0 ? (
             <p className="text-gray-500 text-sm">No episodes yet.</p>
           ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="pb-2 pr-6 font-medium">#</th>
-                  <th className="pb-2 pr-6 font-medium">Title</th>
-                  <th className="pb-2 pr-6 font-medium">Air Date</th>
-                  <th className="pb-2 pr-6 font-medium">Locked</th>
-                  <th className="pb-2 pr-6 font-medium">Created</th>
-                  <th className="pb-2 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {episodes.map((episode: Episode) => (
-                  <tr key={episode.id} className="border-b">
-                    <td className="py-2 pr-6">{episode.episode_number}</td>
-                    <td className="py-2 pr-6">
-                      {episode.title ?? <span className="text-gray-400">—</span>}
-                    </td>
-                    <td className="py-2 pr-6">
-                      {episode.air_date ?? <span className="text-gray-400">—</span>}
-                    </td>
-                    <td className="py-2 pr-6">
+            <div className="space-y-3">
+              {episodes.map((episode: Episode) => {
+                const episodeEliminations = eliminationsByEpisode.get(episode.id) ?? [];
+                const eliminatedIds = new Set(episodeEliminations.map((e) => e.contestant_id));
+                const availableContestants = activeContestants.filter(
+                  (c) => !eliminatedIds.has(c.id)
+                );
+
+                return (
+                  <div key={episode.id} className="border rounded p-4">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="font-medium text-sm w-8">#{episode.episode_number}</span>
+                      <span className="text-sm flex-1 min-w-0">
+                        {episode.title ?? <span className="text-gray-400">Untitled</span>}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {episode.air_date ?? <span className="text-gray-400">No date</span>}
+                      </span>
                       {episode.is_locked ? (
                         <span className="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
                           Locked
                         </span>
                       ) : (
-                        <span className="inline-block bg-gray-100 text-gray-500 text-xs font-medium px-2 py-0.5 rounded">
-                          Open
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2 pr-6 text-gray-500">
-                      {new Date(episode.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="py-2">
-                      {!episode.is_locked && (
-                        <form action={lockEpisode}>
+                        <form action={lockEpisode} className="inline">
                           <input type="hidden" name="episode_id" value={episode.id} />
                           <button
                             type="submit"
@@ -163,11 +190,55 @@ export default async function EpisodesPage() {
                           </button>
                         </form>
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+
+                    {/* Eliminations section */}
+                    <div className="mt-3 pl-12">
+                      {episodeEliminations.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {episodeEliminations.map((elim) => (
+                            <span
+                              key={elim.contestant_id}
+                              className="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded"
+                            >
+                              ✕ {elim.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {availableContestants.length > 0 ? (
+                        <form action={recordElimination} className="flex gap-2 items-center">
+                          <input type="hidden" name="episode_id" value={episode.id} />
+                          <select
+                            name="contestant_id"
+                            required
+                            className="border rounded px-2 py-1 text-sm"
+                          >
+                            <option value="">— pick contestant —</option>
+                            {availableContestants.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="submit"
+                            className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Record Elimination
+                          </button>
+                        </form>
+                      ) : (
+                        episodeEliminations.length === 0 && (
+                          <p className="text-gray-400 text-xs">No active contestants to eliminate.</p>
+                        )
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </>
       )}
