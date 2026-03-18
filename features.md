@@ -80,13 +80,19 @@ Work through these one at a time. Each feature is scoped for a single session.
   Scraper returns `{ contestants, warnings }` — throws on structural failure, collects per-row warnings.
   **Done when:** scraper returns structured data from a real wiki URL.
 
-- [ ] **3.8 — Scraper: Route Handler (`app/api/admin/scrape/route.ts`)**
+- [x] **3.8 — Scraper: Route Handler (`app/api/admin/scrape/route.ts`)**
   POST handler: verify admin, call scraper, upsert contestants + episodes into DB.
   **Done when:** POST to `/api/admin/scrape` populates DB from wiki.
 
-- [ ] **3.9 — Admin: scrape button on season page**
+- [x] **3.9 — Admin: scrape button on season page**
   Button on season detail that POSTs to `/api/admin/scrape`. Shows loading + result toast.
   **Done when:** clicking scrape populates contestants and episodes for that season.
+
+- [ ] **3.10 — Scraper: parse and upsert episodes**
+  Extend `lib/scraper.ts` with a `scrapeEpisodes(wikiUrl)` function that parses
+  the episode list from the wiki (episode numbers, titles, air dates). Update
+  `/api/admin/scrape` route handler to also upsert episodes for the season.
+  **Done when:** scraping a season also populates the episodes table.
 
 ---
 
@@ -180,5 +186,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1–3.7 complete.
-**Next task:** 3.8 — Scraper Route Handler (`app/api/admin/scrape/route.ts`).
+**Current:** Phase 3 in progress. 3.1–3.9 complete.
+**Next task:** 3.10 — Scraper: parse and upsert episodes.

@@ -30,6 +30,7 @@ export async function scrapeContestants(wikiUrl: string): Promise<ScrapeResult> 
   return parseContestants(html);
 }
 
+
 // ---------------------------------------------------------------------------
 // Fetch
 // ---------------------------------------------------------------------------

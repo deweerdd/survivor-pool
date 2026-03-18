@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
+import { ScrapeButton } from "./ScrapeButton";
 
 type Season = Database["public"]["Tables"]["seasons"]["Row"];
 
@@ -112,7 +113,7 @@ export default async function SeasonsPage() {
                     <span className="text-gray-400 text-xs">Inactive</span>
                   )}
                 </td>
-                <td className="py-2">
+                <td className="py-2 flex gap-4 items-start">
                   {!season.is_active && (
                     <form action={activateSeason}>
                       <input type="hidden" name="seasonId" value={season.id} />
@@ -123,6 +124,9 @@ export default async function SeasonsPage() {
                         Activate
                       </button>
                     </form>
+                  )}
+                  {season.wiki_url && (
+                    <ScrapeButton seasonId={season.id} />
                   )}
                 </td>
               </tr>
