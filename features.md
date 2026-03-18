@@ -132,7 +132,7 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 5: Allocation Flow
 
-- [ ] **5.1 — Pool leaderboard page (`app/dashboard/pools/[poolId]/page.tsx`)**
+- [x] **5.1 — Pool leaderboard page (`app/dashboard/pools/[poolId]/page.tsx`)**
       Server Component: call `get_pool_scores` RPC, render ranked list with scores. Show current episode info.
       **Done when:** leaderboard renders with correct scores after an elimination is recorded.
 
@@ -196,5 +196,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 4 complete.
-**Next task:** 5.1 — Pool leaderboard page.
+**Current:** Phase 4 complete + 5.1 complete.
+**Next task:** 5.2 — Allocation form component.

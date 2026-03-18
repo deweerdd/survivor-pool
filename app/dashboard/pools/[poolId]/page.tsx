@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
 import { redirect } from "next/navigation";
 
@@ -24,8 +23,7 @@ export default async function PoolLeaderboardPage({
       .eq("pool_id", numericPoolId)
       .eq("user_id", user.id)
       .maybeSingle(),
-    // Admin client bypasses pool_members_read_own RLS so all members are visible
-    createAdminClient()
+    supabase
       .from("pool_members")
       .select("user_id, profiles(display_name)")
       .eq("pool_id", numericPoolId),
