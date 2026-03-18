@@ -118,8 +118,9 @@ Work through these one at a time. Each feature is scoped for a single session.
       Insert into `pool_members`. Handle already-joined gracefully. Auto-join public pool on first dashboard visit.
       **Done when:** user can join a pool and is not double-added.
 
-- [ ] **4.4 — Create private pool (Server Action + form)**
+- [x] **4.4 — Create private pool (Server Action + form)**
       Server Action: insert pool with `is_public = false` + random invite code. Form on pools page.
+      Creator is auto-joined via `joinPool` after creation so pool appears in "My Private Pools".
       **Done when:** user can create a private pool and receives an invite code.
 
 - [ ] **4.5 — Join private pool by invite code**
@@ -194,5 +195,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 complete + 4.1, 4.2, 4.3 done.
-**Next task:** 4.4 — Create private pool (Server Action + form).
+**Current:** Phase 3 complete + 4.1, 4.2, 4.3, 4.4 done.
+**Next task:** 4.5 — Join private pool by invite code.

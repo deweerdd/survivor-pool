@@ -1,5 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { isMember, joinPool, partitionPools, type PoolWithMembers } from "@/lib/pools";
+import {
+  isMember,
+  joinPool,
+  createPrivatePool,
+  partitionPools,
+  type PoolWithMembers,
+} from "@/lib/pools";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -11,6 +17,29 @@ async function joinPoolAction(poolId: number) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   await joinPool(supabase, poolId, user.id);
+  revalidatePath("/dashboard/pools");
+}
+
+async function createPrivatePoolAction(formData: FormData) {
+  "use server";
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const name = formData.get("name") as string;
+  const { data: season } = await supabase
+    .from("seasons")
+    .select("id")
+    .eq("is_active", true)
+    .single();
+  if (!season) return;
+
+  const result = await createPrivatePool(supabase, name, season.id, user.id);
+  if (result.status === "created") {
+    await joinPool(supabase, result.pool.id, user.id);
+  }
   revalidatePath("/dashboard/pools");
 }
 
@@ -59,7 +88,12 @@ export default async function PoolsPage() {
           <ul className="space-y-3">
             {publicPools.map((pool) => (
               <li key={pool.id} className="flex items-center justify-between rounded-lg border p-4">
-                <span className="font-medium">{pool.name}</span>
+                <div>
+                  <span className="font-medium">{pool.name}</span>
+                  <span className="ml-3 text-xs text-gray-500">
+                    {pool.pool_members.length} members
+                  </span>
+                </div>
                 {!isMember(pool, user.id) && (
                   <form action={joinPoolAction.bind(null, pool.id)}>
                     <button
@@ -80,18 +114,45 @@ export default async function PoolsPage() {
       </section>
 
       {myPrivatePools.length > 0 && (
-        <section>
+        <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">My Private Pools</h2>
           <ul className="space-y-3">
             {myPrivatePools.map((pool) => (
               <li key={pool.id} className="flex items-center justify-between rounded-lg border p-4">
-                <span className="font-medium">{pool.name}</span>
+                <div>
+                  <span className="font-medium">{pool.name}</span>
+                  <span className="ml-3 text-xs text-gray-500">
+                    {pool.pool_members.length} members
+                  </span>
+                  {pool.invite_code && (
+                    <span className="ml-3 text-xs text-gray-400">Code: {pool.invite_code}</span>
+                  )}
+                </div>
                 <span className="text-sm text-green-600 font-medium">Joined</span>
               </li>
             ))}
           </ul>
         </section>
       )}
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Create a Private Pool</h2>
+        <form action={createPrivatePoolAction} className="flex gap-3">
+          <input
+            type="text"
+            name="name"
+            required
+            placeholder="Pool name"
+            className="flex-1 rounded-lg border px-4 py-2 text-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+          >
+            Create Pool
+          </button>
+        </form>
+      </section>
     </main>
   );
 }
