@@ -331,12 +331,11 @@ function parseEpisodeHeaderNumber(text: string): number | null {
   return null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildColumnEpisodeMap($: ReturnType<typeof cheerio.load>, table: any): Map<number, number> {
   const map = new Map<number, number>();
   let episodeRowFound = false;
 
-  table.find("tr").each((_, rowEl) => {
+  table.find("tr").each((_: number, rowEl: import("domhandler").AnyNode) => {
     // Once we've found the episode header row, stop — later header rows would clear our map.
     if (episodeRowFound) return;
 

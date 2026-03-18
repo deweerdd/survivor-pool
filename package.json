@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "type-check": "tsc --noEmit",
     "supabase:push": "supabase db push --linked",
     "supabase:types": "supabase gen types typescript --project-id rnthsiomodacyoeyjssw > lib/supabase/database.types.ts"
@@ -24,6 +25,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.7",
     "supabase": "^2.78.1",
     "tailwindcss": "^4",
     "typescript": "^5"

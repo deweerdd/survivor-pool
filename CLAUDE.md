@@ -8,9 +8,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # Start development server
 npm run build        # Production build
 npm run type-check   # TypeScript check (tsc --noEmit)
+npm run lint         # ESLint (next/core-web-vitals)
 ```
 
 No test runner is configured yet.
+
+## Definition of Done
+
+Before marking any feature or phase as complete, both must pass with zero errors:
+
+```bash
+npm run type-check
+npx eslint app lib --ext .ts,.tsx
+```
+
+Do not mark a task done if either command reports errors.
 
 ## Environment
 
