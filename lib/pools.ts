@@ -1,3 +1,24 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export type JoinPoolResult =
+  | { status: "joined" }
+  | { status: "already_member" }
+  | { status: "error"; message: string };
+
+export async function joinPool(
+  supabase: SupabaseClient,
+  poolId: number,
+  userId: string
+): Promise<JoinPoolResult> {
+  const { error } = await supabase
+    .from("pool_members")
+    .insert({ pool_id: poolId, user_id: userId });
+
+  if (!error) return { status: "joined" };
+  if (error.code === "23505") return { status: "already_member" };
+  return { status: "error", message: error.message };
+}
+
 export type PoolWithMembers = {
   id: number;
   name: string;

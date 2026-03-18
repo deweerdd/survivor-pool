@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { isMember, partitionPools, type PoolWithMembers } from "@/lib/pools";
+import { describe, it, expect, vi } from "vitest";
+import { isMember, partitionPools, joinPool, type PoolWithMembers } from "@/lib/pools";
 
 const makePool = (overrides: Partial<PoolWithMembers> & { id: number }): PoolWithMembers => ({
   id: overrides.id,
@@ -74,5 +74,29 @@ describe("partitionPools", () => {
     const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
     expect(publicPools).toHaveLength(1);
     expect(myPrivatePools).toHaveLength(0);
+  });
+});
+
+describe("joinPool", () => {
+  it('inserts pool_member and returns { status: "joined" }', async () => {
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    const supabase = { from: () => ({ insert }) } as any;
+    const result = await joinPool(supabase, 1, "user-abc");
+    expect(result).toEqual({ status: "joined" });
+    expect(insert).toHaveBeenCalledWith({ pool_id: 1, user_id: "user-abc" });
+  });
+
+  it('returns { status: "already_member" } on unique constraint violation (23505)', async () => {
+    const insert = vi.fn().mockResolvedValue({ error: { code: "23505" } });
+    const supabase = { from: () => ({ insert }) } as any;
+    const result = await joinPool(supabase, 1, "user-abc");
+    expect(result).toEqual({ status: "already_member" });
+  });
+
+  it('returns { status: "error" } on unexpected DB error', async () => {
+    const insert = vi.fn().mockResolvedValue({ error: { code: "XXXXX", message: "oops" } });
+    const supabase = { from: () => ({ insert }) } as any;
+    const result = await joinPool(supabase, 1, "user-abc");
+    expect(result).toEqual({ status: "error", message: "oops" });
   });
 });

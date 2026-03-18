@@ -1,6 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
-import { isMember, partitionPools, type PoolWithMembers } from "@/lib/pools";
+import { isMember, joinPool, partitionPools, type PoolWithMembers } from "@/lib/pools";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+
+async function joinPoolAction(poolId: number) {
+  "use server";
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  await joinPool(supabase, poolId, user.id);
+  revalidatePath("/dashboard/pools");
+}
 
 export default async function PoolsPage() {
   const supabase = await createClient();
@@ -49,7 +61,7 @@ export default async function PoolsPage() {
               <li key={pool.id} className="flex items-center justify-between rounded-lg border p-4">
                 <span className="font-medium">{pool.name}</span>
                 {!isMember(pool, user.id) && (
-                  <form action={`/api/pools/${pool.id}/join`} method="POST">
+                  <form action={joinPoolAction.bind(null, pool.id)}>
                     <button
                       type="submit"
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"

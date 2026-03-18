@@ -114,7 +114,7 @@ Work through these one at a time. Each feature is scoped for a single session.
       Server Component: list pools for active season. Show public pool + user's private pools. Join button.
       **Done when:** user can see available pools.
 
-- [ ] **4.3 — Join pool (Server Action)**
+- [x] **4.3 — Join pool (Server Action)**
       Insert into `pool_members`. Handle already-joined gracefully. Auto-join public pool on first dashboard visit.
       **Done when:** user can join a pool and is not double-added.
 
@@ -194,5 +194,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 complete + 4.1, 4.2 done.
-**Next task:** 4.3 — Join pool (Server Action).
+**Current:** Phase 3 complete + 4.1, 4.2, 4.3 done.
+**Next task:** 4.4 — Create private pool (Server Action + form).
