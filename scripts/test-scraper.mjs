@@ -4,8 +4,7 @@
  */
 import * as cheerio from "cheerio";
 
-const WIKI_URL =
-  "https://survivor.fandom.com/wiki/Survivor_50:_In_the_Hands_of_the_Fans";
+const WIKI_URL = "https://survivor.fandom.com/wiki/Survivor_50:_In_the_Hands_of_the_Fans";
 
 // ---------------------------------------------------------------------------
 // MediaWiki API helpers (same logic as lib/scraper.ts)

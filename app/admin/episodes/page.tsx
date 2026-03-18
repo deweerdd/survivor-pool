@@ -84,12 +84,13 @@ export default async function EpisodesPage() {
   const activeContestants: Contestant[] = (contestantsResult.data ?? []) as Contestant[];
 
   const episodeIds = (episodes ?? []).map((e: Episode) => e.id);
-  const { data: eliminations } = episodeIds.length > 0
-    ? await supabase
-        .from("eliminations")
-        .select("episode_id, contestant_id, contestants(name)")
-        .in("episode_id", episodeIds)
-    : { data: [] };
+  const { data: eliminations } =
+    episodeIds.length > 0
+      ? await supabase
+          .from("eliminations")
+          .select("episode_id, contestant_id, contestants(name)")
+          .in("episode_id", episodeIds)
+      : { data: [] };
 
   // Group eliminations by episode_id
   const eliminationsByEpisode = new Map<number, { contestant_id: number; name: string }[]>();
@@ -231,7 +232,9 @@ export default async function EpisodesPage() {
                         </form>
                       ) : (
                         episodeEliminations.length === 0 && (
-                          <p className="text-gray-400 text-xs">No active contestants to eliminate.</p>
+                          <p className="text-gray-400 text-xs">
+                            No active contestants to eliminate.
+                          </p>
                         )
                       )}
                     </div>

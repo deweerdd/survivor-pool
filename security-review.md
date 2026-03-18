@@ -1,4 +1,5 @@
 # Security & DevOps Review — Survivor Pool
+
 **Date:** 2026-03-13
 **Scope:** Phase 1–2 (DB schema, migrations, Supabase clients, auth flow, middleware)
 **Status:** Pre-feature (no admin panel, no allocation form, no API routes yet)
@@ -20,6 +21,7 @@ Overall the foundation is solid. Auth plumbing is correct (`getUser()` everywher
 **File:** `supabase/migrations/20260311175951_create_profiles_table.sql`
 
 The profiles update policy is:
+
 ```sql
 create policy "users can update own profile"
   on public.profiles
@@ -29,6 +31,7 @@ create policy "users can update own profile"
 ```
 
 This permits any authenticated user to run:
+
 ```sql
 UPDATE profiles SET is_admin = true WHERE id = auth.uid();
 ```
@@ -36,6 +39,7 @@ UPDATE profiles SET is_admin = true WHERE id = auth.uid();
 Both `using` and `with check` pass because `auth.uid() = id` is satisfied. There is no column-level restriction. Once `is_admin = true`, that user passes every admin RLS policy on seasons, contestants, episodes, and eliminations — and once the admin UI is built (Phase 3), they'd have full admin access.
 
 **Fix options (pick one):**
+
 1. Revoke `UPDATE` on the `is_admin` column from the `authenticated` role:
    ```sql
    REVOKE UPDATE (is_admin) ON public.profiles FROM authenticated;
@@ -62,6 +66,7 @@ create policy "pools_public_read"
 `using (true)` means anyone — including unauthenticated requests via the anon key — can `SELECT * FROM pools` and enumerate all pools including their `invite_code` values. The invite code is meant to be a semi-secret token for joining private pools. If all codes are publicly readable, they're not actually secret.
 
 **Fix:** At minimum, require authentication to read pools:
+
 ```sql
 using (auth.uid() IS NOT NULL)
 ```
@@ -151,6 +156,7 @@ If the `code` param is absent (e.g., user navigates to `/auth/callback` directly
 **Files:** Multiple migration files
 
 Every admin write policy does:
+
 ```sql
 EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = true)
 ```
@@ -169,18 +175,18 @@ There is no `UPDATE` policy on `allocations`. This is intentional since the app 
 
 ## What's Good
 
-| Area | Status |
-|---|---|
-| `getUser()` used instead of `getSession()` everywhere | ✅ Correct — `getSession()` trusts unvalidated JWT claims |
-| `server-only` on admin client | ✅ Prevents service-role key from leaking to browser bundle |
-| RLS enabled on all 7 tables | ✅ No table left unprotected |
-| `.env.local` in `.gitignore` | ✅ Credentials not committed |
-| `SUPABASE_SERVICE_ROLE_KEY` not prefixed `NEXT_PUBLIC_` | ✅ Will not be embedded in client bundle |
-| `is_locked` check in allocations INSERT policy enforced at DB level | ✅ Server action validation alone isn't sufficient — good to have this in DB too |
-| `on delete cascade` on FK relationships | ✅ No orphaned rows possible |
-| Trigger uses `security definer` with explicit `search_path = public` | ✅ Prevents search path injection in trigger |
-| `check (points > 0)` constraint on allocations | ✅ Business rule enforced at DB level |
-| Migration files use full 14-digit timestamps | ✅ No version collision risk |
+| Area                                                                 | Status                                                                           |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `getUser()` used instead of `getSession()` everywhere                | ✅ Correct — `getSession()` trusts unvalidated JWT claims                        |
+| `server-only` on admin client                                        | ✅ Prevents service-role key from leaking to browser bundle                      |
+| RLS enabled on all 7 tables                                          | ✅ No table left unprotected                                                     |
+| `.env.local` in `.gitignore`                                         | ✅ Credentials not committed                                                     |
+| `SUPABASE_SERVICE_ROLE_KEY` not prefixed `NEXT_PUBLIC_`              | ✅ Will not be embedded in client bundle                                         |
+| `is_locked` check in allocations INSERT policy enforced at DB level  | ✅ Server action validation alone isn't sufficient — good to have this in DB too |
+| `on delete cascade` on FK relationships                              | ✅ No orphaned rows possible                                                     |
+| Trigger uses `security definer` with explicit `search_path = public` | ✅ Prevents search path injection in trigger                                     |
+| `check (points > 0)` constraint on allocations                       | ✅ Business rule enforced at DB level                                            |
+| Migration files use full 14-digit timestamps                         | ✅ No version collision risk                                                     |
 
 ---
 

@@ -55,28 +55,32 @@ export function ScrapeButton({ seasonId }: { seasonId: number }) {
       {status.type === "success" && (
         <span className="text-xs text-green-700 flex flex-col gap-0.5">
           <span>
-            Contestants: {status.result.contestantsInserted} inserted, {status.result.contestantsUpdated} updated.
+            Contestants: {status.result.contestantsInserted} inserted,{" "}
+            {status.result.contestantsUpdated} updated.
           </span>
           {status.result.warnings.map((w, i) => (
-            <span key={i} className="text-yellow-600">⚠ {w}</span>
+            <span key={i} className="text-yellow-600">
+              ⚠ {w}
+            </span>
           ))}
           <span>
-            Episodes: {status.result.episodesInserted} inserted, {status.result.episodesUpdated} updated.
+            Episodes: {status.result.episodesInserted} inserted, {status.result.episodesUpdated}{" "}
+            updated.
           </span>
           {status.result.episodeWarnings.map((w, i) => (
-            <span key={i} className="text-yellow-600">⚠ {w}</span>
+            <span key={i} className="text-yellow-600">
+              ⚠ {w}
+            </span>
           ))}
-          <span>
-            Eliminations: {status.result.eliminationsUpserted} upserted.
-          </span>
+          <span>Eliminations: {status.result.eliminationsUpserted} upserted.</span>
           {status.result.eliminationWarnings.map((w, i) => (
-            <span key={i} className="text-yellow-600">⚠ {w}</span>
+            <span key={i} className="text-yellow-600">
+              ⚠ {w}
+            </span>
           ))}
         </span>
       )}
-      {status.type === "error" && (
-        <span className="text-xs text-red-600">{status.message}</span>
-      )}
+      {status.type === "error" && <span className="text-xs text-red-600">{status.message}</span>}
     </div>
   );
 }

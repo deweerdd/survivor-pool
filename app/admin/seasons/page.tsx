@@ -142,17 +142,12 @@ export default async function SeasonsPage() {
                   {!season.is_active && (
                     <form action={activateSeason}>
                       <input type="hidden" name="seasonId" value={season.id} />
-                      <button
-                        type="submit"
-                        className="text-sm text-blue-600 hover:underline"
-                      >
+                      <button type="submit" className="text-sm text-blue-600 hover:underline">
                         Activate
                       </button>
                     </form>
                   )}
-                  {season.wiki_url && (
-                    <ScrapeButton seasonId={season.id} />
-                  )}
+                  {season.wiki_url && <ScrapeButton seasonId={season.id} />}
                 </td>
               </tr>
             ))}

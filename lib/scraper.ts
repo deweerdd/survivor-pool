@@ -66,7 +66,6 @@ export async function scrapeContestants(wikiUrl: string): Promise<ScrapeResult> 
   return parseContestants(html);
 }
 
-
 /**
  * Fetches the Survivor fandom wiki page at `wikiUrl` via the MediaWiki API
  * and returns episodes with their numbers, titles, and air dates.
@@ -110,9 +109,7 @@ async function fetchVotingHistoryHtml(wikiUrl: string): Promise<string> {
 
   if (!found) {
     const available = sections.map((s) => `"${s.line}"`).join(", ") || "none";
-    throw new Error(
-      `No Voting History section found on ${wikiUrl}. Sections: ${available}`
-    );
+    throw new Error(`No Voting History section found on ${wikiUrl}. Sections: ${available}`);
   }
 
   const htmlRes = await fetchWithRetry(
@@ -120,9 +117,7 @@ async function fetchVotingHistoryHtml(wikiUrl: string): Promise<string> {
   );
   if (!htmlRes.ok) throw new Error(`MediaWiki section HTML returned ${htmlRes.status}`);
 
-  const html: string | undefined = htmlRes
-    ? (await htmlRes.json()).parse?.text?.["*"]
-    : undefined;
+  const html: string | undefined = htmlRes ? (await htmlRes.json()).parse?.text?.["*"] : undefined;
   if (!html) throw new Error("MediaWiki API returned no HTML for Voting History section");
   return html;
 }
@@ -331,7 +326,10 @@ function parseEpisodeHeaderNumber(text: string): number | null {
   return null;
 }
 
-function buildColumnEpisodeMap($: ReturnType<typeof cheerio.load>, table: any): Map<number, number> {
+function buildColumnEpisodeMap(
+  $: ReturnType<typeof cheerio.load>,
+  table: any
+): Map<number, number> {
   const map = new Map<number, number>();
   let episodeRowFound = false;
 
@@ -384,9 +382,7 @@ function parseEliminations(html: string): EliminationScrapeResult {
 
   const table = $("table.wikitable").first();
   if (!table.length) {
-    throw new Error(
-      "No wikitable in Voting History section — page structure may have changed"
-    );
+    throw new Error("No wikitable in Voting History section — page structure may have changed");
   }
 
   const colEpisodeMap = buildColumnEpisodeMap($, table);
@@ -429,9 +425,7 @@ function parseEliminations(html: string): EliminationScrapeResult {
   });
 
   if (eliminations.length === 0) {
-    warnings.push(
-      "No eliminations found — voting history table may use an unsupported format"
-    );
+    warnings.push("No eliminations found — voting history table may use an unsupported format");
   }
 
   return { eliminations, warnings };

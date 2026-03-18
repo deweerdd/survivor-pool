@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { scrapeContestants, scrapeEpisodes, scrapeEliminations, EliminationScrapeResult } from "@/lib/scraper";
+import {
+  scrapeContestants,
+  scrapeEpisodes,
+  scrapeEliminations,
+  EliminationScrapeResult,
+} from "@/lib/scraper";
 
 export async function POST(req: NextRequest) {
   // 1. Auth check
@@ -57,10 +62,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!season.wiki_url) {
-    return NextResponse.json(
-      { error: "Season has no wiki_url" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Season has no wiki_url" }, { status: 400 });
   }
 
   // 4. Call scraper
@@ -85,20 +87,13 @@ export async function POST(req: NextRequest) {
     .eq("season_id", seasonId);
 
   if (fetchError) {
-    return NextResponse.json(
-      { error: `DB fetch failed: ${fetchError.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: `DB fetch failed: ${fetchError.message}` }, { status: 500 });
   }
 
   const existingSlugs = new Set((existing ?? []).map((r) => r.wiki_slug));
 
-  const toInsert = scraped.filter(
-    (c) => !existingSlugs.has(c.wiki_slug)
-  );
-  const toUpdate = scraped.filter(
-    (c) => c.wiki_slug !== null && existingSlugs.has(c.wiki_slug)
-  );
+  const toInsert = scraped.filter((c) => !existingSlugs.has(c.wiki_slug));
+  const toUpdate = scraped.filter((c) => c.wiki_slug !== null && existingSlugs.has(c.wiki_slug));
 
   // Insert new rows
   if (toInsert.length > 0) {
@@ -227,9 +222,7 @@ export async function POST(req: NextRequest) {
     .select("id, wiki_slug")
     .eq("season_id", seasonId)
     .not("wiki_slug", "is", null);
-  const wikiSlugToContestantId = new Map(
-    (allContestants ?? []).map((c) => [c.wiki_slug!, c.id])
-  );
+  const wikiSlugToContestantId = new Map((allContestants ?? []).map((c) => [c.wiki_slug!, c.id]));
 
   // 13. Resolve + upsert eliminations
   const eliminationRows: { episode_id: number; contestant_id: number }[] = [];

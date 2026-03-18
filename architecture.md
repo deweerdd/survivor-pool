@@ -2,109 +2,111 @@
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Database + Auth | Supabase (Postgres + GoTrue) |
-| Styling | Tailwind CSS v4 |
-| Server client | `@supabase/ssr` |
-| Scraping | `cheerio` (server-side, admin-triggered) |
-| Hosting (planned) | Vercel |
+| Layer             | Technology                               |
+| ----------------- | ---------------------------------------- |
+| Framework         | Next.js 16 (App Router)                  |
+| Database + Auth   | Supabase (Postgres + GoTrue)             |
+| Styling           | Tailwind CSS v4                          |
+| Server client     | `@supabase/ssr`                          |
+| Scraping          | `cheerio` (server-side, admin-triggered) |
+| Hosting (planned) | Vercel                                   |
 
 ---
 
 ## Supabase Schema
 
 ### `profiles`
+
 Extends `auth.users`. Created automatically via trigger on user signup.
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `uuid` PK | references `auth.users.id` |
-| `email` | `text` | |
-| `display_name` | `text` | |
-| `is_admin` | `boolean` | default `false` |
-| `created_at` | `timestamptz` | |
+| Column         | Type          | Notes                      |
+| -------------- | ------------- | -------------------------- |
+| `id`           | `uuid` PK     | references `auth.users.id` |
+| `email`        | `text`        |                            |
+| `display_name` | `text`        |                            |
+| `is_admin`     | `boolean`     | default `false`            |
+| `created_at`   | `timestamptz` |                            |
 
 ### `seasons`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `name` | `text` | e.g. "Survivor 47" |
-| `wiki_url` | `text` | fandom wiki URL for scraping |
-| `is_active` | `boolean` | only one active season at a time |
-| `created_at` | `timestamptz` | |
+| Column       | Type          | Notes                            |
+| ------------ | ------------- | -------------------------------- |
+| `id`         | `serial` PK   |                                  |
+| `name`       | `text`        | e.g. "Survivor 47"               |
+| `wiki_url`   | `text`        | fandom wiki URL for scraping     |
+| `is_active`  | `boolean`     | only one active season at a time |
+| `created_at` | `timestamptz` |                                  |
 
 ### `contestants`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `season_id` | `int` FK → `seasons.id` | |
-| `name` | `text` | |
-| `tribe` | `text` | nullable |
-| `img_url` | `text` | nullable |
-| `is_active` | `boolean` | still in the game |
-| `created_at` | `timestamptz` | |
+| Column       | Type                    | Notes             |
+| ------------ | ----------------------- | ----------------- |
+| `id`         | `serial` PK             |                   |
+| `season_id`  | `int` FK → `seasons.id` |                   |
+| `name`       | `text`                  |                   |
+| `tribe`      | `text`                  | nullable          |
+| `img_url`    | `text`                  | nullable          |
+| `is_active`  | `boolean`               | still in the game |
+| `created_at` | `timestamptz`           |                   |
 
 ### `episodes`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `season_id` | `int` FK → `seasons.id` | |
-| `episode_number` | `int` | |
-| `title` | `text` | nullable |
-| `air_date` | `date` | nullable |
-| `is_locked` | `boolean` | true = allocations closed |
-| `created_at` | `timestamptz` | |
+| Column           | Type                    | Notes                     |
+| ---------------- | ----------------------- | ------------------------- |
+| `id`             | `serial` PK             |                           |
+| `season_id`      | `int` FK → `seasons.id` |                           |
+| `episode_number` | `int`                   |                           |
+| `title`          | `text`                  | nullable                  |
+| `air_date`       | `date`                  | nullable                  |
+| `is_locked`      | `boolean`               | true = allocations closed |
+| `created_at`     | `timestamptz`           |                           |
 
 ### `eliminations`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `episode_id` | `int` FK → `episodes.id` | |
-| `contestant_id` | `int` FK → `contestants.id` | |
-| `created_at` | `timestamptz` | |
+| Column          | Type                        | Notes |
+| --------------- | --------------------------- | ----- |
+| `id`            | `serial` PK                 |       |
+| `episode_id`    | `int` FK → `episodes.id`    |       |
+| `contestant_id` | `int` FK → `contestants.id` |       |
+| `created_at`    | `timestamptz`               |       |
 
 ### `pools`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `season_id` | `int` FK → `seasons.id` | |
-| `name` | `text` | |
-| `is_public` | `boolean` | true = global pool, no invite needed |
-| `invite_code` | `text` | unique, nullable for public pools |
-| `created_by` | `uuid` FK → `profiles.id` | nullable for system pools |
-| `created_at` | `timestamptz` | |
+| Column        | Type                      | Notes                                |
+| ------------- | ------------------------- | ------------------------------------ |
+| `id`          | `serial` PK               |                                      |
+| `season_id`   | `int` FK → `seasons.id`   |                                      |
+| `name`        | `text`                    |                                      |
+| `is_public`   | `boolean`                 | true = global pool, no invite needed |
+| `invite_code` | `text`                    | unique, nullable for public pools    |
+| `created_by`  | `uuid` FK → `profiles.id` | nullable for system pools            |
+| `created_at`  | `timestamptz`             |                                      |
 
 ### `pool_members`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `pool_id` | `int` FK → `pools.id` | |
-| `user_id` | `uuid` FK → `profiles.id` | |
-| `joined_at` | `timestamptz` | |
-| UNIQUE | `(pool_id, user_id)` | |
+| Column      | Type                      | Notes |
+| ----------- | ------------------------- | ----- |
+| `id`        | `serial` PK               |       |
+| `pool_id`   | `int` FK → `pools.id`     |       |
+| `user_id`   | `uuid` FK → `profiles.id` |       |
+| `joined_at` | `timestamptz`             |       |
+| UNIQUE      | `(pool_id, user_id)`      |       |
 
 ### `allocations`
+
 Core game mechanic — player distributes 20 points per episode.
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PK | |
-| `pool_id` | `int` FK → `pools.id` | |
-| `episode_id` | `int` FK → `episodes.id` | |
-| `user_id` | `uuid` FK → `profiles.id` | |
-| `contestant_id` | `int` FK → `contestants.id` | |
-| `points` | `int` | must be > 0 |
-| `created_at` | `timestamptz` | |
-| UNIQUE | `(pool_id, episode_id, user_id, contestant_id)` | |
-| CHECK | `points > 0` | |
+| Column          | Type                                            | Notes       |
+| --------------- | ----------------------------------------------- | ----------- |
+| `id`            | `serial` PK                                     |             |
+| `pool_id`       | `int` FK → `pools.id`                           |             |
+| `episode_id`    | `int` FK → `episodes.id`                        |             |
+| `user_id`       | `uuid` FK → `profiles.id`                       |             |
+| `contestant_id` | `int` FK → `contestants.id`                     |             |
+| `points`        | `int`                                           | must be > 0 |
+| `created_at`    | `timestamptz`                                   |             |
+| UNIQUE          | `(pool_id, episode_id, user_id, contestant_id)` |             |
+| CHECK           | `points > 0`                                    |             |
 
 **Invariant:** For a given `(pool_id, episode_id, user_id)`, the sum of `points` across all rows must equal exactly 20. Enforced at the application layer (server action validates before insert).
 
@@ -135,8 +137,9 @@ $$;
 ```
 
 Called from a Server Component:
+
 ```ts
-const { data } = await supabase.rpc('get_pool_scores', { p_pool_id: poolId })
+const { data } = await supabase.rpc("get_pool_scores", { p_pool_id: poolId });
 ```
 
 ---
@@ -150,13 +153,13 @@ const { data } = await supabase.rpc('get_pool_scores', { p_pool_id: poolId })
 
 ```ts
 // lib/supabase/admin.ts
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
 export function createAdminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  );
 }
 ```
 
@@ -235,12 +238,12 @@ survivor-pool/
 
 ## Component Patterns
 
-| Pattern | When to use |
-|---|---|
-| Server Component (default) | Data fetching, leaderboards, read-only pages |
-| Client Component (`'use client'`) | Forms, interactive UI, allocation input |
-| Server Action | Mutations (join pool, submit allocation, admin writes) |
-| Route Handler | Scraper endpoint, webhook-style operations |
+| Pattern                           | When to use                                            |
+| --------------------------------- | ------------------------------------------------------ |
+| Server Component (default)        | Data fetching, leaderboards, read-only pages           |
+| Client Component (`'use client'`) | Forms, interactive UI, allocation input                |
+| Server Action                     | Mutations (join pool, submit allocation, admin writes) |
+| Route Handler                     | Scraper endpoint, webhook-style operations             |
 
 **Rule:** never import service-role client or `SUPABASE_SERVICE_ROLE_KEY` in a Client Component or any file that could be bundled for the browser.
 
@@ -251,6 +254,7 @@ survivor-pool/
 Current `middleware.ts` protects `/dashboard/*` and redirects `/login` if authenticated.
 
 Extensions needed:
+
 - Protect `/admin/*` — check `profiles.is_admin`, redirect to `/dashboard` if false
 - Auto-join public pool on first dashboard visit
 
@@ -258,12 +262,12 @@ Extensions needed:
 
 ## Environment Variables
 
-| Variable | Used in | Notes |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | client + server | public |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | client + server | public |
-| `SUPABASE_SERVICE_ROLE_KEY` | server only | never expose |
-| `NEXT_PUBLIC_SITE_URL` | OAuth redirect | e.g. `http://localhost:3000` |
+| Variable                        | Used in         | Notes                        |
+| ------------------------------- | --------------- | ---------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | client + server | public                       |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | client + server | public                       |
+| `SUPABASE_SERVICE_ROLE_KEY`     | server only     | never expose                 |
+| `NEXT_PUBLIC_SITE_URL`          | OAuth redirect  | e.g. `http://localhost:3000` |
 
 ---
 
