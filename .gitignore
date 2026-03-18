@@ -43,3 +43,6 @@ next-env.d.ts
 
 # prettier cache
 .prettiercache
+
+# claude code local settings
+.claude/settings.local.json
