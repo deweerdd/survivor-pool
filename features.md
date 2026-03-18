@@ -106,11 +106,11 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 4: Pool Management
 
-- [ ] **4.1 — Create public pool on season activation**
+- [x] **4.1 — Create public pool on season activation**
       When admin activates a season (3.2), also insert one public pool for that season (`is_public = true`, no invite code).
       **Done when:** activating a season auto-creates a public pool.
 
-- [ ] **4.2 — Browse pools page (`app/dashboard/pools/page.tsx`)**
+- [x] **4.2 — Browse pools page (`app/dashboard/pools/page.tsx`)**
       Server Component: list pools for active season. Show public pool + user's private pools. Join button.
       **Done when:** user can see available pools.
 
@@ -194,5 +194,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 complete.
-**Next task:** 4.1 — Create public pool on season activation.
+**Current:** Phase 3 complete + 4.1, 4.2 done.
+**Next task:** 4.3 — Join pool (Server Action).
