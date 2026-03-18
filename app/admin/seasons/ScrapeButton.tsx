@@ -3,9 +3,12 @@
 import { useState } from "react";
 
 interface ScrapeResult {
-  inserted: number;
-  updated: number;
+  contestantsInserted: number;
+  contestantsUpdated: number;
+  episodesInserted: number;
+  episodesUpdated: number;
   warnings: string[];
+  episodeWarnings: string[];
 }
 
 export function ScrapeButton({ seasonId }: { seasonId: number }) {
@@ -48,11 +51,19 @@ export function ScrapeButton({ seasonId }: { seasonId: number }) {
         {status.type === "loading" ? "Scraping…" : "Scrape wiki"}
       </button>
       {status.type === "success" && (
-        <span className="text-xs text-green-700">
-          +{status.result.inserted} inserted, {status.result.updated} updated
-          {status.result.warnings.length > 0 && (
-            <span className="text-yellow-600"> ({status.result.warnings.length} warnings)</span>
-          )}
+        <span className="text-xs text-green-700 flex flex-col gap-0.5">
+          <span>
+            Contestants: {status.result.contestantsInserted} inserted, {status.result.contestantsUpdated} updated.
+            {status.result.warnings.length > 0 && (
+              <span className="text-yellow-600"> ({status.result.warnings.length} warnings)</span>
+            )}
+          </span>
+          <span>
+            Episodes: {status.result.episodesInserted} inserted, {status.result.episodesUpdated} updated.
+            {status.result.episodeWarnings.length > 0 && (
+              <span className="text-yellow-600"> ({status.result.episodeWarnings.length} warnings)</span>
+            )}
+          </span>
         </span>
       )}
       {status.type === "error" && (
