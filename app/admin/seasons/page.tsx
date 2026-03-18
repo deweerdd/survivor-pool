@@ -26,6 +26,31 @@ async function activateSeason(formData: FormData) {
   const adminClient = createAdminClient();
   await adminClient.from("seasons").update({ is_active: false }).neq("id", seasonId);
   await adminClient.from("seasons").update({ is_active: true }).eq("id", seasonId);
+
+  // Auto-create public pool if one doesn't exist yet
+  const { data: season } = await adminClient
+    .from("seasons")
+    .select("name")
+    .eq("id", seasonId)
+    .single();
+
+  const { data: existingPool } = await adminClient
+    .from("pools")
+    .select("id")
+    .eq("season_id", seasonId)
+    .eq("is_public", true)
+    .maybeSingle();
+
+  if (season && !existingPool) {
+    await adminClient.from("pools").insert({
+      season_id: seasonId,
+      name: season.name,
+      is_public: true,
+      invite_code: null,
+      created_by: null,
+    });
+  }
+
   revalidatePath("/admin/seasons");
 }
 
