@@ -9,20 +9,23 @@ npm run dev          # Start development server
 npm run build        # Production build
 npm run type-check   # TypeScript check (tsc --noEmit)
 npm run lint         # ESLint (next/core-web-vitals)
+npm run format       # Prettier (auto-fix)
+npm run format:check # Prettier (check only)
 ```
 
 No test runner is configured yet.
 
 ## Definition of Done
 
-Before marking any feature or phase as complete, both must pass with zero errors:
+Before marking any feature or phase as complete, all three must pass with zero errors:
 
 ```bash
 npm run type-check
 npx eslint app lib --ext .ts,.tsx
+npm run format:check
 ```
 
-Do not mark a task done if either command reports errors.
+Do not mark a task done if any command reports errors.
 
 ## Environment
 
