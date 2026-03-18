@@ -27,6 +27,12 @@ npm run format:check
 
 Do not mark a task done if any command reports errors.
 
+After marking a feature done, also update the relevant docs:
+
+- **`features.md`** — check off the feature `[x]`, update the `## Progress` section at the bottom (current phase/feature + next task).
+- **`decisions.md`** — add an entry if any non-obvious architectural decision was made (new pattern, tradeoff, why X over Y). Skip if nothing surprising.
+- **`architecture.md`** — update if new tables, files, env vars, or structural patterns were introduced. Skip if no structural change.
+
 ## Environment
 
 Copy `.env.example` to `.env.local` and fill in:

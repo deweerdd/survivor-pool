@@ -196,5 +196,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 4 complete + 5.1 complete.
-**Next task:** 5.2 — Allocation form component.
+**Current:** Phase 5 complete (5.1–5.5).
+**Next task:** 6.1 — Dashboard home.
