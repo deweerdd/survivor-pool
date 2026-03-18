@@ -187,15 +187,20 @@ Auth: must be admin (checked server-side)
 survivor-pool/
 ├── app/
 │   ├── page.tsx                    # redirects → /dashboard
+│   ├── layout.tsx
 │   ├── login/
 │   │   └── page.tsx                # Google OAuth sign-in
 │   ├── auth/
 │   │   └── callback/
 │   │       └── route.ts            # OAuth callback handler
+│   ├── api/
+│   │   └── admin/
+│   │       └── scrape/
+│   │           └── route.ts        # POST scrape endpoint
 │   ├── dashboard/
-│   │   ├── page.tsx                # current season + pools
+│   │   ├── page.tsx                # dashboard home
 │   │   └── pools/
-│   │       ├── page.tsx            # browse/join pools
+│   │       ├── page.tsx            # browse/join/create pools
 │   │       └── [poolId]/
 │   │           ├── page.tsx        # pool leaderboard
 │   │           └── allocate/
@@ -204,30 +209,23 @@ survivor-pool/
 │       ├── layout.tsx              # admin auth gate
 │       ├── page.tsx                # admin home
 │       ├── seasons/
-│       │   └── page.tsx            # manage seasons
+│       │   ├── page.tsx            # manage seasons
+│       │   └── ScrapeButton.tsx    # client component for scrape trigger
 │       ├── contestants/
 │       │   └── page.tsx            # manage contestants
 │       └── episodes/
 │           └── page.tsx            # manage episodes + eliminations
-├── api/
-│   └── admin/
-│       └── scrape/
-│           └── route.ts            # POST scrape endpoint
 ├── components/
-│   ├── AllocationForm.tsx          # client component
-│   ├── Leaderboard.tsx             # server component
-│   └── NavBar.tsx                  # client component
+│   └── AllocationForm.tsx          # client component (points allocation UI)
 ├── lib/
 │   ├── supabase/
 │   │   ├── client.ts               # browser client
 │   │   ├── server.ts               # server client (SSR)
-│   │   └── admin.ts                # service-role client
-│   └── db/
-│       ├── seasons.ts              # DB helper functions
-│       ├── contestants.ts
-│       ├── episodes.ts
-│       ├── pools.ts
-│       └── allocations.ts
+│   │   ├── admin.ts                # service-role client (server only)
+│   │   └── database.types.ts       # generated types (supabase gen types)
+│   ├── pools.ts                    # pool + membership logic (TDD)
+│   ├── leaderboard.ts              # leaderboard builder (TDD)
+│   └── scraper.ts                  # wiki scraper (cheerio)
 ├── middleware.ts
 ├── architecture.md
 ├── features.md

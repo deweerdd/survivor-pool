@@ -136,19 +136,19 @@ Work through these one at a time. Each feature is scoped for a single session.
       Server Component: call `get_pool_scores` RPC, render ranked list with scores. Show current episode info.
       **Done when:** leaderboard renders with correct scores after an elimination is recorded.
 
-- [ ] **5.2 — Allocation form component (`components/AllocationForm.tsx`)**
+- [x] **5.2 — Allocation form component (`components/AllocationForm.tsx`)**
       Client Component: shows active contestants with point inputs. Running total shows points remaining out of 20. Blocks submit if total ≠ 20.
       **Done when:** form correctly tracks allocation totals client-side.
 
-- [ ] **5.3 — Allocation page (`app/dashboard/pools/[poolId]/allocate/page.tsx`)**
+- [x] **5.3 — Allocation page (`app/dashboard/pools/[poolId]/allocate/page.tsx`)**
       Server Component: fetch active episode, fetch active contestants, check if episode is locked, fetch existing allocations. Render `AllocationForm` with pre-filled data.
       **Done when:** page loads correctly for open and locked episodes.
 
-- [ ] **5.4 — Submit allocation (Server Action)**
+- [x] **5.4 — Submit allocation (Server Action)**
       Validate: episode not locked, user in pool, sum = 20, only active contestants. Delete existing allocations for this (pool, episode, user), insert new rows atomically.
       **Done when:** allocation submits and is reflected in leaderboard after elimination.
 
-- [ ] **5.5 — Allocation deadline UX**
+- [x] **5.5 — Allocation deadline UX**
       Show countdown or "locked" banner when episode `is_locked = true`. Disable form submit. Show user's last allocation if locked.
       **Done when:** locked episodes show read-only view of user's allocation.
 

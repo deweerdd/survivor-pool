@@ -16,7 +16,7 @@ export default async function PoolLeaderboardPage({
   if (!user) redirect("/login");
 
   const [poolResult, memberCheckResult, allMembersResult, scoresResult] = await Promise.all([
-    supabase.from("pools").select("id, name").eq("id", numericPoolId).single(),
+    supabase.from("pools").select("id, name, season_id").eq("id", numericPoolId).single(),
     supabase
       .from("pool_members")
       .select("user_id")
@@ -33,6 +33,18 @@ export default async function PoolLeaderboardPage({
   if (!poolResult.data) redirect("/dashboard/pools");
   if (!memberCheckResult.data) redirect("/dashboard/pools");
 
+  // Check if there's an unlocked episode (for "Allocate Points" link)
+  const { data: unlockedEpisode } = await supabase
+    .from("episodes")
+    .select("id")
+    .eq("season_id", poolResult.data.season_id)
+    .eq("is_locked", false)
+    .order("episode_number")
+    .limit(1)
+    .maybeSingle();
+
+  const hasUnlockedEpisode = !!unlockedEpisode;
+
   const members: MemberRow[] = (allMembersResult.data ?? []).map((row) => ({
     user_id: row.user_id,
     display_name: (row.profiles as { display_name: string | null } | null)?.display_name ?? null,
@@ -44,7 +56,17 @@ export default async function PoolLeaderboardPage({
 
   return (
     <main className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">{poolResult.data.name} — Leaderboard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">{poolResult.data.name} — Leaderboard</h1>
+        {hasUnlockedEpisode && (
+          <a
+            href={`/dashboard/pools/${numericPoolId}/allocate`}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Allocate Points
+          </a>
+        )}
+      </div>
 
       {noEliminations && (
         <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">

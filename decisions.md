@@ -13,6 +13,7 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 **Rule:** If a SELECT policy has a circular dependency on the outcome of the mutation itself (e.g. "you can read this row only after you've joined it"), use `createAdminClient()` for the insert+select step. The user client is still used for the subsequent join so that `pool_members_insert_self` (`WITH CHECK (user_id = auth.uid())`) is enforced normally.
 
 **Affected patterns:**
+
 - `createPrivatePool` — pool SELECT requires membership; membership doesn't exist yet at insert time
 - `getPoolByInviteCode` in `joinByInviteCodeAction` — same policy, user isn't a member yet when looking up the code
 
