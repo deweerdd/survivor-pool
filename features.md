@@ -194,5 +194,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 in progress. 3.1–3.9 complete.
-**Next task:** 3.10 — Scraper: parse and upsert episodes.
+**Current:** Phase 3 complete.
+**Next task:** 4.1 — Create public pool on season activation.
