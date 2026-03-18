@@ -10,6 +10,7 @@ import {
 } from "@/lib/pools";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 
 async function joinPoolAction(poolId: number) {
   "use server";
@@ -138,7 +139,12 @@ export default async function PoolsPage({
                   </form>
                 )}
                 {isMember(pool, user.id) && (
-                  <span className="text-sm text-green-600 font-medium">Joined</span>
+                  <Link
+                    href={`/dashboard/pools/${pool.id}`}
+                    className="text-sm text-blue-600 font-medium hover:underline"
+                  >
+                    Leaderboard
+                  </Link>
                 )}
               </li>
             ))}
@@ -161,7 +167,12 @@ export default async function PoolsPage({
                     <span className="ml-3 text-xs text-gray-400">Code: {pool.invite_code}</span>
                   )}
                 </div>
-                <span className="text-sm text-green-600 font-medium">Joined</span>
+                <Link
+                  href={`/dashboard/pools/${pool.id}`}
+                  className="text-sm text-blue-600 font-medium hover:underline"
+                >
+                  Leaderboard
+                </Link>
               </li>
             ))}
           </ul>
