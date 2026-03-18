@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { scrapeContestants, scrapeEpisodes } from "@/lib/scraper";
+import { scrapeContestants, scrapeEpisodes, scrapeEliminations, EliminationScrapeResult } from "@/lib/scraper";
 
 export async function POST(req: NextRequest) {
   // 1. Auth check
@@ -205,12 +205,81 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 11. Scrape eliminations (non-fatal)
+  let eliminationScrapeResult: EliminationScrapeResult = { eliminations: [], warnings: [] };
+  try {
+    eliminationScrapeResult = await scrapeEliminations(season.wiki_url);
+  } catch (err) {
+    eliminationScrapeResult.warnings.push(
+      `Elimination scraper failed: ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
+
+  // 12. Build lookup maps
+  const { data: allEpisodes } = await admin
+    .from("episodes")
+    .select("id, episode_number")
+    .eq("season_id", seasonId);
+  const episodeNumberToId = new Map((allEpisodes ?? []).map((e) => [e.episode_number, e.id]));
+
+  const { data: allContestants } = await admin
+    .from("contestants")
+    .select("id, wiki_slug")
+    .eq("season_id", seasonId)
+    .not("wiki_slug", "is", null);
+  const wikiSlugToContestantId = new Map(
+    (allContestants ?? []).map((c) => [c.wiki_slug!, c.id])
+  );
+
+  // 13. Resolve + upsert eliminations
+  const eliminationRows: { episode_id: number; contestant_id: number }[] = [];
+  const resolveWarnings: string[] = [];
+
+  for (const e of eliminationScrapeResult.eliminations) {
+    const episodeId = episodeNumberToId.get(e.episode_number);
+    const contestantId = wikiSlugToContestantId.get(e.wiki_slug);
+    if (!episodeId) {
+      resolveWarnings.push(`Ep ${e.episode_number} not in DB for "${e.wiki_slug}"`);
+      continue;
+    }
+    if (!contestantId) {
+      resolveWarnings.push(`No contestant for wiki_slug "${e.wiki_slug}"`);
+      continue;
+    }
+    eliminationRows.push({ episode_id: episodeId, contestant_id: contestantId });
+  }
+
+  let eliminationsUpserted = 0;
+  const newlyEliminatedIds: number[] = [];
+
+  if (eliminationRows.length > 0) {
+    const { data: inserted, error: elimError } = await admin
+      .from("eliminations")
+      .upsert(eliminationRows, { onConflict: "episode_id,contestant_id", ignoreDuplicates: true })
+      .select("contestant_id");
+    if (elimError) return NextResponse.json({ error: elimError.message }, { status: 500 });
+    eliminationsUpserted = inserted?.length ?? 0;
+    newlyEliminatedIds.push(...(inserted ?? []).map((r) => r.contestant_id));
+  }
+
+  // 14. Set is_active = false for newly eliminated contestants
+  if (newlyEliminatedIds.length > 0) {
+    const { error: deactivateError } = await admin
+      .from("contestants")
+      .update({ is_active: false })
+      .in("id", newlyEliminatedIds);
+    if (deactivateError)
+      resolveWarnings.push(`is_active deactivation failed: ${deactivateError.message}`);
+  }
+
   return NextResponse.json({
     contestantsInserted: toInsert.length,
     contestantsUpdated: toUpdate.length,
     episodesInserted: epsToInsert.length,
     episodesUpdated: epsToUpdate.length,
+    eliminationsUpserted,
     warnings,
     episodeWarnings,
+    eliminationWarnings: [...eliminationScrapeResult.warnings, ...resolveWarnings],
   });
 }

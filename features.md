@@ -88,11 +88,19 @@ Work through these one at a time. Each feature is scoped for a single session.
   Button on season detail that POSTs to `/api/admin/scrape`. Shows loading + result toast.
   **Done when:** clicking scrape populates contestants and episodes for that season.
 
-- [ ] **3.10 — Scraper: parse and upsert episodes**
+- [x] **3.10 — Scraper: parse and upsert episodes**
   Extend `lib/scraper.ts` with a `scrapeEpisodes(wikiUrl)` function that parses
   the episode list from the wiki (episode numbers, titles, air dates). Update
   `/api/admin/scrape` route handler to also upsert episodes for the season.
   **Done when:** scraping a season also populates the episodes table.
+
+- [x] **3.11 — Scraper: auto-detect and upsert eliminations**
+  Extend `lib/scraper.ts` with `scrapeEliminations(wikiUrl)` that parses the
+  Voting History section of the wiki. Update `/api/admin/scrape` to resolve
+  wiki slugs to contestant IDs, upsert into `eliminations`, and set
+  `is_active = false` for newly eliminated contestants. Added unique constraint
+  migration `20260317130000` for idempotent upserts.
+  **Done when:** scraping a season auto-records eliminations and deactivates contestants.
 
 ---
 
