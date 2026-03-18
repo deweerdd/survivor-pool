@@ -1,5 +1,38 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+export function generateInviteCode(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+export type CreatePrivatePoolResult =
+  | { status: "created"; pool: { id: number; name: string; invite_code: string } }
+  | { status: "error"; message: string };
+
+export async function createPrivatePool(
+  supabase: SupabaseClient,
+  name: string,
+  seasonId: number,
+  userId: string
+): Promise<CreatePrivatePoolResult> {
+  const invite_code = generateInviteCode();
+  const { data, error } = await supabase
+    .from("pools")
+    .insert({ name, season_id: seasonId, is_public: false, invite_code, created_by: userId })
+    .select()
+    .single();
+
+  if (error) return { status: "error", message: error.message };
+  return {
+    status: "created",
+    pool: { id: data.id, name: data.name, invite_code: data.invite_code },
+  };
+}
+
 export type JoinPoolResult =
   | { status: "joined" }
   | { status: "already_member" }

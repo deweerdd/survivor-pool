@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
-import { isMember, partitionPools, joinPool, type PoolWithMembers } from "@/lib/pools";
+import {
+  isMember,
+  partitionPools,
+  joinPool,
+  generateInviteCode,
+  createPrivatePool,
+  type PoolWithMembers,
+} from "@/lib/pools";
 
 const makePool = (overrides: Partial<PoolWithMembers> & { id: number }): PoolWithMembers => ({
   id: overrides.id,
@@ -74,6 +81,62 @@ describe("partitionPools", () => {
     const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
     expect(publicPools).toHaveLength(1);
     expect(myPrivatePools).toHaveLength(0);
+  });
+});
+
+describe("generateInviteCode", () => {
+  it("returns a string of length 6", () => {
+    expect(generateInviteCode()).toHaveLength(6);
+  });
+
+  it("only contains chars from [A-Z0-9]", () => {
+    const code = generateInviteCode();
+    expect(code).toMatch(/^[A-Z0-9]{6}$/);
+  });
+
+  it("two calls return different values", () => {
+    const a = generateInviteCode();
+    const b = generateInviteCode();
+    // probabilistic — extremely unlikely to collide
+    expect(a).not.toBe(b);
+  });
+});
+
+describe("createPrivatePool", () => {
+  it('inserts pool and returns { status: "created", pool }', async () => {
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: 42, name: "My Pool", invite_code: "ABC123" },
+          error: null,
+        }),
+      }),
+    });
+    const supabase = { from: () => ({ insert }) } as any;
+    const result = await createPrivatePool(supabase, "My Pool", 1, "user-abc");
+    expect(result).toEqual({
+      status: "created",
+      pool: { id: 42, name: "My Pool", invite_code: "ABC123" },
+    });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "My Pool",
+        season_id: 1,
+        is_public: false,
+        created_by: "user-abc",
+      })
+    );
+  });
+
+  it('returns { status: "error" } on DB error', async () => {
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: null, error: { message: "db fail" } }),
+      }),
+    });
+    const supabase = { from: () => ({ insert }) } as any;
+    const result = await createPrivatePool(supabase, "My Pool", 1, "user-abc");
+    expect(result).toEqual({ status: "error", message: "db fail" });
   });
 });
 
