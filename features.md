@@ -123,8 +123,9 @@ Work through these one at a time. Each feature is scoped for a single session.
       Creator is auto-joined via `joinPool` after creation so pool appears in "My Private Pools".
       **Done when:** user can create a private pool and receives an invite code.
 
-- [ ] **4.5 — Join private pool by invite code**
+- [x] **4.5 — Join private pool by invite code**
       Form: enter invite code → look up pool → join. Show error if code not found.
+      Admin client used for lookup (pools_read RLS blocks pre-membership reads).
       **Done when:** user can join a private pool via invite code.
 
 ---
@@ -195,5 +196,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 3 complete + 4.1, 4.2, 4.3, 4.4 done.
-**Next task:** 4.5 — Join private pool by invite code.
+**Current:** Phase 4 complete.
+**Next task:** 5.1 — Pool leaderboard page.
