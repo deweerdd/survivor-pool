@@ -4,6 +4,20 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-18 — Use admin client for INSERT + SELECT when SELECT policy requires post-insert state
+
+**Decision:** Any Server Action that inserts a row and needs to read it back (`.insert().select().single()`) must use the admin client if the table's SELECT policy depends on state that the insert hasn't established yet.
+
+**Example:** `createPrivatePool` inserts into `pools` then reads back the new pool's ID. The `pools_read` policy only shows private pools to members. Since the user isn't a member at the moment of insert (that happens next via `joinPool`), the post-INSERT SELECT returns zero rows — Supabase treats this as an error, `createPrivatePool` returns `{ status: "error" }`, and `joinPool` never runs.
+
+**Rule:** If a SELECT policy has a circular dependency on the outcome of the mutation itself (e.g. "you can read this row only after you've joined it"), use `createAdminClient()` for the insert+select step. The user client is still used for the subsequent join so that `pool_members_insert_self` (`WITH CHECK (user_id = auth.uid())`) is enforced normally.
+
+**Affected patterns:**
+- `createPrivatePool` — pool SELECT requires membership; membership doesn't exist yet at insert time
+- `getPoolByInviteCode` in `joinByInviteCodeAction` — same policy, user isn't a member yet when looking up the code
+
+---
+
 ## 2026-03-17 — Scraper uses MediaWiki API, not direct page fetch
 
 **Decision:** Fetch wiki content via `{host}/api.php?action=parse&...` rather than scraping the rendered HTML page directly.

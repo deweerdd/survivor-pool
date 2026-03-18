@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   isMember,
   joinPool,
+  getPoolByInviteCode,
   createPrivatePool,
   partitionPools,
   type PoolWithMembers,
@@ -20,6 +22,23 @@ async function joinPoolAction(poolId: number) {
   revalidatePath("/dashboard/pools");
 }
 
+async function joinByInviteCodeAction(formData: FormData) {
+  "use server";
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const inviteCode = formData.get("inviteCode") as string;
+  // Use admin client so the lookup works before the user is a member (RLS would block it otherwise)
+  const result = await getPoolByInviteCode(createAdminClient(), inviteCode);
+  if (result.status === "not_found") redirect("/dashboard/pools?error=invalid_code");
+
+  await joinPool(supabase, result.pool.id, user.id);
+  redirect("/dashboard/pools");
+}
+
 async function createPrivatePoolAction(formData: FormData) {
   "use server";
   const supabase = await createClient();
@@ -36,14 +55,21 @@ async function createPrivatePoolAction(formData: FormData) {
     .single();
   if (!season) return;
 
-  const result = await createPrivatePool(supabase, name, season.id, user.id);
+  // Use admin client so the post-INSERT SELECT isn't blocked by the pools_read RLS policy
+  // (user isn't a member yet at the moment of insert, so the anon client can't read back the row)
+  const result = await createPrivatePool(createAdminClient(), name, season.id, user.id);
   if (result.status === "created") {
     await joinPool(supabase, result.pool.id, user.id);
   }
   revalidatePath("/dashboard/pools");
 }
 
-export default async function PoolsPage() {
+export default async function PoolsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -66,10 +92,17 @@ export default async function PoolsPage() {
     );
   }
 
-  const { data: pools } = await supabase
-    .from("pools")
-    .select("*, pool_members(user_id)")
-    .eq("season_id", season.id);
+  const [{ data: pools }, { data: memberCounts }] = await Promise.all([
+    supabase.from("pools").select("*, pool_members(user_id)").eq("season_id", season.id),
+    (supabase.rpc as any)("get_pool_member_counts", { p_season_id: season.id }),
+  ]);
+
+  const countMap = new Map<number, number>(
+    (memberCounts ?? []).map((r: { pool_id: number; member_count: number }) => [
+      r.pool_id,
+      r.member_count,
+    ])
+  );
 
   const { publicPools, myPrivatePools } = partitionPools(
     (pools ?? []) as PoolWithMembers[],
@@ -91,7 +124,7 @@ export default async function PoolsPage() {
                 <div>
                   <span className="font-medium">{pool.name}</span>
                   <span className="ml-3 text-xs text-gray-500">
-                    {pool.pool_members.length} members
+                    {countMap.get(pool.id) ?? 0} members
                   </span>
                 </div>
                 {!isMember(pool, user.id) && (
@@ -122,7 +155,7 @@ export default async function PoolsPage() {
                 <div>
                   <span className="font-medium">{pool.name}</span>
                   <span className="ml-3 text-xs text-gray-500">
-                    {pool.pool_members.length} members
+                    {countMap.get(pool.id) ?? 0} members
                   </span>
                   {pool.invite_code && (
                     <span className="ml-3 text-xs text-gray-400">Code: {pool.invite_code}</span>
@@ -134,6 +167,28 @@ export default async function PoolsPage() {
           </ul>
         </section>
       )}
+
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Join a Private Pool</h2>
+        <form action={joinByInviteCodeAction} className="flex gap-3">
+          <input
+            type="text"
+            name="inviteCode"
+            required
+            placeholder="Invite code"
+            className="flex-1 rounded-lg border px-4 py-2 text-sm uppercase"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+          >
+            Join
+          </button>
+        </form>
+        {error === "invalid_code" && (
+          <p className="mt-2 text-sm text-red-600">Invalid invite code. Please try again.</p>
+        )}
+      </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-4">Create a Private Pool</h2>

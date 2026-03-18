@@ -52,6 +52,23 @@ export async function joinPool(
   return { status: "error", message: error.message };
 }
 
+export type GetPoolByInviteCodeResult =
+  | { status: "found"; pool: { id: number; name: string; invite_code: string } }
+  | { status: "not_found" };
+
+export async function getPoolByInviteCode(
+  supabase: SupabaseClient,
+  inviteCode: string
+): Promise<GetPoolByInviteCodeResult> {
+  const { data, error } = await supabase
+    .from("pools")
+    .select("id, name, invite_code")
+    .eq("invite_code", inviteCode.trim().toUpperCase())
+    .single();
+  if (error) return { status: "not_found" };
+  return { status: "found", pool: data };
+}
+
 export type PoolWithMembers = {
   id: number;
   name: string;

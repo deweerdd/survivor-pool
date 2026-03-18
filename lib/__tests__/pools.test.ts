@@ -5,6 +5,7 @@ import {
   joinPool,
   generateInviteCode,
   createPrivatePool,
+  getPoolByInviteCode,
   type PoolWithMembers,
 } from "@/lib/pools";
 
@@ -137,6 +138,38 @@ describe("createPrivatePool", () => {
     const supabase = { from: () => ({ insert }) } as any;
     const result = await createPrivatePool(supabase, "My Pool", 1, "user-abc");
     expect(result).toEqual({ status: "error", message: "db fail" });
+  });
+});
+
+describe("getPoolByInviteCode", () => {
+  it('returns { status: "found", pool } when invite code matches', async () => {
+    const pool = { id: 7, name: "Secret Pool", invite_code: "ABC123" };
+    const single = vi.fn().mockResolvedValue({ data: pool, error: null });
+    const eq = vi.fn().mockReturnValue({ single });
+    const select = vi.fn().mockReturnValue({ eq });
+    const supabase = { from: () => ({ select }) } as any;
+    const result = await getPoolByInviteCode(supabase, "ABC123");
+    expect(result).toEqual({ status: "found", pool });
+    expect(eq).toHaveBeenCalledWith("invite_code", "ABC123");
+  });
+
+  it('returns { status: "not_found" } when Supabase returns an error', async () => {
+    const single = vi.fn().mockResolvedValue({ data: null, error: { message: "no rows" } });
+    const eq = vi.fn().mockReturnValue({ single });
+    const select = vi.fn().mockReturnValue({ eq });
+    const supabase = { from: () => ({ select }) } as any;
+    const result = await getPoolByInviteCode(supabase, "ZZZZZZ");
+    expect(result).toEqual({ status: "not_found" });
+  });
+
+  it("normalises lowercase input to uppercase before querying", async () => {
+    const pool = { id: 8, name: "Another Pool", invite_code: "XYZ789" };
+    const single = vi.fn().mockResolvedValue({ data: pool, error: null });
+    const eq = vi.fn().mockReturnValue({ single });
+    const select = vi.fn().mockReturnValue({ eq });
+    const supabase = { from: () => ({ select }) } as any;
+    await getPoolByInviteCode(supabase, "xyz789");
+    expect(eq).toHaveBeenCalledWith("invite_code", "XYZ789");
   });
 });
 
