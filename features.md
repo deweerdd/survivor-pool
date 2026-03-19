@@ -136,6 +136,12 @@ Work through these one at a time. Each feature is scoped for a single session.
       Server Component: call `get_pool_scores` RPC, render ranked list with scores. Show current episode info.
       **Done when:** leaderboard renders with correct scores after an elimination is recorded.
 
+- [x] **5.1-fix — Leaderboard bug: other users show 0 points**
+      Root cause: `get_pool_scores` lacked `SECURITY DEFINER`, so RLS on `allocations`
+      filtered results to the calling user only. Fixed by adding `security definer` to
+      the function. New migration: `20260319120100_fix_get_pool_scores_security_definer.sql`.
+      **Done when:** both users see correct non-zero scores on the shared pool leaderboard.
+
 - [x] **5.2 — Allocation form component (`components/AllocationForm.tsx`)**
       Client Component: shows active contestants with point inputs. Running total shows points remaining out of 20. Blocks submit if total ≠ 20.
       **Done when:** form correctly tracks allocation totals client-side.
@@ -196,5 +202,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 6 in progress (6.1 done).
-**Next task:** 6.2 — next Phase 6 feature.
+**Current:** Phase 6 in progress (6.1 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
+**Next task:** 6.2 — Nav bar.
