@@ -2,11 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
+import { requireAdmin } from "@/lib/admin-guard";
 
 type Contestant = Database["public"]["Tables"]["contestants"]["Row"];
 
 async function createContestant(formData: FormData) {
   "use server";
+  await requireAdmin();
   const name = (formData.get("name") as string)?.trim();
   const tribe = (formData.get("tribe") as string)?.trim() || null;
   const img_url = (formData.get("img_url") as string)?.trim() || null;

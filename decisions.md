@@ -4,6 +4,19 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-19 — Defense-in-depth for admin routes: middleware + server action guards
+
+**Decision:** Admin protection is enforced at three layers:
+1. **Middleware** (`middleware.ts`) — queries `profiles.is_admin` and redirects non-admins away from `/admin/*`
+2. **Layout** (`app/admin/layout.tsx`) — server-side `is_admin` check, redirect to `/dashboard`
+3. **Server actions** — every admin server action calls `requireAdmin()` from `lib/admin-guard.ts` before doing anything
+
+**Why three layers:** Server actions can be invoked directly (e.g. via crafted POST) without going through the page or layout. The layout alone is not sufficient. The middleware check is the first line of defense for page navigation, and `requireAdmin()` protects the actual mutations.
+
+**Alternative considered:** Relying solely on the layout check + RLS. Rejected because admin actions use `createAdminClient()` (service role), which bypasses RLS entirely.
+
+---
+
 ## 2026-03-18 — Use admin client for INSERT + SELECT when SELECT policy requires post-insert state
 
 **Decision:** Any Server Action that inserts a row and needs to read it back (`.insert().select().single()`) must use the admin client if the table's SELECT policy depends on state that the insert hasn't established yet.

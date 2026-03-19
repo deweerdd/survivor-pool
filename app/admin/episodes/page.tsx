@@ -2,12 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
+import { requireAdmin } from "@/lib/admin-guard";
 
 type Episode = Database["public"]["Tables"]["episodes"]["Row"];
 type Contestant = Pick<Database["public"]["Tables"]["contestants"]["Row"], "id" | "name">;
 
 async function lockEpisode(formData: FormData) {
   "use server";
+  await requireAdmin();
   const id = parseInt(formData.get("episode_id") as string, 10);
   if (!id) return;
   const adminClient = createAdminClient();
@@ -17,6 +19,7 @@ async function lockEpisode(formData: FormData) {
 
 async function createEpisode(formData: FormData) {
   "use server";
+  await requireAdmin();
   const episode_number = parseInt(formData.get("episode_number") as string, 10);
   const title = (formData.get("title") as string)?.trim() || null;
   const air_date = (formData.get("air_date") as string)?.trim() || null;
@@ -45,6 +48,7 @@ async function createEpisode(formData: FormData) {
 
 async function recordElimination(formData: FormData) {
   "use server";
+  await requireAdmin();
   const episode_id = parseInt(formData.get("episode_id") as string, 10);
   const contestant_id = parseInt(formData.get("contestant_id") as string, 10);
   if (!episode_id || !contestant_id) return;

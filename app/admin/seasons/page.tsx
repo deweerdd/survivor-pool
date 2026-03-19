@@ -3,11 +3,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
 import { ScrapeButton } from "./ScrapeButton";
+import { requireAdmin } from "@/lib/admin-guard";
 
 type Season = Database["public"]["Tables"]["seasons"]["Row"];
 
 async function createSeason(formData: FormData) {
   "use server";
+  await requireAdmin();
   const name = (formData.get("name") as string)?.trim();
   const wiki_url = (formData.get("wiki_url") as string)?.trim() || null;
 
@@ -20,6 +22,7 @@ async function createSeason(formData: FormData) {
 
 async function activateSeason(formData: FormData) {
   "use server";
+  await requireAdmin();
   const seasonId = Number(formData.get("seasonId"));
   if (!seasonId) return;
 

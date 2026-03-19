@@ -171,8 +171,10 @@ Work through these one at a time. Each feature is scoped for a single session.
       `app/dashboard/layout.tsx` gates auth and passes `isAdmin`/`email` as props.
       **Done when:** nav bar appears on all dashboard pages with correct admin visibility.
 
-- [ ] **6.3 — Middleware: protect `/admin` routes**
+- [x] **6.3 — Middleware: protect `/admin` routes**
       Extend `middleware.ts` to check `is_admin` for `/admin/*` paths. Redirect to `/dashboard` if not admin.
+      Also added `requireAdmin()` guard (`lib/admin-guard.ts`) to all 6 admin server actions to prevent
+      direct invocation by non-admin users.
       **Done when:** direct navigation to `/admin` by non-admin redirects correctly.
 
 ---
@@ -203,5 +205,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 6 in progress (6.1–6.2 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
-**Next task:** 6.3 — Middleware: protect `/admin` routes.
+**Current:** Phase 6 complete (6.1–6.3 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
+**Next task:** 7.1 — Handle no active season.
