@@ -1,6 +1,5 @@
-// Server component
+// Server component — auth gate handled by app/dashboard/layout.tsx
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -9,7 +8,8 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  // Layout guarantees authenticated user
+  if (!user) return null;
 
   const { data: season } = await supabase
     .from("seasons")

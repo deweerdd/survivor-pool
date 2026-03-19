@@ -166,8 +166,9 @@ Work through these one at a time. Each feature is scoped for a single session.
       Show active season name, link to pools, user's pool membership summary, quick link to allocate for current episode.
       **Done when:** dashboard gives a clear overview of the user's current game state.
 
-- [ ] **6.2 — Nav bar (`components/NavBar.tsx`)**
+- [x] **6.2 — Nav bar (`components/NavBar.tsx`)**
       Client Component: logo, links to Dashboard / My Pools, admin link if `is_admin`, sign out button.
+      `app/dashboard/layout.tsx` gates auth and passes `isAdmin`/`email` as props.
       **Done when:** nav bar appears on all dashboard pages with correct admin visibility.
 
 - [ ] **6.3 — Middleware: protect `/admin` routes**
@@ -202,5 +203,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 6 in progress (6.1 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
-**Next task:** 6.2 — Nav bar.
+**Current:** Phase 6 in progress (6.1–6.2 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
+**Next task:** 6.3 — Middleware: protect `/admin` routes.
