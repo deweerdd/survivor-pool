@@ -156,7 +156,7 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 6: Dashboard + Navigation
 
-- [ ] **6.1 — Dashboard home (`app/dashboard/page.tsx`)**
+- [x] **6.1 — Dashboard home (`app/dashboard/page.tsx`)**
       Show active season name, link to pools, user's pool membership summary, quick link to allocate for current episode.
       **Done when:** dashboard gives a clear overview of the user's current game state.
 
@@ -196,5 +196,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 5 complete (5.1–5.5).
-**Next task:** 6.1 — Dashboard home.
+**Current:** Phase 6 in progress (6.1 done).
+**Next task:** 6.2 — next Phase 6 feature.
