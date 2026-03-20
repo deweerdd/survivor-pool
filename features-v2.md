@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.4 complete.
+**Current:** Phase 1 — design polish pass on 1.1–1.4 complete (color contrast, Teko buttons, ember glows, scoped transitions, radius tokens, badges, typography utilities).
 **Next task:** 1.5 — NavBar redesign.

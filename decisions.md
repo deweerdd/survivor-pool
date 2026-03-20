@@ -4,6 +4,16 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-20 — Design polish: scoped transitions, Teko buttons, ember glows
+
+**Decision:** Replaced blanket `* { transition }` with scoped selector list (`body, .card, .btn, .input, ...`). Buttons now use Teko display font with uppercase/letter-spacing instead of inheriting body font. Added `--ember` and `--surface-raised` tokens, radius tokens (`--radius-sm/--radius/--radius-lg`), and utility classes (`.text-display`, `.text-label`, `.text-stat`, `.badge-*`, `.divider-accent`, `.glow-ember`, `.btn-torch`, `.card-torch`).
+
+**Why:** The `*` transition caused every DOM element to animate on theme toggle — sluggish on tables/lists. Teko uppercase buttons are the single highest-impact Survivor branding change (challenge signage feel vs SaaS pills). Dark mode colors were too washed out; pushed contrast harder (`#141010` bg, brighter foreground). Ember glow on hover gives "approaching torch" feedback. All changes are CSS-only in `globals.css` — no React component modifications needed.
+
+**Alternative considered:** Adding transitions per-component in Tailwind classes. Rejected because the scoped CSS selector approach is DRYer and catches elements we add later.
+
+---
+
 ## 2026-03-20 — Button & input styling: CSS component classes over React wrappers
 
 **Decision:** Button variants (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-ghost`, `.btn-outline`) and form input styles (`.input`, `.select`) are defined as CSS component classes in `globals.css` rather than as React component wrappers.

@@ -3,7 +3,7 @@
 :root {
   --primary: #c2410c;
   --primary-foreground: #ffffff;
-  --secondary: #166534;
+  --secondary: #15803d;
   --secondary-foreground: #ffffff;
   --accent: #a16207;
   --accent-foreground: #ffffff;
@@ -13,20 +13,25 @@
   --success-foreground: #ffffff;
   --warning: #ca8a04;
   --warning-foreground: #422006;
-  --background: #faf6f1;
+  --background: #f7f2eb;
   --foreground: #1c1917;
-  --surface: #f5ede4;
+  --surface: #efe6d9;
   --surface-foreground: #1c1917;
-  --muted: #d6cfc6;
+  --surface-raised: #faf6f1;
+  --muted: #cdc3b5;
   --muted-foreground: #78716c;
-  --border: #d6cfc6;
+  --border: #c4b9a8;
   --ring: #c2410c;
+  --ember: #f97316;
+  --radius-sm: 0.25rem;
+  --radius: 0.375rem;
+  --radius-lg: 0.5rem;
 }
 
 .dark {
   --primary: #ea580c;
   --primary-foreground: #ffffff;
-  --secondary: #22c55e;
+  --secondary: #34d399;
   --secondary-foreground: #052e16;
   --accent: #fbbf24;
   --accent-foreground: #451a03;
@@ -36,14 +41,16 @@
   --success-foreground: #052e16;
   --warning: #facc15;
   --warning-foreground: #422006;
-  --background: #1a1410;
-  --foreground: #e7e0d8;
-  --surface: #292219;
-  --surface-foreground: #e7e0d8;
-  --muted: #44392e;
+  --background: #141010;
+  --foreground: #ede6dd;
+  --surface: #1e1814;
+  --surface-foreground: #ede6dd;
+  --surface-raised: #28211a;
+  --muted: #352b22;
   --muted-foreground: #a8a29e;
-  --border: #3d3229;
+  --border: #2e2318;
   --ring: #ea580c;
+  --ember: #fb923c;
 }
 
 @theme {
@@ -66,13 +73,25 @@
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-foreground: var(--surface-foreground);
+  --color-surface-raised: var(--surface-raised);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
+  --color-ember: var(--ember);
 }
 
-* {
+/* 1. Scoped transitions — only elements that need theme-toggle animation */
+body,
+.card,
+.card-flat,
+.card-torch,
+.callout,
+.btn,
+.input,
+.select,
+nav,
+footer {
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -108,7 +127,7 @@ h4 {
 h1 {
   font-size: 3rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 h2 {
@@ -127,9 +146,35 @@ h4 {
   font-weight: 500;
 }
 
+/* 9. Typography utilities */
+
+.text-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.text-label {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+.text-stat {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
 /*
  * Buttons — Shared base + variants
- * Uses Survivor color tokens from :root / .dark
+ * Display font (Teko), uppercase, angular radius
  */
 
 .btn {
@@ -137,12 +182,15 @@ h4 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
   line-height: 1.25rem;
-  font-weight: 500;
-  font-family: inherit;
-  border-radius: 0.5rem;
+  font-weight: 600;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -172,6 +220,7 @@ h4 {
 
 .btn-primary:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--primary) 85%, black);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ember) 35%, transparent);
 }
 
 .btn-secondary {
@@ -181,6 +230,7 @@ h4 {
 
 .btn-secondary:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--secondary) 85%, black);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--secondary) 25%, transparent);
 }
 
 .btn-danger {
@@ -211,6 +261,26 @@ h4 {
   background-color: var(--surface);
 }
 
+/* 6. Torch button — gradient CTA for primary actions */
+.btn-torch {
+  background: linear-gradient(
+    180deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 75%, #7c2d12) 100%
+  );
+  color: var(--primary-foreground);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 color-mix(in srgb, var(--ember) 30%, transparent);
+}
+
+.btn-torch:hover:not(:disabled) {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 color-mix(in srgb, var(--ember) 30%, transparent),
+    0 0 16px color-mix(in srgb, var(--ember) 40%, transparent);
+}
+
 .btn-sm {
   padding: 0.25rem 0.625rem;
   font-size: 0.75rem;
@@ -229,7 +299,7 @@ h4 {
 
 .input {
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background-color: var(--background);
   color: var(--foreground);
@@ -253,7 +323,7 @@ h4 {
 
 .select {
   width: 100%;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background-color: var(--background);
   color: var(--foreground);
@@ -278,31 +348,59 @@ h4 {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   box-shadow:
-    0 1px 2px color-mix(in srgb, var(--foreground) 4%, transparent),
-    0 2px 6px color-mix(in srgb, var(--foreground) 3%, transparent);
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.04);
   padding: 1.25rem;
 }
 
 .card-flat {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   padding: 1.25rem;
 }
 
 .card-hover {
   transition:
     box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .card-hover:hover {
   border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
   box-shadow:
-    0 2px 4px color-mix(in srgb, var(--foreground) 5%, transparent),
-    0 4px 12px color-mix(in srgb, var(--foreground) 4%, transparent);
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.dark .card-hover:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 12px color-mix(in srgb, var(--ember) 15%, transparent);
+}
+
+/* 8. Card-torch — accent border-top for important containers */
+.card-torch {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card-torch {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    0 -4px 12px color-mix(in srgb, var(--ember) 12%, transparent);
 }
 
 /*
@@ -310,7 +408,7 @@ h4 {
  */
 
 .callout {
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   border: 1px solid;
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
@@ -332,4 +430,60 @@ h4 {
   border-color: var(--border);
   background: var(--surface);
   color: var(--muted-foreground);
+}
+
+.callout-success {
+  border-color: color-mix(in srgb, var(--success) 50%, var(--border));
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  color: var(--success-foreground);
+}
+
+/*
+ * 10. Foundational utilities for 1.5+
+ */
+
+/* Dividers */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.divider-accent {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+/* Ember glow utility */
+.glow-ember {
+  box-shadow: 0 0 16px color-mix(in srgb, var(--ember) 30%, transparent);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  line-height: 1.25rem;
+}
+
+.badge-primary {
+  background: color-mix(in srgb, var(--primary) 15%, var(--surface));
+  color: var(--primary);
+}
+
+.badge-secondary {
+  background: color-mix(in srgb, var(--secondary) 15%, var(--surface));
+  color: var(--secondary);
+}
+
+.badge-accent {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface));
+  color: var(--accent);
 }
