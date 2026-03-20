@@ -152,7 +152,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
       <div className="mb-6">
         <a
           href={`/dashboard/pools/${numericPoolId}`}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-primary hover:underline"
         >
           ← Back to leaderboard
         </a>
@@ -160,7 +160,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
       </div>
 
       {!episode ? (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+        <div className="callout callout-info py-6 text-center">
           No active episode to allocate points for right now.
         </div>
       ) : (

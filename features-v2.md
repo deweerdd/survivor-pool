@@ -18,7 +18,7 @@ Design and polish pass. Each feature is scoped for a single session.
       Define button variants: primary (torch orange), secondary (earth green), danger (red), ghost/outline. Style all form inputs (text fields, selects) with themed borders, focus rings, and consistent sizing. Apply across all existing forms.
       **Done when:** all buttons and inputs use consistent themed styles.
 
-- [ ] **1.4 — Card & container components**
+- [x] **1.4 — Card & container components**
       Standardize reusable card/container styles for pool cards, leaderboard sections, and content panels. Add subtle shadows, themed borders, and background tints. Use consistently across dashboard, pools, and leaderboard pages.
       **Done when:** content sections use consistent card styling with themed borders/shadows.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.3 complete.
-**Next task:** 1.4 — Card & container components.
+**Current:** Phase 1 — features 1.1–1.4 complete.
+**Next task:** 1.5 — NavBar redesign.

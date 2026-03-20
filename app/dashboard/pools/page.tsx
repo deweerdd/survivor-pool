@@ -117,13 +117,13 @@ export default async function PoolsPage({
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Public Pool</h2>
         {publicPools.length === 0 ? (
-          <p className="text-gray-500">No public pool for this season.</p>
+          <p className="text-muted-foreground">No public pool for this season.</p>
         ) : (
           <ul className="space-y-3">
             {publicPools.map((pool) => (
               <li
                 key={pool.id}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border p-4"
+                className="card card-hover flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <span className="font-medium">{pool.name}</span>
@@ -159,7 +159,7 @@ export default async function PoolsPage({
             {myPrivatePools.map((pool) => (
               <li
                 key={pool.id}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border p-4"
+                className="card card-hover flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <span className="font-medium">{pool.name}</span>
@@ -184,7 +184,7 @@ export default async function PoolsPage({
         </section>
       )}
 
-      <section className="mb-8">
+      <section className="card mb-8">
         <h2 className="text-xl font-semibold mb-4">Join a Private Pool</h2>
         <form action={joinByInviteCodeAction} className="flex flex-col sm:flex-row gap-3">
           <input
@@ -199,16 +199,16 @@ export default async function PoolsPage({
           </button>
         </form>
         {error === "invalid_code" && (
-          <p className="mt-2 text-sm text-red-600">Invalid invite code. Please try again.</p>
+          <p className="mt-2 text-sm text-destructive">Invalid invite code. Please try again.</p>
         )}
         {error === "no_season" && (
-          <p className="mt-2 text-sm text-red-600">
+          <p className="mt-2 text-sm text-destructive">
             No active season. Cannot create a pool right now.
           </p>
         )}
       </section>
 
-      <section>
+      <section className="card">
         <h2 className="text-xl font-semibold mb-4">Create a Private Pool</h2>
         <form action={createPrivatePoolAction} className="flex flex-col sm:flex-row gap-3">
           <input

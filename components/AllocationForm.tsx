@@ -59,15 +59,15 @@ export default function AllocationForm({
         <h2 className="text-lg font-semibold mb-1">
           Episode {episodeNumber} — Allocate Your 20 Points
         </h2>
-        <div className="flex items-center gap-3 text-sm text-gray-600">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>
             Points remaining:{" "}
             <span
               className={
                 remaining === 0
-                  ? "font-semibold text-green-600"
+                  ? "font-semibold text-success"
                   : remaining < 0
-                    ? "font-semibold text-red-600"
+                    ? "font-semibold text-destructive"
                     : "font-semibold"
               }
             >
@@ -86,7 +86,7 @@ export default function AllocationForm({
 
       {contestants.map((group) => (
         <div key={group.tribe} className="mb-6">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 border-b pb-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 border-b pb-1">
             {group.tribe}
           </h3>
           <div className="space-y-2">
@@ -131,7 +131,7 @@ export default function AllocationForm({
       ))}
 
       {isLocked ? (
-        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600 font-medium">
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground font-medium">
           <span>🔒</span> Episode is locked
         </div>
       ) : (
@@ -140,9 +140,9 @@ export default function AllocationForm({
             {isPending ? "Saving…" : isEditing ? "Update Allocation" : "Submit Allocation"}
           </button>
           {result === "ok" && (
-            <span className="text-sm text-green-600 font-medium">Allocation saved!</span>
+            <span className="text-sm text-success font-medium">Allocation saved!</span>
           )}
-          {result && result !== "ok" && <span className="text-sm text-red-600">{result}</span>}
+          {result && result !== "ok" && <span className="text-sm text-destructive">{result}</span>}
         </div>
       )}
     </form>

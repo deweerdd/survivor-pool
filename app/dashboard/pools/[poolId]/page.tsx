@@ -66,39 +66,41 @@ export default async function PoolLeaderboardPage({
       </div>
 
       {noEliminations && (
-        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+        <div className="callout callout-warning mb-6">
           No eliminations recorded yet — all members start at 0 points.
         </div>
       )}
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-muted-foreground">
-            <th className="pb-2 pr-4 font-medium">Rank</th>
-            <th className="pb-2 pr-4 font-medium">Name</th>
-            <th className="pb-2 text-right font-medium">Points</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboard.map((entry) => (
-            <tr
-              key={entry.userId}
-              className={
-                entry.isCurrentUser
-                  ? "border-b bg-surface font-semibold"
-                  : "border-b hover:bg-surface"
-              }
-            >
-              <td className="py-3 pr-4 text-muted-foreground">{entry.rank}</td>
-              <td className="py-3 pr-4">
-                {entry.displayName}
-                {entry.isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
-              </td>
-              <td className="py-3 text-right tabular-nums">{entry.totalPoints}</td>
+      <div className="card p-0">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-left text-muted-foreground">
+              <th className="pb-2 pr-4 pl-5 pt-4 font-medium">Rank</th>
+              <th className="pb-2 pr-4 pt-4 font-medium">Name</th>
+              <th className="pb-2 pr-5 pt-4 text-right font-medium">Points</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry) => (
+              <tr
+                key={entry.userId}
+                className={
+                  entry.isCurrentUser
+                    ? "border-b bg-surface font-semibold"
+                    : "border-b hover:bg-surface"
+                }
+              >
+                <td className="py-3 pr-4 pl-5 text-muted-foreground">{entry.rank}</td>
+                <td className="py-3 pr-4">
+                  {entry.displayName}
+                  {entry.isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
+                </td>
+                <td className="py-3 pr-5 text-right tabular-nums">{entry.totalPoints}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 }

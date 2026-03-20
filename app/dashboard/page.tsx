@@ -79,11 +79,9 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-bold">Active Season: {season.name}</h1>
 
       {openEpisode && pools.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 space-y-2">
-          <p className="font-semibold text-yellow-800">
-            Episode {openEpisode.episode_number} is open!
-          </p>
-          <p className="text-sm text-yellow-700">Allocate your points before lock.</p>
+        <div className="callout callout-warning space-y-2">
+          <p className="font-semibold">Episode {openEpisode.episode_number} is open!</p>
+          <p className="text-sm">Allocate your points before lock.</p>
           <div className="flex flex-wrap gap-2 pt-1">
             {pools.map((p) => (
               <Link
@@ -109,7 +107,7 @@ export default async function DashboardPage() {
             </Link>
           </p>
         ) : (
-          <div className="divide-y border rounded-lg">
+          <div className="card p-0 divide-y">
             {pools.map((p) => (
               <div
                 key={p.poolId}

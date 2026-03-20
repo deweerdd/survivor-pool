@@ -59,7 +59,7 @@ Push with: `npm run supabase:push`
 
 ## Skills
 
-**Always use the `frontend-design` skill** (via the Skill tool) when working on any UI/design task — pages, components, layouts, styling, theming, or visual polish. This applies to all Phase 1 (Design) features in `features-v2.md`. Invoke the skill before writing any frontend code.
+**Always use the `frontend-design` skill** (via the Skill tool) when working on any UI/design task — pages, components, layouts, styling, theming, or visual polish. This applies to all Phase 1 (Design) features in `features-v2.md`. Invoke the skill before planning or writing any frontend code.
 
 ---
 
