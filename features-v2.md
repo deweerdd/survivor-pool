@@ -10,7 +10,7 @@ Design and polish pass. Each feature is scoped for a single session.
       Create a custom Tailwind theme with Survivor-inspired colors: jungle greens, earth browns, torch oranges, sand neutrals, dark charcoal backgrounds. Define semantic color tokens (primary, secondary, accent, surface, muted). Dark mode default with light mode toggle via next-themes.
       **Done when:** custom theme colors are available as Tailwind classes project-wide, dark/light toggle works.
 
-- [ ] **1.2 — Typography & fonts**
+- [x] **1.2 — Typography & fonts**
       Choose and integrate Google Fonts — a display font for headings (rugged/bold) and a clean body font. Set up heading hierarchy (h1–h4) with consistent sizing, weight, and spacing. Wire fonts through `next/font`.
       **Done when:** all headings and body text use the new font stack with clear hierarchy.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — feature 1.1 complete.
-**Next task:** 1.2 — Typography & fonts.
+**Current:** Phase 1 — features 1.1–1.2 complete.
+**Next task:** 1.3 — Button & form input styling.

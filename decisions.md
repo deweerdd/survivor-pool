@@ -4,6 +4,18 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-20 — Font pairing: Teko + Barlow via next/font
+
+**Decision:** Headings use **Teko** (condensed, angular), body uses **Barlow** (clean, industrial). Both loaded via `next/font/google` with CSS variables (`--font-display`, `--font-body`) registered as Tailwind v4 theme tokens (`font-display`, `font-body`). Base heading styles (h1–h4) set globally in `globals.css` with uppercase, tight line-height, and widened tracking.
+
+**Why Teko:** Condensed display fonts evoke carved/stamped lettering — fits the Survivor tribal aesthetic. Teko is distinctive without being gimmicky, and has weights 400–700 for flexibility.
+
+**Why global h1–h4 styles:** Ensures consistency without adding utility classes to every heading. Pages can still override with Tailwind classes when needed.
+
+**Alternative considered:** Bebas Neue (too overused), Anton (single weight), local font files (unnecessary complexity when next/font handles optimization).
+
+---
+
 ## 2026-03-19 — Defense-in-depth for admin routes: middleware + server action guards
 
 **Decision:** Admin protection is enforced at three layers:
