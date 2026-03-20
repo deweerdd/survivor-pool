@@ -21,7 +21,7 @@ export default async function DashboardPage() {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-gray-500">No active season right now.</p>
+        <p className="text-muted-foreground">No active season right now.</p>
       </main>
     );
   }
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
               <Link
                 key={p.poolId}
                 href={`/dashboard/pools/${p.poolId}/allocate`}
-                className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 rounded text-sm font-medium"
+                className="btn btn-primary btn-sm"
               >
                 {p.poolName}
               </Link>
@@ -102,9 +102,9 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold">My Pools</h2>
 
         {pools.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             You haven&apos;t joined any pools yet.{" "}
-            <Link href="/dashboard/pools" className="text-blue-600 hover:underline">
+            <Link href="/dashboard/pools" className="text-primary hover:underline">
               Browse pools
             </Link>
           </p>
@@ -116,12 +116,12 @@ export default async function DashboardPage() {
                 className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between px-4 py-3"
               >
                 <span className="font-medium">{p.poolName}</span>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span>{p.rank !== null ? `#${p.rank}` : "—"}</span>
                   <span>{p.totalPoints} pts</span>
                   <Link
                     href={`/dashboard/pools/${p.poolId}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline"
                   >
                     Leaderboard
                   </Link>
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <Link href="/dashboard/pools" className="inline-block text-sm text-blue-600 hover:underline">
+      <Link href="/dashboard/pools" className="inline-block text-sm text-primary hover:underline">
         Browse all pools →
       </Link>
     </main>

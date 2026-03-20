@@ -82,7 +82,7 @@ export default async function SeasonsPage() {
             type="text"
             required
             placeholder="e.g. Survivor 47"
-            className="border rounded px-3 py-1.5 text-sm w-full sm:w-56"
+            className="input w-full sm:w-56"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -94,13 +94,10 @@ export default async function SeasonsPage() {
             name="wiki_url"
             type="url"
             placeholder="https://survivor.fandom.com/..."
-            className="border rounded px-3 py-1.5 text-sm w-full sm:w-72"
+            className="input w-full sm:w-72"
           />
         </div>
-        <button
-          type="submit"
-          className="bg-black text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-800"
-        >
+        <button type="submit" className="btn btn-primary btn-sm">
           Create Season
         </button>
       </form>
@@ -128,7 +125,7 @@ export default async function SeasonsPage() {
                         href={season.wiki_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline truncate max-w-xs block"
+                        className="text-primary hover:underline truncate max-w-xs block"
                       >
                         {season.wiki_url}
                       </a>
@@ -149,7 +146,7 @@ export default async function SeasonsPage() {
                     {!season.is_active && (
                       <form action={activateSeason}>
                         <input type="hidden" name="seasonId" value={season.id} />
-                        <button type="submit" className="text-sm text-blue-600 hover:underline">
+                        <button type="submit" className="btn btn-ghost btn-sm">
                           Activate
                         </button>
                       </form>

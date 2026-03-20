@@ -14,7 +14,7 @@ Design and polish pass. Each feature is scoped for a single session.
       Choose and integrate Google Fonts — a display font for headings (rugged/bold) and a clean body font. Set up heading hierarchy (h1–h4) with consistent sizing, weight, and spacing. Wire fonts through `next/font`.
       **Done when:** all headings and body text use the new font stack with clear hierarchy.
 
-- [ ] **1.3 — Button & form input styling**
+- [x] **1.3 — Button & form input styling**
       Define button variants: primary (torch orange), secondary (earth green), danger (red), ghost/outline. Style all form inputs (text fields, selects) with themed borders, focus rings, and consistent sizing. Apply across all existing forms.
       **Done when:** all buttons and inputs use consistent themed styles.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.2 complete.
-**Next task:** 1.3 — Button & form input styling.
+**Current:** Phase 1 — features 1.1–1.3 complete.
+**Next task:** 1.4 — Card & container components.

@@ -35,7 +35,7 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
         )}
         <span className="hidden sm:inline text-muted-foreground">{email}</span>
         <ThemeToggle />
-        <button onClick={handleSignOut} className="text-destructive hover:underline cursor-pointer">
+        <button onClick={handleSignOut} className="btn btn-ghost btn-sm text-destructive">
           Sign Out
         </button>
       </div>

@@ -88,7 +88,7 @@ export default async function PoolsPage({
     return (
       <main className="px-4 py-6 sm:p-8">
         <h1 className="text-2xl font-bold mb-4">Pools</h1>
-        <p className="text-gray-500">No active season at this time.</p>
+        <p className="text-muted-foreground">No active season at this time.</p>
       </main>
     );
   }
@@ -127,16 +127,13 @@ export default async function PoolsPage({
               >
                 <div>
                   <span className="font-medium">{pool.name}</span>
-                  <span className="ml-3 text-xs text-gray-500">
+                  <span className="ml-3 text-xs text-muted-foreground">
                     {countMap.get(pool.id) ?? 0} members
                   </span>
                 </div>
                 {!isMember(pool, user.id) && (
                   <form action={joinPoolAction.bind(null, pool.id)}>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                    >
+                    <button type="submit" className="btn btn-primary">
                       Join
                     </button>
                   </form>
@@ -144,7 +141,7 @@ export default async function PoolsPage({
                 {isMember(pool, user.id) && (
                   <Link
                     href={`/dashboard/pools/${pool.id}`}
-                    className="text-sm text-blue-600 font-medium hover:underline"
+                    className="text-sm text-primary font-medium hover:underline"
                   >
                     Leaderboard
                   </Link>
@@ -166,16 +163,18 @@ export default async function PoolsPage({
               >
                 <div>
                   <span className="font-medium">{pool.name}</span>
-                  <span className="ml-3 text-xs text-gray-500">
+                  <span className="ml-3 text-xs text-muted-foreground">
                     {countMap.get(pool.id) ?? 0} members
                   </span>
                   {pool.invite_code && (
-                    <span className="ml-3 text-xs text-gray-400">Code: {pool.invite_code}</span>
+                    <span className="ml-3 text-xs text-muted-foreground">
+                      Code: {pool.invite_code}
+                    </span>
                   )}
                 </div>
                 <Link
                   href={`/dashboard/pools/${pool.id}`}
-                  className="text-sm text-blue-600 font-medium hover:underline"
+                  className="text-sm text-primary font-medium hover:underline"
                 >
                   Leaderboard
                 </Link>
@@ -193,12 +192,9 @@ export default async function PoolsPage({
             name="inviteCode"
             required
             placeholder="Invite code"
-            className="flex-1 rounded-lg border px-4 py-2 text-sm uppercase"
+            className="input flex-1 uppercase"
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-          >
+          <button type="submit" className="btn btn-primary">
             Join
           </button>
         </form>
@@ -220,12 +216,9 @@ export default async function PoolsPage({
             name="name"
             required
             placeholder="Pool name"
-            className="flex-1 rounded-lg border px-4 py-2 text-sm"
+            className="input flex-1"
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-          >
+          <button type="submit" className="btn btn-secondary">
             Create Pool
           </button>
         </form>

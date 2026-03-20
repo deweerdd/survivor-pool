@@ -4,6 +4,16 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-20 — Button & input styling: CSS component classes over React wrappers
+
+**Decision:** Button variants (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-ghost`, `.btn-outline`) and form input styles (`.input`, `.select`) are defined as CSS component classes in `globals.css` rather than as React component wrappers.
+
+**Why CSS classes:** All existing buttons are plain `<button>` elements in server components. Creating React wrapper components would require adding imports to 10+ files, and buttons in server components would need no "use client" boundary. CSS classes give the same reusability with zero import changes. Consistent with how typography (h1–h4) is already handled globally.
+
+**Alternative considered:** React `<Button variant="primary">` component (shadcn/ui pattern). Rejected because it adds abstraction for something Tailwind handles well, and would require converting some server component files.
+
+---
+
 ## 2026-03-20 — Font pairing: Teko + Barlow via next/font
 
 **Decision:** Headings use **Teko** (condensed, angular), body uses **Barlow** (clean, industrial). Both loaded via `next/font/google` with CSS variables (`--font-display`, `--font-body`) registered as Tailwind v4 theme tokens (`font-display`, `font-body`). Base heading styles (h1–h4) set globally in `globals.css` with uppercase, tight line-height, and widened tracking.

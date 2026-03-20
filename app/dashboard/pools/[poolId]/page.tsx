@@ -59,10 +59,7 @@ export default async function PoolLeaderboardPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">{poolResult.data.name} — Leaderboard</h1>
         {hasUnlockedEpisode && (
-          <a
-            href={`/dashboard/pools/${numericPoolId}/allocate`}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
+          <a href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-primary">
             Allocate Points
           </a>
         )}
@@ -76,7 +73,7 @@ export default async function PoolLeaderboardPage({
 
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-gray-500">
+          <tr className="border-b text-left text-muted-foreground">
             <th className="pb-2 pr-4 font-medium">Rank</th>
             <th className="pb-2 pr-4 font-medium">Name</th>
             <th className="pb-2 text-right font-medium">Points</th>
@@ -88,14 +85,14 @@ export default async function PoolLeaderboardPage({
               key={entry.userId}
               className={
                 entry.isCurrentUser
-                  ? "border-b bg-blue-50 font-semibold"
-                  : "border-b hover:bg-gray-50"
+                  ? "border-b bg-surface font-semibold"
+                  : "border-b hover:bg-surface"
               }
             >
-              <td className="py-3 pr-4 text-gray-600">{entry.rank}</td>
+              <td className="py-3 pr-4 text-muted-foreground">{entry.rank}</td>
               <td className="py-3 pr-4">
                 {entry.displayName}
-                {entry.isCurrentUser && <span className="ml-2 text-xs text-blue-600">(you)</span>}
+                {entry.isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
               </td>
               <td className="py-3 text-right tabular-nums">{entry.totalPoints}</td>
             </tr>
