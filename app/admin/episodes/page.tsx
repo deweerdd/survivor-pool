@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type { Database } from "@/lib/supabase/database.types";
 import { requireAdmin } from "@/lib/admin-guard";
 
@@ -33,7 +34,7 @@ async function createEpisode(formData: FormData) {
     .eq("is_active", true)
     .single();
 
-  if (!activeSeason) return;
+  if (!activeSeason) redirect("/admin/episodes?error=no_season");
 
   const adminClient = createAdminClient();
   await adminClient.from("episodes").insert({
@@ -59,7 +60,12 @@ async function recordElimination(formData: FormData) {
   revalidatePath("/admin/episodes");
 }
 
-export default async function EpisodesPage() {
+export default async function EpisodesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
 
   const { data: activeSeason } = await supabase
@@ -108,6 +114,12 @@ export default async function EpisodesPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Episodes</h1>
+
+      {error === "no_season" && (
+        <p className="mb-4 text-sm text-red-600">
+          No active season. Cannot add episodes right now.
+        </p>
+      )}
 
       {!activeSeason ? (
         <p className="text-gray-500 text-sm">No active season.</p>

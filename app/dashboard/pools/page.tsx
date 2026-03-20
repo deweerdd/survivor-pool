@@ -54,7 +54,7 @@ async function createPrivatePoolAction(formData: FormData) {
     .select("id")
     .eq("is_active", true)
     .single();
-  if (!season) return;
+  if (!season) redirect("/dashboard/pools?error=no_season");
 
   // Use admin client so the post-INSERT SELECT isn't blocked by the pools_read RLS policy
   // (user isn't a member yet at the moment of insert, so the anon client can't read back the row)
@@ -198,6 +198,11 @@ export default async function PoolsPage({
         </form>
         {error === "invalid_code" && (
           <p className="mt-2 text-sm text-red-600">Invalid invite code. Please try again.</p>
+        )}
+        {error === "no_season" && (
+          <p className="mt-2 text-sm text-red-600">
+            No active season. Cannot create a pool right now.
+          </p>
         )}
       </section>
 

@@ -181,8 +181,9 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Phase 7: Polish + Edge Cases
 
-- [ ] **7.1 — Handle no active season**
+- [x] **7.1 — Handle no active season**
       All pages that depend on active season show a friendly "No active season" message instead of crashing.
+      Server actions that silently returned on missing season now redirect with `?error=no_season` and display error banners.
       **Done when:** app handles missing active season gracefully everywhere.
 
 - [ ] **7.2 — Handle episode with no allocations yet**
@@ -205,5 +206,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 6 complete (6.1–6.3 done). Bug fix 5.1-fix applied (leaderboard SECURITY DEFINER).
-**Next task:** 7.1 — Handle no active season.
+**Current:** Phase 7 in progress (7.1 done).
+**Next task:** 7.2 — Handle episode with no allocations yet.

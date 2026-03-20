@@ -7,6 +7,7 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 ## 2026-03-19 — Defense-in-depth for admin routes: middleware + server action guards
 
 **Decision:** Admin protection is enforced at three layers:
+
 1. **Middleware** (`middleware.ts`) — queries `profiles.is_admin` and redirects non-admins away from `/admin/*`
 2. **Layout** (`app/admin/layout.tsx`) — server-side `is_admin` check, redirect to `/dashboard`
 3. **Server actions** — every admin server action calls `requireAdmin()` from `lib/admin-guard.ts` before doing anything
