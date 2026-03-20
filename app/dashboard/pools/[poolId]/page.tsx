@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export default async function PoolLeaderboardPage({
   params,
@@ -30,7 +30,7 @@ export default async function PoolLeaderboardPage({
     supabase.rpc("get_pool_scores", { p_pool_id: numericPoolId }),
   ]);
 
-  if (!poolResult.data) redirect("/dashboard/pools");
+  if (!poolResult.data) notFound();
   if (!memberCheckResult.data) redirect("/dashboard/pools");
 
   // Check if there's an unlocked episode (for "Allocate Points" link)

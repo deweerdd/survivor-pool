@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import AllocationForm from "@/components/AllocationForm";
 import { revalidatePath } from "next/cache";
 
@@ -23,7 +23,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
       .maybeSingle(),
   ]);
 
-  if (!poolResult.data) redirect("/dashboard/pools");
+  if (!poolResult.data) notFound();
   if (!memberCheckResult.data) redirect("/dashboard/pools");
 
   const seasonId = poolResult.data.season_id;

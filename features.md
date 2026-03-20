@@ -201,13 +201,14 @@ Work through these one at a time. Each feature is scoped for a single session.
       Audit allocation form and leaderboard for small screens. Fix any overflow or usability issues.
       **Done when:** core flows work on a 375px wide screen.
 
-- [ ] **7.5 — Error boundary + loading states**
+- [x] **7.5 — Error boundary + loading states**
       Add `loading.tsx` and `error.tsx` for dashboard routes. Show skeleton or spinner during data fetches.
+      Added `not-found.tsx` for invalid pool IDs (calls `notFound()` instead of silent redirect).
       **Done when:** navigation shows loading state; unexpected errors show recovery UI.
 
 ---
 
 ## Progress
 
-**Current:** Phase 7 in progress (7.1–7.4 done).
-**Next task:** 7.5 — Error boundary + loading states.
+**Current:** Phase 7 complete (all features done).
+**Next task:** None — all 36 features across 7 phases are complete.
