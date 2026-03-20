@@ -1,1 +1,82 @@
 @import "tailwindcss";
+
+:root {
+  --primary: #c2410c;
+  --primary-foreground: #ffffff;
+  --secondary: #166534;
+  --secondary-foreground: #ffffff;
+  --accent: #a16207;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #ca8a04;
+  --warning-foreground: #422006;
+  --background: #faf6f1;
+  --foreground: #1c1917;
+  --surface: #f5ede4;
+  --surface-foreground: #1c1917;
+  --muted: #d6cfc6;
+  --muted-foreground: #78716c;
+  --border: #d6cfc6;
+  --ring: #c2410c;
+}
+
+.dark {
+  --primary: #ea580c;
+  --primary-foreground: #ffffff;
+  --secondary: #22c55e;
+  --secondary-foreground: #052e16;
+  --accent: #fbbf24;
+  --accent-foreground: #451a03;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #4ade80;
+  --success-foreground: #052e16;
+  --warning: #facc15;
+  --warning-foreground: #422006;
+  --background: #1a1410;
+  --foreground: #e7e0d8;
+  --surface: #292219;
+  --surface-foreground: #e7e0d8;
+  --muted: #44392e;
+  --muted-foreground: #a8a29e;
+  --border: #3d3229;
+  --ring: #ea580c;
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+* {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}

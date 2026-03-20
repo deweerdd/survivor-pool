@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: string }) {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
   }
 
   return (
-    <nav className="border-b px-3 sm:px-6 py-3 flex items-center justify-between text-sm font-medium">
+    <nav className="bg-surface border-b border-border px-3 sm:px-6 py-3 flex items-center justify-between text-sm font-medium">
       <div className="flex items-center gap-3 sm:gap-6">
         <Link href="/dashboard" className="text-base font-bold">
           Survivor Pool
@@ -32,8 +33,9 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
             Admin
           </Link>
         )}
-        <span className="hidden sm:inline text-gray-500">{email}</span>
-        <button onClick={handleSignOut} className="text-red-600 hover:underline cursor-pointer">
+        <span className="hidden sm:inline text-muted-foreground">{email}</span>
+        <ThemeToggle />
+        <button onClick={handleSignOut} className="text-destructive hover:underline cursor-pointer">
           Sign Out
         </button>
       </div>
