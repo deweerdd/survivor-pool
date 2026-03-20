@@ -91,7 +91,9 @@ body,
 .input,
 .select,
 nav,
-footer {
+footer,
+.nav-drawer,
+.nav-overlay {
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -486,4 +488,84 @@ h4 {
 .badge-accent {
   background: color-mix(in srgb, var(--accent) 15%, var(--surface));
   color: var(--accent);
+}
+
+/*
+ * 11. Navigation — links, mobile drawer, hamburger
+ */
+
+.nav-link {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid transparent;
+  color: var(--muted-foreground);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: var(--foreground);
+}
+
+.nav-link-active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  background-color: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.nav-drawer-open {
+  transform: translateX(0);
+}
+
+.nav-hamburger {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+@media (min-width: 768px) {
+  .nav-drawer,
+  .nav-overlay {
+    display: none !important;
+  }
 }

@@ -22,11 +22,11 @@ Design and polish pass. Each feature is scoped for a single session.
       Standardize reusable card/container styles for pool cards, leaderboard sections, and content panels. Add subtle shadows, themed borders, and background tints. Use consistently across dashboard, pools, and leaderboard pages.
       **Done when:** content sections use consistent card styling with themed borders/shadows.
 
-- [ ] **1.5 — NavBar redesign (`components/NavBar.tsx`)**
+- [x] **1.5 — NavBar redesign (`components/NavBar.tsx`)**
       Restyle the nav bar with Survivor branding: themed background color, logo/wordmark placeholder, styled nav links with active state indicators, mobile hamburger menu with slide-out drawer. Sign-out button styled to match.
       **Done when:** nav bar looks themed on desktop and mobile, with working mobile menu.
 
-- [ ] **1.6 — Footer & meta**
+- [x] **1.6 — Footer & meta**
       Add a site footer with credits/links. Set favicon (torch or tribal icon). Add Open Graph meta tags for link sharing (title, description, image). Update `app/layout.tsx` metadata.
       **Done when:** site has footer, favicon, and OG tags for social sharing.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — design polish pass on 1.1–1.4 complete (color contrast, Teko buttons, ember glows, scoped transitions, radius tokens, badges, typography utilities).
-**Next task:** 1.5 — NavBar redesign.
+**Current:** Phase 1 — features 1.1–1.6 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta).
+**Next task:** 1.7 — Landing page.
