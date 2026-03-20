@@ -86,7 +86,7 @@ export default async function PoolsPage({
 
   if (!season) {
     return (
-      <main className="p-8">
+      <main className="px-4 py-6 sm:p-8">
         <h1 className="text-2xl font-bold mb-4">Pools</h1>
         <p className="text-gray-500">No active season at this time.</p>
       </main>
@@ -111,7 +111,7 @@ export default async function PoolsPage({
   );
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
+    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-8">Pools — {season.name}</h1>
 
       <section className="mb-8">
@@ -121,7 +121,10 @@ export default async function PoolsPage({
         ) : (
           <ul className="space-y-3">
             {publicPools.map((pool) => (
-              <li key={pool.id} className="flex items-center justify-between rounded-lg border p-4">
+              <li
+                key={pool.id}
+                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border p-4"
+              >
                 <div>
                   <span className="font-medium">{pool.name}</span>
                   <span className="ml-3 text-xs text-gray-500">
@@ -157,7 +160,10 @@ export default async function PoolsPage({
           <h2 className="text-xl font-semibold mb-4">My Private Pools</h2>
           <ul className="space-y-3">
             {myPrivatePools.map((pool) => (
-              <li key={pool.id} className="flex items-center justify-between rounded-lg border p-4">
+              <li
+                key={pool.id}
+                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-lg border p-4"
+              >
                 <div>
                   <span className="font-medium">{pool.name}</span>
                   <span className="ml-3 text-xs text-gray-500">
@@ -181,7 +187,7 @@ export default async function PoolsPage({
 
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Join a Private Pool</h2>
-        <form action={joinByInviteCodeAction} className="flex gap-3">
+        <form action={joinByInviteCodeAction} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             name="inviteCode"
@@ -208,7 +214,7 @@ export default async function PoolsPage({
 
       <section>
         <h2 className="text-xl font-semibold mb-4">Create a Private Pool</h2>
-        <form action={createPrivatePoolAction} className="flex gap-3">
+        <form action={createPrivatePoolAction} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             name="name"

@@ -101,23 +101,23 @@ export default function AllocationForm({
                   {isLocked ? (
                     <span className="text-sm tabular-nums w-8 text-center font-medium">{val}</span>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => adjust(c.id, -1)}
                         disabled={val === 0}
-                        className="w-7 h-7 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                        className="w-11 h-11 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
                       >
                         −
                       </button>
-                      <span className="text-sm tabular-nums w-6 text-center font-medium">
+                      <span className="text-sm tabular-nums w-8 text-center font-medium">
                         {val}
                       </span>
                       <button
                         type="button"
                         onClick={() => adjust(c.id, 1)}
                         disabled={remaining === 0}
-                        className="w-7 h-7 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                        className="w-11 h-11 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
                       >
                         +
                       </button>

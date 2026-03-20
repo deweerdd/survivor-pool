@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   if (!season) {
     return (
-      <main className="max-w-2xl mx-auto p-6 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-gray-500">No active season right now.</p>
       </main>
@@ -111,7 +111,10 @@ export default async function DashboardPage() {
         ) : (
           <div className="divide-y border rounded-lg">
             {pools.map((p) => (
-              <div key={p.poolId} className="flex items-center justify-between px-4 py-3">
+              <div
+                key={p.poolId}
+                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between px-4 py-3"
+              >
                 <span className="font-medium">{p.poolName}</span>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span>{p.rank !== null ? `#${p.rank}` : "—"}</span>

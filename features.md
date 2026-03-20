@@ -197,7 +197,7 @@ Work through these one at a time. Each feature is scoped for a single session.
       Show `img_url` thumbnails on allocation form and leaderboard where populated. Fall back to initials avatar.
       **Done when:** contestant images display where available.
 
-- [ ] **7.4 — Mobile layout pass**
+- [x] **7.4 — Mobile layout pass**
       Audit allocation form and leaderboard for small screens. Fix any overflow or usability issues.
       **Done when:** core flows work on a 375px wide screen.
 
@@ -209,5 +209,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 7 in progress (7.1–7.3 done).
-**Next task:** 7.4 — Mobile layout pass.
+**Current:** Phase 7 in progress (7.1–7.4 done).
+**Next task:** 7.5 — Error boundary + loading states.

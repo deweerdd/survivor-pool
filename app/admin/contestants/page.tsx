@@ -72,7 +72,10 @@ export default async function ContestantsPage({
         <p className="text-gray-500 text-sm">No active season.</p>
       ) : (
         <>
-          <form action={createContestant} className="mb-8 flex gap-3 items-end flex-wrap">
+          <form
+            action={createContestant}
+            className="mb-8 flex flex-col sm:flex-row gap-3 items-start sm:items-end flex-wrap"
+          >
             <div className="flex flex-col gap-1">
               <label htmlFor="name" className="text-sm font-medium">
                 Name <span className="text-red-500">*</span>
@@ -83,7 +86,7 @@ export default async function ContestantsPage({
                 type="text"
                 required
                 placeholder="e.g. Jeff Probst"
-                className="border rounded px-3 py-1.5 text-sm w-48"
+                className="border rounded px-3 py-1.5 text-sm w-full sm:w-48"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -95,7 +98,7 @@ export default async function ContestantsPage({
                 name="tribe"
                 type="text"
                 placeholder="e.g. Lavo"
-                className="border rounded px-3 py-1.5 text-sm w-36"
+                className="border rounded px-3 py-1.5 text-sm w-full sm:w-36"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -107,7 +110,7 @@ export default async function ContestantsPage({
                 name="img_url"
                 type="url"
                 placeholder="https://..."
-                className="border rounded px-3 py-1.5 text-sm w-64"
+                className="border rounded px-3 py-1.5 text-sm w-full sm:w-64"
               />
             </div>
             <button
@@ -121,40 +124,42 @@ export default async function ContestantsPage({
           {!contestants || contestants.length === 0 ? (
             <p className="text-gray-500 text-sm">No contestants yet.</p>
           ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="pb-2 pr-6 font-medium">Name</th>
-                  <th className="pb-2 pr-6 font-medium">Tribe</th>
-                  <th className="pb-2 pr-6 font-medium">Status</th>
-                  <th className="pb-2 font-medium">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {contestants.map((contestant: Contestant) => (
-                  <tr key={contestant.id} className="border-b">
-                    <td className="py-2 pr-6">{contestant.name}</td>
-                    <td className="py-2 pr-6">
-                      {contestant.tribe ?? <span className="text-gray-400">—</span>}
-                    </td>
-                    <td className="py-2 pr-6">
-                      {contestant.is_active ? (
-                        <span className="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="inline-block bg-gray-100 text-gray-500 text-xs font-medium px-2 py-0.5 rounded">
-                          Eliminated
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2 text-gray-500">
-                      {new Date(contestant.created_at).toLocaleDateString()}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b text-left">
+                    <th className="pb-2 pr-6 font-medium">Name</th>
+                    <th className="pb-2 pr-6 font-medium">Tribe</th>
+                    <th className="pb-2 pr-6 font-medium">Status</th>
+                    <th className="pb-2 font-medium">Created</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {contestants.map((contestant: Contestant) => (
+                    <tr key={contestant.id} className="border-b">
+                      <td className="py-2 pr-6">{contestant.name}</td>
+                      <td className="py-2 pr-6">
+                        {contestant.tribe ?? <span className="text-gray-400">—</span>}
+                      </td>
+                      <td className="py-2 pr-6">
+                        {contestant.is_active ? (
+                          <span className="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-block bg-gray-100 text-gray-500 text-xs font-medium px-2 py-0.5 rounded">
+                            Eliminated
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2 text-gray-500">
+                        {new Date(contestant.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}

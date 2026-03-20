@@ -14,8 +14,8 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
   }
 
   return (
-    <nav className="border-b px-6 py-3 flex items-center justify-between text-sm font-medium">
-      <div className="flex items-center gap-6">
+    <nav className="border-b px-3 sm:px-6 py-3 flex items-center justify-between text-sm font-medium">
+      <div className="flex items-center gap-3 sm:gap-6">
         <Link href="/dashboard" className="text-base font-bold">
           Survivor Pool
         </Link>
@@ -26,13 +26,13 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
           My Pools
         </Link>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {isAdmin && (
           <Link href="/admin" className="hover:underline">
             Admin
           </Link>
         )}
-        <span className="text-gray-500">{email}</span>
+        <span className="hidden sm:inline text-gray-500">{email}</span>
         <button onClick={handleSignOut} className="text-red-600 hover:underline cursor-pointer">
           Sign Out
         </button>

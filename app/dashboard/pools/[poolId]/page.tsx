@@ -55,9 +55,9 @@ export default async function PoolLeaderboardPage({
   const noEliminations = leaderboard.every((e) => e.totalPoints === 0);
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{poolResult.data.name} — Leaderboard</h1>
+    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold">{poolResult.data.name} — Leaderboard</h1>
         {hasUnlockedEpisode && (
           <a
             href={`/dashboard/pools/${numericPoolId}/allocate`}

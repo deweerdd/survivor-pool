@@ -148,7 +148,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   }
 
   return (
-    <main className="p-8 max-w-2xl mx-auto">
+    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
         <a
           href={`/dashboard/pools/${numericPoolId}`}

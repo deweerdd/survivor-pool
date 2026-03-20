@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div>
-      <nav className="border-b px-6 py-3 flex gap-6 text-sm font-medium">
+      <nav className="border-b px-3 sm:px-6 py-3 flex flex-wrap gap-3 sm:gap-6 text-sm font-medium">
         <Link href="/admin" className="hover:underline">
           Admin Home
         </Link>
@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           Episodes
         </Link>
       </nav>
-      <main className="p-6">{children}</main>
+      <main className="px-3 py-6 sm:p-6">{children}</main>
     </div>
   );
 }

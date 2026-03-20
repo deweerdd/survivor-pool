@@ -125,7 +125,10 @@ export default async function EpisodesPage({
         <p className="text-gray-500 text-sm">No active season.</p>
       ) : (
         <>
-          <form action={createEpisode} className="mb-8 flex gap-3 items-end flex-wrap">
+          <form
+            action={createEpisode}
+            className="mb-8 flex flex-col sm:flex-row gap-3 items-start sm:items-end flex-wrap"
+          >
             <div className="flex flex-col gap-1">
               <label htmlFor="episode_number" className="text-sm font-medium">
                 Episode # <span className="text-red-500">*</span>
@@ -137,7 +140,7 @@ export default async function EpisodesPage({
                 required
                 min={1}
                 placeholder="1"
-                className="border rounded px-3 py-1.5 text-sm w-24"
+                className="border rounded px-3 py-1.5 text-sm w-full sm:w-24"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -149,7 +152,7 @@ export default async function EpisodesPage({
                 name="title"
                 type="text"
                 placeholder="e.g. It's a New Era"
-                className="border rounded px-3 py-1.5 text-sm w-56"
+                className="border rounded px-3 py-1.5 text-sm w-full sm:w-56"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -210,7 +213,7 @@ export default async function EpisodesPage({
                     </div>
 
                     {/* Eliminations section */}
-                    <div className="mt-3 pl-12">
+                    <div className="mt-3 pl-0 sm:pl-12">
                       {episodeEliminations.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-2">
                           {episodeEliminations.map((elim) => (
