@@ -39,7 +39,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
       .maybeSingle(),
     supabase
       .from("contestants")
-      .select("id, name, tribe")
+      .select("id, name, tribe, img_url")
       .eq("season_id", seasonId)
       .eq("is_active", true)
       .order("name"),
@@ -65,11 +65,11 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   }
 
   // Group contestants by tribe
-  const tribeMap = new Map<string, { id: number; name: string }[]>();
+  const tribeMap = new Map<string, { id: number; name: string; img_url: string | null }[]>();
   for (const c of contestantsResult.data ?? []) {
     const tribe = c.tribe ?? "Unknown";
     if (!tribeMap.has(tribe)) tribeMap.set(tribe, []);
-    tribeMap.get(tribe)!.push({ id: c.id, name: c.name });
+    tribeMap.get(tribe)!.push({ id: c.id, name: c.name, img_url: c.img_url });
   }
   const contestantsByTribe = Array.from(tribeMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))

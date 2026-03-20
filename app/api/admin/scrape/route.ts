@@ -6,7 +6,44 @@ import {
   scrapeEpisodes,
   scrapeEliminations,
   EliminationScrapeResult,
+  ScrapedContestant,
 } from "@/lib/scraper";
+
+const IMAGE_BUCKET = "contestant-images";
+
+async function uploadContestantImage(
+  admin: ReturnType<typeof createAdminClient>,
+  contestant: ScrapedContestant,
+  seasonId: number
+): Promise<string | null> {
+  if (!contestant.img_url) return null;
+
+  try {
+    const res = await fetch(contestant.img_url, {
+      headers: { "User-Agent": "survivor-pool-scraper/1.0" },
+    });
+    if (!res.ok) return null;
+
+    const contentType = res.headers.get("content-type") ?? "image/png";
+    const ext = contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg" : "png";
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const path = `season-${seasonId}/${contestant.wiki_slug}.${ext}`;
+
+    const { error } = await admin.storage
+      .from(IMAGE_BUCKET)
+      .upload(path, buffer, { contentType, upsert: true });
+
+    if (error) return null;
+
+    const {
+      data: { publicUrl },
+    } = admin.storage.from(IMAGE_BUCKET).getPublicUrl(path);
+
+    return publicUrl;
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
   // 1. Auth check
@@ -95,6 +132,15 @@ export async function POST(req: NextRequest) {
   const toInsert = scraped.filter((c) => !existingSlugs.has(c.wiki_slug));
   const toUpdate = scraped.filter((c) => c.wiki_slug !== null && existingSlugs.has(c.wiki_slug));
 
+  // Upload contestant images to Supabase Storage
+  const imgUrlMap = new Map<string, string | null>();
+  await Promise.all(
+    scraped.map(async (c) => {
+      const storageUrl = await uploadContestantImage(admin, c, seasonId);
+      imgUrlMap.set(c.wiki_slug, storageUrl);
+    })
+  );
+
   // Insert new rows
   if (toInsert.length > 0) {
     const { error: insertError } = await admin.from("contestants").insert(
@@ -103,6 +149,7 @@ export async function POST(req: NextRequest) {
         name: c.name,
         wiki_slug: c.wiki_slug,
         tribe: c.tribe,
+        img_url: imgUrlMap.get(c.wiki_slug) ?? null,
         is_active: true,
       }))
     );
@@ -114,11 +161,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Update existing rows (name + tribe only, preserve is_active)
+  // Update existing rows (name + tribe + img_url, preserve is_active)
   for (const c of toUpdate) {
+    const storageUrl = imgUrlMap.get(c.wiki_slug);
     const { error: updateError } = await admin
       .from("contestants")
-      .update({ name: c.name, tribe: c.tribe })
+      .update({
+        name: c.name,
+        tribe: c.tribe,
+        ...(storageUrl ? { img_url: storageUrl } : {}),
+      })
       .eq("season_id", seasonId)
       .eq("wiki_slug", c.wiki_slug!);
 

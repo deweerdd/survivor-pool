@@ -186,11 +186,14 @@ Work through these one at a time. Each feature is scoped for a single session.
       Server actions that silently returned on missing season now redirect with `?error=no_season` and display error banners.
       **Done when:** app handles missing active season gracefully everywhere.
 
-- [ ] **7.2 — Handle episode with no allocations yet**
+- [x] **7.2 — Handle episode with no allocations yet**
       Leaderboard shows all pool members with 0 points when no allocations exist. Prompt to allocate.
+      Already handled: `buildLeaderboard` defaults missing scores to 0; leaderboard page shows
+      yellow "No eliminations" banner when all scores are 0; "Allocate Points" button visible when
+      an unlocked episode exists.
       **Done when:** new pool with no allocations renders correctly.
 
-- [ ] **7.3 — Contestant image display**
+- [x] **7.3 — Contestant image display**
       Show `img_url` thumbnails on allocation form and leaderboard where populated. Fall back to initials avatar.
       **Done when:** contestant images display where available.
 
@@ -206,5 +209,5 @@ Work through these one at a time. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 7 in progress (7.1 done).
-**Next task:** 7.2 — Handle episode with no allocations yet.
+**Current:** Phase 7 in progress (7.1–7.3 done).
+**Next task:** 7.4 — Mobile layout pass.

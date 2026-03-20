@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import ContestantAvatar from "@/components/ContestantAvatar";
 
-type Contestant = { id: number; name: string };
+type Contestant = { id: number; name: string; img_url?: string | null };
 type TribeGroup = { tribe: string; members: Contestant[] };
 
 type Props = {
@@ -93,7 +94,10 @@ export default function AllocationForm({
               const val = points[c.id] ?? 0;
               return (
                 <div key={c.id} className="flex items-center justify-between">
-                  <span className="text-sm flex-1">{c.name}</span>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <ContestantAvatar imgUrl={c.img_url} name={c.name} size={28} />
+                    <span className="text-sm truncate">{c.name}</span>
+                  </div>
                   {isLocked ? (
                     <span className="text-sm tabular-nums w-8 text-center font-medium">{val}</span>
                   ) : (

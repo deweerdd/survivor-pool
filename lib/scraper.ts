@@ -5,6 +5,7 @@ export interface ScrapedContestant {
   name: string;
   wiki_slug: string;
   tribe: string | null;
+  img_url: string | null;
 }
 
 export interface ScrapeResult {
@@ -278,6 +279,10 @@ function parseContestants(html: string): ScrapeResult {
     // Need at least 3 data cells: image | name | tribe
     if (cells.length < 3) return;
 
+    // Image is in the 1st cell (index 0)
+    const imgEl = $(cells[0]).find("img").first();
+    const img_url = imgEl.attr("data-src") || imgEl.attr("src") || null;
+
     // Name is in the 2nd cell (index 1), inside <b><a href="/wiki/...">
     const nameLink = $(cells[1]).find("b a[href^='/wiki/']").first();
     if (!nameLink.length) return;
@@ -301,7 +306,7 @@ function parseContestants(html: string): ScrapeResult {
     // Deduplicate — a contestant should only appear once
     if (contestants.some((c) => c.wiki_slug === wiki_slug)) return;
 
-    contestants.push({ name, wiki_slug, tribe });
+    contestants.push({ name, wiki_slug, tribe, img_url });
   });
 
   if (contestants.length === 0) {
