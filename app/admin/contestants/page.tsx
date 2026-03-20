@@ -26,13 +26,14 @@ async function createContestant(formData: FormData) {
   if (!activeSeason) redirect("/admin/contestants?error=no_season");
 
   const adminClient = createAdminClient();
-  await adminClient.from("contestants").insert({
+  const { error } = await adminClient.from("contestants").insert({
     season_id: activeSeason.id,
     name,
     tribe,
     img_url,
     is_active: true,
   });
+  if (error) throw new Error(`Failed to create contestant: ${error.message}`);
   revalidatePath("/admin/contestants");
 }
 

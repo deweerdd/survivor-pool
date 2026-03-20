@@ -16,7 +16,8 @@ async function createSeason(formData: FormData) {
   if (!name) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
+  const { error } = await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
+  if (error) throw new Error(`Failed to create season: ${error.message}`);
   revalidatePath("/admin/seasons");
 }
 
@@ -27,8 +28,17 @@ async function activateSeason(formData: FormData) {
   if (!seasonId) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("seasons").update({ is_active: false }).neq("id", seasonId);
-  await adminClient.from("seasons").update({ is_active: true }).eq("id", seasonId);
+  const { error: deactivateErr } = await adminClient
+    .from("seasons")
+    .update({ is_active: false })
+    .neq("id", seasonId);
+  if (deactivateErr) throw new Error(`Failed to deactivate seasons: ${deactivateErr.message}`);
+
+  const { error: activateErr } = await adminClient
+    .from("seasons")
+    .update({ is_active: true })
+    .eq("id", seasonId);
+  if (activateErr) throw new Error(`Failed to activate season: ${activateErr.message}`);
 
   // Auto-create public pool if one doesn't exist yet
   const { data: season } = await adminClient
@@ -45,13 +55,14 @@ async function activateSeason(formData: FormData) {
     .maybeSingle();
 
   if (season && !existingPool) {
-    await adminClient.from("pools").insert({
+    const { error: poolErr } = await adminClient.from("pools").insert({
       season_id: seasonId,
       name: season.name,
       is_public: true,
       invite_code: null,
       created_by: null,
     });
+    if (poolErr) throw new Error(`Failed to create public pool: ${poolErr.message}`);
   }
 
   revalidatePath("/admin/seasons");

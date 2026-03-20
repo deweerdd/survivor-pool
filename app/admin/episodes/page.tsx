@@ -14,7 +14,8 @@ async function lockEpisode(formData: FormData) {
   const id = parseInt(formData.get("episode_id") as string, 10);
   if (!id) return;
   const adminClient = createAdminClient();
-  await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
+  const { error } = await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
+  if (error) throw new Error(`Failed to lock episode: ${error.message}`);
   revalidatePath("/admin/episodes");
 }
 
@@ -37,13 +38,14 @@ async function createEpisode(formData: FormData) {
   if (!activeSeason) redirect("/admin/episodes?error=no_season");
 
   const adminClient = createAdminClient();
-  await adminClient.from("episodes").insert({
+  const { error } = await adminClient.from("episodes").insert({
     season_id: activeSeason.id,
     episode_number,
     title,
     air_date,
     is_locked: false,
   });
+  if (error) throw new Error(`Failed to create episode: ${error.message}`);
   revalidatePath("/admin/episodes");
 }
 
@@ -55,8 +57,15 @@ async function recordElimination(formData: FormData) {
   if (!episode_id || !contestant_id) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("eliminations").insert({ episode_id, contestant_id });
-  await adminClient.from("contestants").update({ is_active: false }).eq("id", contestant_id);
+  const { error: elimErr } = await adminClient
+    .from("eliminations")
+    .insert({ episode_id, contestant_id });
+  if (elimErr) throw new Error(`Failed to record elimination: ${elimErr.message}`);
+  const { error: updateErr } = await adminClient
+    .from("contestants")
+    .update({ is_active: false })
+    .eq("id", contestant_id);
+  if (updateErr) throw new Error(`Failed to update contestant status: ${updateErr.message}`);
   revalidatePath("/admin/episodes");
 }
 
