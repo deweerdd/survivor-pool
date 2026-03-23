@@ -27,7 +27,7 @@ export default function ContestantAvatar({ imgUrl, name, size = 32 }: Props) {
 
   return (
     <div
-      className="rounded-full bg-gray-300 text-gray-700 flex items-center justify-center font-semibold text-xs shrink-0"
+      className="rounded-full bg-muted text-muted-foreground flex items-center justify-center font-semibold text-xs shrink-0"
       style={{ width: size, height: size }}
     >
       {getInitials(name)}

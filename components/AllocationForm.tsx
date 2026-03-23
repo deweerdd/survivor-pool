@@ -55,69 +55,75 @@ export default function AllocationForm({
         <input key={id} type="hidden" name={`points_${id}`} value={val} />
       ))}
 
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-1">
-          Episode {episodeNumber} — Allocate Your 20 Points
-        </h2>
-        <div className="flex items-center gap-3 text-sm text-gray-600">
-          <span>
-            Points remaining:{" "}
-            <span
-              className={
-                remaining === 0
-                  ? "font-semibold text-green-600"
-                  : remaining < 0
-                    ? "font-semibold text-red-600"
-                    : "font-semibold"
-              }
+      <div className="card-torch mb-6">
+        <h2 className="mb-1">Episode {episodeNumber} — Allocate Your 20 Points</h2>
+        <div className="flex items-center gap-6 mt-3">
+          <div className="shrink-0">
+            <p className="text-label">Remaining</p>
+            <p
+              className={`text-stat ${remaining === 0 ? "text-success" : remaining < 0 ? "text-destructive" : ""}`}
             >
               {remaining}
-            </span>{" "}
-            / 20
-          </span>
-          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 transition-all"
-              style={{ width: `${Math.min(100, (total / 20) * 100)}%` }}
-            />
+            </p>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all"
+                style={{ width: `${Math.min(100, (total / 20) * 100)}%` }}
+              />
+            </div>
+            <p className="text-label mt-1">{total} / 20 allocated</p>
           </div>
         </div>
       </div>
+      <hr className="divider-accent mb-6" />
 
       {contestants.map((group) => (
         <div key={group.tribe} className="mb-6">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 border-b pb-1">
-            {group.tribe}
-          </h3>
+          <h3 className="text-label pb-2 border-b border-border mb-3">{group.tribe}</h3>
           <div className="space-y-2">
             {group.members.map((c) => {
               const val = points[c.id] ?? 0;
               return (
-                <div key={c.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <ContestantAvatar imgUrl={c.img_url} name={c.name} size={28} />
-                    <span className="text-sm truncate">{c.name}</span>
+                <div
+                  key={c.id}
+                  className={`card-flat p-3 flex items-center justify-between${isLocked ? " opacity-75" : ""}`}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <ContestantAvatar imgUrl={c.img_url} name={c.name} size={36} />
+                    <div className="min-w-0">
+                      <span className="font-medium truncate block">{c.name}</span>
+                      {val > 0 && (
+                        <div
+                          className="h-1 bg-primary rounded-full mt-1"
+                          style={{ width: `${(val / 20) * 100}%`, minWidth: "0.5rem" }}
+                        />
+                      )}
+                    </div>
                   </div>
                   {isLocked ? (
-                    <span className="text-sm tabular-nums w-8 text-center font-medium">{val}</span>
+                    <span className="text-display text-lg tabular-nums w-10 text-center">
+                      {val}
+                    </span>
                   ) : (
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => adjust(c.id, -1)}
                         disabled={val === 0}
-                        className="w-11 h-11 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                        className="btn btn-outline btn-icon font-bold"
                       >
                         −
                       </button>
-                      <span className="text-sm tabular-nums w-8 text-center font-medium">
+                      <span className="text-display text-lg tabular-nums w-10 text-center">
                         {val}
                       </span>
                       <button
                         type="button"
                         onClick={() => adjust(c.id, 1)}
                         disabled={remaining === 0}
-                        className="w-11 h-11 rounded border text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                        className="btn btn-outline btn-icon font-bold"
                       >
                         +
                       </button>
@@ -131,22 +137,16 @@ export default function AllocationForm({
       ))}
 
       {isLocked ? (
-        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600 font-medium">
-          <span>🔒</span> Episode is locked
+        <div className="callout callout-warning mt-4 flex items-center gap-2">
+          <span>🔒</span> Episode is locked — allocations are final.
         </div>
       ) : (
-        <div className="mt-4 flex items-center gap-4">
-          <button
-            type="submit"
-            disabled={total !== 20 || isPending}
-            className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+        <div className="mt-4 space-y-3">
+          <button type="submit" disabled={total !== 20 || isPending} className="btn btn-torch">
             {isPending ? "Saving…" : isEditing ? "Update Allocation" : "Submit Allocation"}
           </button>
-          {result === "ok" && (
-            <span className="text-sm text-green-600 font-medium">Allocation saved!</span>
-          )}
-          {result && result !== "ok" && <span className="text-sm text-red-600">{result}</span>}
+          {result === "ok" && <div className="callout callout-success">Allocation saved!</div>}
+          {result && result !== "ok" && <div className="callout callout-danger">{result}</div>}
         </div>
       )}
     </form>

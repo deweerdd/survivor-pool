@@ -21,12 +21,9 @@ export default async function LoginPage() {
     <main className="flex min-h-screen items-center justify-center">
       <div className="text-center space-y-6">
         <h1 className="text-3xl font-bold">Survivor Pool</h1>
-        <p className="text-gray-500">Sign in to get started</p>
+        <p className="text-muted-foreground">Sign in to get started</p>
         <form action={signInWithGoogle}>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-          >
+          <button type="submit" className="btn btn-primary px-6 py-3">
             Sign in with Google
           </button>
         </form>

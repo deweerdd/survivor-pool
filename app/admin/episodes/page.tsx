@@ -14,7 +14,8 @@ async function lockEpisode(formData: FormData) {
   const id = parseInt(formData.get("episode_id") as string, 10);
   if (!id) return;
   const adminClient = createAdminClient();
-  await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
+  const { error } = await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
+  if (error) throw new Error(`Failed to lock episode: ${error.message}`);
   revalidatePath("/admin/episodes");
 }
 
@@ -37,13 +38,14 @@ async function createEpisode(formData: FormData) {
   if (!activeSeason) redirect("/admin/episodes?error=no_season");
 
   const adminClient = createAdminClient();
-  await adminClient.from("episodes").insert({
+  const { error } = await adminClient.from("episodes").insert({
     season_id: activeSeason.id,
     episode_number,
     title,
     air_date,
     is_locked: false,
   });
+  if (error) throw new Error(`Failed to create episode: ${error.message}`);
   revalidatePath("/admin/episodes");
 }
 
@@ -55,8 +57,15 @@ async function recordElimination(formData: FormData) {
   if (!episode_id || !contestant_id) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("eliminations").insert({ episode_id, contestant_id });
-  await adminClient.from("contestants").update({ is_active: false }).eq("id", contestant_id);
+  const { error: elimErr } = await adminClient
+    .from("eliminations")
+    .insert({ episode_id, contestant_id });
+  if (elimErr) throw new Error(`Failed to record elimination: ${elimErr.message}`);
+  const { error: updateErr } = await adminClient
+    .from("contestants")
+    .update({ is_active: false })
+    .eq("id", contestant_id);
+  if (updateErr) throw new Error(`Failed to update contestant status: ${updateErr.message}`);
   revalidatePath("/admin/episodes");
 }
 
@@ -140,7 +149,7 @@ export default async function EpisodesPage({
                 required
                 min={1}
                 placeholder="1"
-                className="border rounded px-3 py-1.5 text-sm w-full sm:w-24"
+                className="input w-full sm:w-24"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -152,24 +161,16 @@ export default async function EpisodesPage({
                 name="title"
                 type="text"
                 placeholder="e.g. It's a New Era"
-                className="border rounded px-3 py-1.5 text-sm w-full sm:w-56"
+                className="input w-full sm:w-56"
               />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="air_date" className="text-sm font-medium">
                 Air Date <span className="text-gray-400">(optional)</span>
               </label>
-              <input
-                id="air_date"
-                name="air_date"
-                type="date"
-                className="border rounded px-3 py-1.5 text-sm"
-              />
+              <input id="air_date" name="air_date" type="date" className="input" />
             </div>
-            <button
-              type="submit"
-              className="bg-black text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-800"
-            >
+            <button type="submit" className="btn btn-primary btn-sm">
               Add Episode
             </button>
           </form>
@@ -202,10 +203,7 @@ export default async function EpisodesPage({
                       ) : (
                         <form action={lockEpisode} className="inline">
                           <input type="hidden" name="episode_id" value={episode.id} />
-                          <button
-                            type="submit"
-                            className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
-                          >
+                          <button type="submit" className="btn btn-outline btn-sm">
                             Lock
                           </button>
                         </form>
@@ -230,11 +228,7 @@ export default async function EpisodesPage({
                       {availableContestants.length > 0 ? (
                         <form action={recordElimination} className="flex gap-2 items-center">
                           <input type="hidden" name="episode_id" value={episode.id} />
-                          <select
-                            name="contestant_id"
-                            required
-                            className="border rounded px-2 py-1 text-sm"
-                          >
+                          <select name="contestant_id" required className="select w-auto">
                             <option value="">— pick contestant —</option>
                             {availableContestants.map((c) => (
                               <option key={c.id} value={c.id}>
@@ -242,10 +236,7 @@ export default async function EpisodesPage({
                               </option>
                             ))}
                           </select>
-                          <button
-                            type="submit"
-                            className="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                          >
+                          <button type="submit" className="btn btn-danger btn-sm">
                             Record Elimination
                           </button>
                         </form>

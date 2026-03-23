@@ -26,13 +26,14 @@ async function createContestant(formData: FormData) {
   if (!activeSeason) redirect("/admin/contestants?error=no_season");
 
   const adminClient = createAdminClient();
-  await adminClient.from("contestants").insert({
+  const { error } = await adminClient.from("contestants").insert({
     season_id: activeSeason.id,
     name,
     tribe,
     img_url,
     is_active: true,
   });
+  if (error) throw new Error(`Failed to create contestant: ${error.message}`);
   revalidatePath("/admin/contestants");
 }
 
@@ -86,7 +87,7 @@ export default async function ContestantsPage({
                 type="text"
                 required
                 placeholder="e.g. Jeff Probst"
-                className="border rounded px-3 py-1.5 text-sm w-full sm:w-48"
+                className="input w-full sm:w-48"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -98,7 +99,7 @@ export default async function ContestantsPage({
                 name="tribe"
                 type="text"
                 placeholder="e.g. Lavo"
-                className="border rounded px-3 py-1.5 text-sm w-full sm:w-36"
+                className="input w-full sm:w-36"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -110,13 +111,10 @@ export default async function ContestantsPage({
                 name="img_url"
                 type="url"
                 placeholder="https://..."
-                className="border rounded px-3 py-1.5 text-sm w-full sm:w-64"
+                className="input w-full sm:w-64"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-black text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-800"
-            >
+            <button type="submit" className="btn btn-primary btn-sm">
               Add Contestant
             </button>
           </form>

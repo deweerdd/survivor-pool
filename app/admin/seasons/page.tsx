@@ -16,7 +16,8 @@ async function createSeason(formData: FormData) {
   if (!name) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
+  const { error } = await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
+  if (error) throw new Error(`Failed to create season: ${error.message}`);
   revalidatePath("/admin/seasons");
 }
 
@@ -27,8 +28,17 @@ async function activateSeason(formData: FormData) {
   if (!seasonId) return;
 
   const adminClient = createAdminClient();
-  await adminClient.from("seasons").update({ is_active: false }).neq("id", seasonId);
-  await adminClient.from("seasons").update({ is_active: true }).eq("id", seasonId);
+  const { error: deactivateErr } = await adminClient
+    .from("seasons")
+    .update({ is_active: false })
+    .neq("id", seasonId);
+  if (deactivateErr) throw new Error(`Failed to deactivate seasons: ${deactivateErr.message}`);
+
+  const { error: activateErr } = await adminClient
+    .from("seasons")
+    .update({ is_active: true })
+    .eq("id", seasonId);
+  if (activateErr) throw new Error(`Failed to activate season: ${activateErr.message}`);
 
   // Auto-create public pool if one doesn't exist yet
   const { data: season } = await adminClient
@@ -45,13 +55,14 @@ async function activateSeason(formData: FormData) {
     .maybeSingle();
 
   if (season && !existingPool) {
-    await adminClient.from("pools").insert({
+    const { error: poolErr } = await adminClient.from("pools").insert({
       season_id: seasonId,
       name: season.name,
       is_public: true,
       invite_code: null,
       created_by: null,
     });
+    if (poolErr) throw new Error(`Failed to create public pool: ${poolErr.message}`);
   }
 
   revalidatePath("/admin/seasons");
@@ -82,7 +93,7 @@ export default async function SeasonsPage() {
             type="text"
             required
             placeholder="e.g. Survivor 47"
-            className="border rounded px-3 py-1.5 text-sm w-full sm:w-56"
+            className="input w-full sm:w-56"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -94,13 +105,10 @@ export default async function SeasonsPage() {
             name="wiki_url"
             type="url"
             placeholder="https://survivor.fandom.com/..."
-            className="border rounded px-3 py-1.5 text-sm w-full sm:w-72"
+            className="input w-full sm:w-72"
           />
         </div>
-        <button
-          type="submit"
-          className="bg-black text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-gray-800"
-        >
+        <button type="submit" className="btn btn-primary btn-sm">
           Create Season
         </button>
       </form>
@@ -128,7 +136,7 @@ export default async function SeasonsPage() {
                         href={season.wiki_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline truncate max-w-xs block"
+                        className="text-primary hover:underline truncate max-w-xs block"
                       >
                         {season.wiki_url}
                       </a>
@@ -149,7 +157,7 @@ export default async function SeasonsPage() {
                     {!season.is_active && (
                       <form action={activateSeason}>
                         <input type="hidden" name="seasonId" value={season.id} />
-                        <button type="submit" className="text-sm text-blue-600 hover:underline">
+                        <button type="submit" className="btn btn-ghost btn-sm">
                           Activate
                         </button>
                       </form>

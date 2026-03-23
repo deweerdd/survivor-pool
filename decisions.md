@@ -4,6 +4,38 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-20 — Design polish: scoped transitions, Teko buttons, ember glows
+
+**Decision:** Replaced blanket `* { transition }` with scoped selector list (`body, .card, .btn, .input, ...`). Buttons now use Teko display font with uppercase/letter-spacing instead of inheriting body font. Added `--ember` and `--surface-raised` tokens, radius tokens (`--radius-sm/--radius/--radius-lg`), and utility classes (`.text-display`, `.text-label`, `.text-stat`, `.badge-*`, `.divider-accent`, `.glow-ember`, `.btn-torch`, `.card-torch`).
+
+**Why:** The `*` transition caused every DOM element to animate on theme toggle — sluggish on tables/lists. Teko uppercase buttons are the single highest-impact Survivor branding change (challenge signage feel vs SaaS pills). Dark mode colors were too washed out; pushed contrast harder (`#141010` bg, brighter foreground). Ember glow on hover gives "approaching torch" feedback. All changes are CSS-only in `globals.css` — no React component modifications needed.
+
+**Alternative considered:** Adding transitions per-component in Tailwind classes. Rejected because the scoped CSS selector approach is DRYer and catches elements we add later.
+
+---
+
+## 2026-03-20 — Button & input styling: CSS component classes over React wrappers
+
+**Decision:** Button variants (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-ghost`, `.btn-outline`) and form input styles (`.input`, `.select`) are defined as CSS component classes in `globals.css` rather than as React component wrappers.
+
+**Why CSS classes:** All existing buttons are plain `<button>` elements in server components. Creating React wrapper components would require adding imports to 10+ files, and buttons in server components would need no "use client" boundary. CSS classes give the same reusability with zero import changes. Consistent with how typography (h1–h4) is already handled globally.
+
+**Alternative considered:** React `<Button variant="primary">` component (shadcn/ui pattern). Rejected because it adds abstraction for something Tailwind handles well, and would require converting some server component files.
+
+---
+
+## 2026-03-20 — Font pairing: Teko + Barlow via next/font
+
+**Decision:** Headings use **Teko** (condensed, angular), body uses **Barlow** (clean, industrial). Both loaded via `next/font/google` with CSS variables (`--font-display`, `--font-body`) registered as Tailwind v4 theme tokens (`font-display`, `font-body`). Base heading styles (h1–h4) set globally in `globals.css` with uppercase, tight line-height, and widened tracking.
+
+**Why Teko:** Condensed display fonts evoke carved/stamped lettering — fits the Survivor tribal aesthetic. Teko is distinctive without being gimmicky, and has weights 400–700 for flexibility.
+
+**Why global h1–h4 styles:** Ensures consistency without adding utility classes to every heading. Pages can still override with Tailwind classes when needed.
+
+**Alternative considered:** Bebas Neue (too overused), Anton (single weight), local font files (unnecessary complexity when next/font handles optimization).
+
+---
+
 ## 2026-03-19 — Defense-in-depth for admin routes: middleware + server action guards
 
 **Decision:** Admin protection is enforced at three layers:
