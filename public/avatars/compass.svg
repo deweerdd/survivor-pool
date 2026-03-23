@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <circle cx="32" cy="32" r="24" fill="var(--surface, #1e1814)" stroke="#a16207" stroke-width="2"/>
+  <circle cx="32" cy="32" r="20" fill="none" stroke="#78716c" stroke-width="1"/>
+  <polygon points="32,12 35,28 32,32 29,28" fill="#dc2626"/>
+  <polygon points="32,52 29,36 32,32 35,36" fill="#e5e7eb"/>
+  <polygon points="12,32 28,29 32,32 28,35" fill="#78716c"/>
+  <polygon points="52,32 36,35 32,32 36,29" fill="#78716c"/>
+  <circle cx="32" cy="32" r="3" fill="#a16207"/>
+  <text x="32" y="10" text-anchor="middle" fill="#dc2626" font-size="6" font-weight="bold" font-family="sans-serif">N</text>
+  <text x="32" y="58" text-anchor="middle" fill="#78716c" font-size="6" font-family="sans-serif">S</text>
+</svg>
