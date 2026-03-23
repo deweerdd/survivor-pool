@@ -38,19 +38,19 @@ Design and polish pass. Each feature is scoped for a single session.
       Restyle the dashboard with themed cards for season info, pool summaries, and quick actions. Add visual hierarchy with section headings, icons, and color-coded status indicators. Improve the "allocate points" CTA prominence.
       **Done when:** dashboard has clear visual hierarchy with Survivor theming.
 
-- [ ] **1.9 — Pools page redesign (`app/dashboard/pools/page.tsx`)**
+- [x] **1.9 — Pools page redesign (`app/dashboard/pools/page.tsx`)**
       Themed pool cards with visual distinction between public and private pools. Improve create/join forms layout. Add pool member count badges, invite code display styling, and better empty-state messaging.
       **Done when:** pools page has polished, themed pool cards and forms.
 
-- [ ] **1.10 — Leaderboard page redesign (`app/dashboard/pools/[poolId]/page.tsx`)**
+- [x] **1.10 — Leaderboard page redesign (`app/dashboard/pools/[poolId]/page.tsx`)**
       Themed leaderboard with rank badges (gold/silver/bronze for top 3), score highlighting, row hover effects, and tribe color accents. Style the "(you)" indicator. Improve score columns readability.
       **Done when:** leaderboard has visual polish with rank badges and themed styling.
 
-- [ ] **1.11 — Allocation page redesign (`app/dashboard/pools/[poolId]/allocate/page.tsx`)**
+- [x] **1.11 — Allocation page redesign (`app/dashboard/pools/[poolId]/allocate/page.tsx`)**
       Restyle the allocation form with contestant cards (photo + name + tribe color), visual point distribution bars, clearer remaining-points indicator, and tribe grouping. Improve locked-episode read-only view.
       **Done when:** allocation form is visually engaging with contestant cards and point visualization.
 
-- [ ] **1.12 — Loading & error state theming**
+- [x] **1.12 — Loading & error state theming**
       Update `loading.tsx` skeletons and `error.tsx` boundary to match the Survivor theme. Themed spinner, skeleton pulse colors, and error recovery UI with consistent styling.
       **Done when:** loading and error states match the overall design language.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.8 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta, landing page, dashboard redesign).
-**Next task:** 1.9 — Pools page redesign.
+**Current:** Phase 1 complete — all 12 features done (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta, landing page, dashboard redesign, pools page redesign, leaderboard redesign, allocation page redesign, loading & error theming).
+**Next task:** None — Phase 1 (Design) is complete.

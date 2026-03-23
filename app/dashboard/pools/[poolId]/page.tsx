@@ -55,29 +55,29 @@ export default async function PoolLeaderboardPage({
   const noEliminations = leaderboard.every((e) => e.totalPoints === 0);
 
   return (
-    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">{poolResult.data.name} — Leaderboard</h1>
+    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1>{poolResult.data.name} — Leaderboard</h1>
         {hasUnlockedEpisode && (
-          <a href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-primary">
+          <a href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-torch">
             Allocate Points
           </a>
         )}
       </div>
 
       {noEliminations && (
-        <div className="callout callout-warning mb-6">
+        <div className="callout callout-warning">
           No eliminations recorded yet — all members start at 0 points.
         </div>
       )}
 
-      <div className="card p-0">
+      <div className="card p-0 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-muted-foreground">
-              <th className="pb-2 pr-4 pl-5 pt-4 font-medium">Rank</th>
-              <th className="pb-2 pr-4 pt-4 font-medium">Name</th>
-              <th className="pb-2 pr-5 pt-4 text-right font-medium">Points</th>
+            <tr className="border-b border-border text-left">
+              <th className="text-label pb-3 pr-4 pl-5 pt-4">Rank</th>
+              <th className="text-label pb-3 pr-4 pt-4">Name</th>
+              <th className="text-label pb-3 pr-5 pt-4 text-right">Points</th>
             </tr>
           </thead>
           <tbody>
@@ -86,16 +86,38 @@ export default async function PoolLeaderboardPage({
                 key={entry.userId}
                 className={
                   entry.isCurrentUser
-                    ? "border-b bg-surface font-semibold"
-                    : "border-b hover:bg-surface"
+                    ? "border-b border-border bg-surface-raised font-semibold border-l-[3px] border-l-primary"
+                    : "border-b border-border hover:bg-surface-raised transition-colors"
                 }
               >
-                <td className="py-3 pr-4 pl-5 text-muted-foreground">{entry.rank}</td>
+                <td className="py-3 pr-4 pl-5">
+                  {entry.rank === 1 ? (
+                    <span className="badge badge-accent">1</span>
+                  ) : entry.rank === 2 ? (
+                    <span
+                      className="badge"
+                      style={{
+                        background: "var(--muted)",
+                        color: "var(--foreground)",
+                      }}
+                    >
+                      2
+                    </span>
+                  ) : entry.rank === 3 ? (
+                    <span className="badge badge-primary">3</span>
+                  ) : (
+                    <span className="text-muted-foreground">{entry.rank}</span>
+                  )}
+                </td>
                 <td className="py-3 pr-4">
                   {entry.displayName}
-                  {entry.isCurrentUser && <span className="ml-2 text-xs text-primary">(you)</span>}
+                  {entry.isCurrentUser && <span className="badge badge-primary ml-2">you</span>}
                 </td>
-                <td className="py-3 pr-5 text-right tabular-nums">{entry.totalPoints}</td>
+                <td className="py-3 pr-5 text-right">
+                  <span className="text-display text-lg font-bold tabular-nums">
+                    {entry.totalPoints}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

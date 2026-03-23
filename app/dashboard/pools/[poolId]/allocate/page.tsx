@@ -150,13 +150,10 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
-        <a
-          href={`/dashboard/pools/${numericPoolId}`}
-          className="text-sm text-primary hover:underline"
-        >
+        <a href={`/dashboard/pools/${numericPoolId}`} className="btn btn-ghost btn-sm">
           ← Back to leaderboard
         </a>
-        <h1 className="text-2xl font-bold mt-2">{poolResult.data.name}</h1>
+        <h1 className="mt-2">{poolResult.data.name}</h1>
       </div>
 
       {!episode ? (

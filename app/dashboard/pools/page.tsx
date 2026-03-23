@@ -86,9 +86,11 @@ export default async function PoolsPage({
 
   if (!season) {
     return (
-      <main className="px-4 py-6 sm:p-8">
-        <h1 className="text-2xl font-bold mb-4">Pools</h1>
-        <p className="text-muted-foreground">No active season at this time.</p>
+      <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
+        <h1 className="mb-6">Pools</h1>
+        <div className="card-flat py-10 text-center">
+          <p className="text-muted-foreground">No active season at this time.</p>
+        </div>
       </main>
     );
   }
@@ -111,38 +113,37 @@ export default async function PoolsPage({
   );
 
   return (
-    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">Pools — {season.name}</h1>
+    <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-8">
+      <h1>Pools — {season.name}</h1>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Public Pool</h2>
+      <section>
+        <h2 className="mb-4">Public Pool</h2>
         {publicPools.length === 0 ? (
-          <p className="text-muted-foreground">No public pool for this season.</p>
+          <div className="card-flat py-8 text-center">
+            <p className="text-muted-foreground">No public pool for this season.</p>
+          </div>
         ) : (
           <ul className="space-y-3">
             {publicPools.map((pool) => (
               <li
                 key={pool.id}
-                className="card card-hover flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                className="card-torch card-hover flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <span className="font-medium">{pool.name}</span>
-                  <span className="ml-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="font-medium text-lg">{pool.name}</span>
+                  <span className="badge badge-secondary">
                     {countMap.get(pool.id) ?? 0} members
                   </span>
                 </div>
                 {!isMember(pool, user.id) && (
                   <form action={joinPoolAction.bind(null, pool.id)}>
-                    <button type="submit" className="btn btn-primary">
-                      Join
+                    <button type="submit" className="btn btn-torch">
+                      Join Pool
                     </button>
                   </form>
                 )}
                 {isMember(pool, user.id) && (
-                  <Link
-                    href={`/dashboard/pools/${pool.id}`}
-                    className="text-sm text-primary font-medium hover:underline"
-                  >
+                  <Link href={`/dashboard/pools/${pool.id}`} className="btn btn-ghost btn-sm">
                     Leaderboard
                   </Link>
                 )}
@@ -153,29 +154,24 @@ export default async function PoolsPage({
       </section>
 
       {myPrivatePools.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">My Private Pools</h2>
+        <section>
+          <h2 className="mb-4">My Private Pools</h2>
           <ul className="space-y-3">
             {myPrivatePools.map((pool) => (
               <li
                 key={pool.id}
-                className="card card-hover flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                className="card card-hover flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className="font-medium">{pool.name}</span>
-                  <span className="ml-3 text-xs text-muted-foreground">
+                  <span className="badge badge-secondary">
                     {countMap.get(pool.id) ?? 0} members
                   </span>
                   {pool.invite_code && (
-                    <span className="ml-3 text-xs text-muted-foreground">
-                      Code: {pool.invite_code}
-                    </span>
+                    <span className="badge badge-accent">Code: {pool.invite_code}</span>
                   )}
                 </div>
-                <Link
-                  href={`/dashboard/pools/${pool.id}`}
-                  className="text-sm text-primary font-medium hover:underline"
-                >
+                <Link href={`/dashboard/pools/${pool.id}`} className="btn btn-ghost btn-sm">
                   Leaderboard
                 </Link>
               </li>
@@ -184,8 +180,9 @@ export default async function PoolsPage({
         </section>
       )}
 
-      <section className="card mb-8">
-        <h2 className="text-xl font-semibold mb-4">Join a Private Pool</h2>
+      <section className="card-torch">
+        <h2 className="mb-1">Join a Private Pool</h2>
+        <hr className="divider-accent my-4" />
         <form action={joinByInviteCodeAction} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -199,17 +196,18 @@ export default async function PoolsPage({
           </button>
         </form>
         {error === "invalid_code" && (
-          <p className="mt-2 text-sm text-destructive">Invalid invite code. Please try again.</p>
+          <div className="callout callout-danger mt-3">Invalid invite code. Please try again.</div>
         )}
         {error === "no_season" && (
-          <p className="mt-2 text-sm text-destructive">
+          <div className="callout callout-danger mt-3">
             No active season. Cannot create a pool right now.
-          </p>
+          </div>
         )}
       </section>
 
       <section className="card">
-        <h2 className="text-xl font-semibold mb-4">Create a Private Pool</h2>
+        <h2 className="mb-1">Create a Private Pool</h2>
+        <hr className="divider my-3" />
         <form action={createPrivatePoolAction} className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
