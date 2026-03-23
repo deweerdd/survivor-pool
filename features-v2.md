@@ -30,7 +30,7 @@ Design and polish pass. Each feature is scoped for a single session.
       Add a site footer with credits/links. Set favicon (torch or tribal icon). Add Open Graph meta tags for link sharing (title, description, image). Update `app/layout.tsx` metadata.
       **Done when:** site has footer, favicon, and OG tags for social sharing.
 
-- [ ] **1.7 — Landing page (`app/page.tsx`)**
+- [x] **1.7 — Landing page (`app/page.tsx`)**
       Replace the current redirect-to-dashboard with a public landing page. Hero section with Survivor-themed imagery/background, app title and tagline, prominent "Sign in with Google" button, and a call-to-action to join a pool. Unauthenticated users see this; authenticated users redirect to `/dashboard`.
       **Done when:** unauthenticated visitors see a themed landing page with sign-in and CTA.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.6 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta).
-**Next task:** 1.7 — Landing page.
+**Current:** Phase 1 — features 1.1–1.7 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta, landing page).
+**Next task:** 1.8 — Dashboard page redesign.

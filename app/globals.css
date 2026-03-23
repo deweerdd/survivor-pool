@@ -569,3 +569,281 @@ h4 {
     display: none !important;
   }
 }
+
+/*
+ * 12. Landing page
+ */
+
+.landing {
+  --torch-orange: var(--primary);
+  --torch-gold: var(--accent);
+  --torch-ember: var(--ember);
+}
+
+/* Hero section — full viewport, atmospheric */
+.landing-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem 1.5rem;
+}
+
+.landing-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 20%,
+      color-mix(in srgb, var(--torch-ember) 18%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 50% 80%,
+      color-mix(in srgb, var(--torch-orange) 10%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--torch-gold) 6%, transparent),
+      transparent 50%
+    ),
+    var(--background);
+}
+
+.dark .landing-hero-bg {
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 18%,
+      color-mix(in srgb, var(--torch-ember) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 50% 85%,
+      color-mix(in srgb, var(--torch-orange) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--torch-gold) 8%, transparent),
+      transparent 50%
+    ),
+    var(--background);
+}
+
+.landing-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 640px;
+}
+
+/* Torch icon */
+.landing-torch-icon {
+  width: 48px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--torch-ember) 60%, transparent));
+  animation: torch-flicker 3s ease-in-out infinite alternate;
+}
+
+@keyframes torch-flicker {
+  0% {
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--torch-ember) 60%, transparent));
+  }
+  33% {
+    filter: drop-shadow(0 0 18px color-mix(in srgb, var(--torch-ember) 70%, transparent));
+  }
+  66% {
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--torch-ember) 50%, transparent));
+  }
+  100% {
+    filter: drop-shadow(0 0 16px color-mix(in srgb, var(--torch-ember) 65%, transparent));
+  }
+}
+
+/* Title */
+.landing-title {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 5rem;
+}
+
+@media (min-width: 640px) {
+  .landing-title {
+    font-size: 7rem;
+  }
+}
+
+.landing-title-survivor {
+  color: var(--torch-orange);
+  font-weight: 700;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--torch-ember) 40%, transparent);
+}
+
+.landing-title-pool {
+  color: var(--foreground);
+  font-weight: 400;
+  font-size: 0.65em;
+  letter-spacing: 0.22em;
+}
+
+/* Tagline */
+.landing-tagline {
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+  max-width: 420px;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .landing-tagline {
+    font-size: 1.25rem;
+  }
+}
+
+/* CTA button overrides */
+.landing-cta {
+  padding: 0.75rem 2.5rem;
+  font-size: 1.125rem;
+}
+
+/* Subtitle under CTA */
+.landing-subtitle {
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+}
+
+/* Scroll hint */
+.landing-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  z-index: 1;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  animation: landing-bounce 2s ease-in-out infinite;
+}
+
+@keyframes landing-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* ── How It Works ── */
+
+.landing-steps {
+  padding: 5rem 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.landing-steps-heading {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--foreground);
+}
+
+.landing-steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .landing-steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+.landing-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.landing-step:hover {
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  transform: translateY(-2px);
+}
+
+.dark .landing-step:hover {
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 12px color-mix(in srgb, var(--ember) 12%, transparent);
+}
+
+.landing-step-number {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+
+.landing-step h3 {
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+}
+
+.landing-step p {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* ── Bottom CTA ── */
+
+.landing-bottom-cta {
+  padding: 4rem 1.5rem 5rem;
+  text-align: center;
+}
+
+.landing-bottom-cta-inner {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.landing-bottom-cta h2 {
+  color: var(--primary);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--ember) 25%, transparent);
+}
+
+.landing-bottom-cta p {
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
