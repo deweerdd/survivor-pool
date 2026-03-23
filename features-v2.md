@@ -34,7 +34,7 @@ Design and polish pass. Each feature is scoped for a single session.
       Replace the current redirect-to-dashboard with a public landing page. Hero section with Survivor-themed imagery/background, app title and tagline, prominent "Sign in with Google" button, and a call-to-action to join a pool. Unauthenticated users see this; authenticated users redirect to `/dashboard`.
       **Done when:** unauthenticated visitors see a themed landing page with sign-in and CTA.
 
-- [ ] **1.8 — Dashboard page redesign (`app/dashboard/page.tsx`)**
+- [x] **1.8 — Dashboard page redesign (`app/dashboard/page.tsx`)**
       Restyle the dashboard with themed cards for season info, pool summaries, and quick actions. Add visual hierarchy with section headings, icons, and color-coded status indicators. Improve the "allocate points" CTA prominence.
       **Done when:** dashboard has clear visual hierarchy with Survivor theming.
 
@@ -58,5 +58,5 @@ Design and polish pass. Each feature is scoped for a single session.
 
 ## Progress
 
-**Current:** Phase 1 — features 1.1–1.7 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta, landing page).
-**Next task:** 1.8 — Dashboard page redesign.
+**Current:** Phase 1 — features 1.1–1.8 complete (palette, typography, buttons/inputs, cards, NavBar redesign, footer & meta, landing page, dashboard redesign).
+**Next task:** 1.9 — Pools page redesign.

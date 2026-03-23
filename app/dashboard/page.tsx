@@ -19,9 +19,11 @@ export default async function DashboardPage() {
 
   if (!season) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 space-y-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">No active season right now.</p>
+      <main className="max-w-2xl mx-auto px-4 py-8 sm:px-6 space-y-6">
+        <h1>Dashboard</h1>
+        <div className="card-flat py-10 text-center">
+          <p className="text-muted-foreground">No active season right now.</p>
+        </div>
       </main>
     );
   }
@@ -73,56 +75,87 @@ export default async function DashboardPage() {
   );
 
   const pools = poolsWithScores.filter((p): p is NonNullable<typeof p> => p !== null);
+  const totalPoints = pools.reduce((sum, p) => sum + p.totalPoints, 0);
 
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Active Season: {season.name}</h1>
+    <main className="max-w-2xl mx-auto px-4 py-8 sm:px-6 space-y-6">
+      {/* ── Season Header ── */}
+      <div className="card-torch">
+        <p className="text-label">Active Season</p>
+        <h1 className="mt-1">{season.name}</h1>
+        <hr className="divider-accent my-4" />
+        <div className="flex gap-8">
+          <div>
+            <p className="text-label">My Pools</p>
+            <p className="text-stat">{pools.length}</p>
+          </div>
+          <div>
+            <p className="text-label">Total Points</p>
+            <p className="text-stat">{totalPoints}</p>
+          </div>
+        </div>
+      </div>
 
+      {/* ── Allocate CTA ── */}
       {openEpisode && pools.length > 0 && (
-        <div className="callout callout-warning space-y-2">
-          <p className="font-semibold">Episode {openEpisode.episode_number} is open!</p>
-          <p className="text-sm">Allocate your points before lock.</p>
-          <div className="flex flex-wrap gap-2 pt-1">
+        <div className="card-torch space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl">Episode {openEpisode.episode_number}</h2>
+              <p className="text-sm text-muted-foreground">
+                Open for allocation — lock your points in now.
+              </p>
+            </div>
+            <span className="badge badge-accent shrink-0">Action Needed</span>
+          </div>
+          <hr className="divider" />
+          <div className="flex flex-wrap gap-2">
             {pools.map((p) => (
               <Link
                 key={p.poolId}
                 href={`/dashboard/pools/${p.poolId}/allocate`}
-                className="btn btn-primary btn-sm"
+                className="btn btn-torch"
               >
-                {p.poolName}
+                Allocate — {p.poolName}
               </Link>
             ))}
           </div>
         </div>
       )}
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">My Pools</h2>
+      {/* ── My Pools ── */}
+      <section className="space-y-4">
+        <h2>My Pools</h2>
 
         {pools.length === 0 ? (
-          <p className="text-muted-foreground">
-            You haven&apos;t joined any pools yet.{" "}
-            <Link href="/dashboard/pools" className="text-primary hover:underline">
-              Browse pools
+          <div className="card-flat py-10 text-center">
+            <p className="text-muted-foreground mb-3">You haven&apos;t joined any pools yet.</p>
+            <Link href="/dashboard/pools" className="btn btn-primary">
+              Browse Pools
             </Link>
-          </p>
+          </div>
         ) : (
-          <div className="card p-0 divide-y">
+          <div className="space-y-3">
             {pools.map((p) => (
-              <div
-                key={p.poolId}
-                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between px-4 py-3"
-              >
-                <span className="font-medium">{p.poolName}</span>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>{p.rank !== null ? `#${p.rank}` : "—"}</span>
-                  <span>{p.totalPoints} pts</span>
-                  <Link
-                    href={`/dashboard/pools/${p.poolId}`}
-                    className="text-primary hover:underline"
-                  >
+              <div key={p.poolId} className="card card-hover">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg">{p.poolName}</h3>
+                  <Link href={`/dashboard/pools/${p.poolId}`} className="btn btn-ghost btn-sm">
                     Leaderboard
                   </Link>
+                </div>
+                <hr className="divider mb-3" />
+                <div className="flex gap-8">
+                  <div>
+                    <p className="text-label">Rank</p>
+                    <p className="text-display text-2xl font-bold">
+                      {p.rank !== null ? `#${p.rank}` : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-label">Points</p>
+                    <p className="text-display text-2xl font-bold">{p.totalPoints}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -130,9 +163,12 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <Link href="/dashboard/pools" className="inline-block text-sm text-primary hover:underline">
-        Browse all pools →
-      </Link>
+      {/* ── Browse link ── */}
+      <div className="text-center">
+        <Link href="/dashboard/pools" className="btn btn-outline">
+          Browse All Pools
+        </Link>
+      </div>
     </main>
   );
 }
