@@ -15,6 +15,5 @@ Items to address before or after launch. Checked items are done.
 ## Security — Should Fix
 
 - [ ] **Security headers (CSP, X-Frame-Options)** — No Content Security Policy or frame protection configured in `next.config.ts`. Add `headers()` config.
-- [ ] **Avatar upload content validation** — MIME type is checked but file content is not validated. A file with `.jpg` extension could contain non-image data. Low risk (Supabase serves with proper content-type) but worth hardening.
 - [ ] **RLS integration tests** — Architecture relies on RLS for data isolation, but no tests confirm policies work as expected. A misconfigured policy could expose cross-user data. Add tests that verify access as different user roles.
 - [ ] **Admin audit logging** — Admin actions (activate season, record elimination, lock episode) have no audit trail. For a game with stakes, log who did what and when — either a DB table or structured logging.

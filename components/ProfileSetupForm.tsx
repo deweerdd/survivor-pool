@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useActionState } from "react";
+import { useState, useActionState } from "react";
 import { saveProfile } from "@/lib/actions/profile";
 import { BUILT_IN_AVATARS } from "@/lib/avatars";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -32,27 +32,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
       ? defaults.avatarUrl
       : ""
   );
-  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [bio, setBio] = useState(defaults?.bio ?? "");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const isCustomUpload =
-    defaults?.avatarUrl && !BUILT_IN_AVATARS.some((a) => a.path === defaults.avatarUrl);
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedBuiltIn("");
-      setUploadPreview(URL.createObjectURL(file));
-    }
-  }
-
-  function selectBuiltIn(path: string) {
-    setSelectedBuiltIn(path);
-    setUploadPreview(null);
-    // Clear the file input
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
 
   return (
     <form action={dispatch} className="space-y-8">
@@ -87,7 +67,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
             <button
               key={avatar.id}
               type="button"
-              onClick={() => selectBuiltIn(avatar.path)}
+              onClick={() => setSelectedBuiltIn(avatar.path)}
               className="p-2 rounded-lg border-2 transition-all hover:scale-105"
               style={{
                 borderColor: selectedBuiltIn === avatar.path ? "var(--primary)" : "var(--border)",
@@ -111,39 +91,6 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
           ))}
         </div>
 
-        {/* Upload option */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="btn btn-outline btn-sm"
-          >
-            Upload Photo
-          </button>
-          {(uploadPreview || (isCustomUpload && !selectedBuiltIn)) && (
-            <img
-              src={uploadPreview ?? defaults?.avatarUrl ?? ""}
-              alt="Preview"
-              width={40}
-              height={40}
-              className="rounded-full object-cover"
-              style={{ width: 40, height: 40 }}
-            />
-          )}
-          {uploadPreview && (
-            <span className="text-xs" style={{ color: "var(--secondary)" }}>
-              Ready to upload
-            </span>
-          )}
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          name="avatar_file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={handleFileChange}
-          className="hidden"
-        />
         {/* Hidden field for selected built-in avatar */}
         <input type="hidden" name="built_in_avatar" value={selectedBuiltIn} />
       </div>

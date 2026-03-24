@@ -4,6 +4,16 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-23 — Removed custom avatar upload, kept built-in SVG avatars
+
+**Decision:** Removed the custom file upload path from profile setup/edit. Users select from built-in SVG avatars only (`lib/avatars.ts`). The Supabase `avatars` storage bucket and its RLS policies are dropped via migration. The `avatar_url` column remains — it stores local paths like `/avatars/torch.svg`.
+
+**Why:** The upload accepted files validated by MIME type only, not file content — a `.jpg` extension could carry non-image data. Rather than adding content validation (magic-byte checking, server-side re-encoding), the feature was removed entirely. The plan is to expand the curated avatar library over time, which eliminates the attack surface while still giving users personalization.
+
+**Alternative considered:** Hardening the upload with magic-byte validation and server-side image re-encoding. Rejected as over-engineering for a feature that can be replaced by a growing set of curated SVGs with zero security surface area.
+
+---
+
 ## 2026-03-23 — Server actions extracted to `lib/actions/`, standardized error handling
 
 **Decision:** All server actions moved out of page files into dedicated `lib/actions/*.ts` files (`pools.ts`, `seasons.ts`, `contestants.ts`, `episodes.ts`, `allocations.ts`). Profile action already lived in `lib/actions/profile.ts`. Page files are now pure UI — they import and bind actions rather than defining them inline.

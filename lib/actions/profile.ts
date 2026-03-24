@@ -7,8 +7,6 @@ import { BUILT_IN_AVATARS } from "@/lib/avatars";
 const TEAM_NAME_MIN = 2;
 const TEAM_NAME_MAX = 30;
 const BIO_MAX = 140;
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 /**
  * Strips angle brackets entirely — team names and bios have no legitimate use
@@ -51,7 +49,6 @@ export async function saveProfile(formData: FormData) {
   // --- Handle avatar ---
   let avatarUrl: string | null = null;
   const builtInAvatar = formData.get("built_in_avatar");
-  const avatarFile = formData.get("avatar_file");
 
   if (typeof builtInAvatar === "string" && builtInAvatar) {
     // Validate it's an actual built-in avatar path
@@ -59,37 +56,6 @@ export async function saveProfile(formData: FormData) {
     if (valid) {
       avatarUrl = builtInAvatar;
     }
-  } else if (avatarFile instanceof File && avatarFile.size > 0) {
-    // Validate file
-    if (!ALLOWED_TYPES.includes(avatarFile.type)) {
-      return { error: "Avatar must be a JPEG, PNG, or WebP image." };
-    }
-    if (avatarFile.size > MAX_FILE_SIZE) {
-      return { error: "Avatar must be under 2MB." };
-    }
-
-    const ext = avatarFile.type.split("/")[1] === "jpeg" ? "jpg" : avatarFile.type.split("/")[1];
-    const filePath = `${user.id}/avatar.${ext}`;
-
-    // Delete existing avatar files first (in case extension changed)
-    const { data: existingFiles } = await supabase.storage.from("avatars").list(user.id);
-    if (existingFiles?.length) {
-      await supabase.storage
-        .from("avatars")
-        .remove(existingFiles.map((f) => `${user.id}/${f.name}`));
-    }
-
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, avatarFile, { upsert: true });
-    if (uploadError) {
-      return { error: "Failed to upload avatar. Please try again." };
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    avatarUrl = publicUrl;
   }
 
   // --- Fetch current profile for full_name fallback ---
