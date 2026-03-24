@@ -8,6 +8,7 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Landing page: redirect authenticated users to dashboard (not requireUser — unauthenticated is valid here)
   if (user) {
     redirect("/dashboard");
   }

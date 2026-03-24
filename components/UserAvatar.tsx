@@ -1,3 +1,5 @@
+import { getInitials } from "@/lib/profile-utils";
+
 type Props = {
   avatarUrl?: string | null;
   fullName?: string | null;
@@ -16,14 +18,6 @@ function hashColor(str: string): string {
   }
   const hue = ((hash % 360) + 360) % 360;
   return `hsl(${hue}, 55%, 45%)`;
-}
-
-function getInitials(name: string | null | undefined): string {
-  if (!name) return "??";
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
 }
 
 export default function UserAvatar({ avatarUrl, fullName, size = "md" }: Props) {

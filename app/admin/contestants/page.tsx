@@ -1,41 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { getActiveSeason } from "@/lib/season-utils";
 import type { Database } from "@/lib/supabase/database.types";
-import { requireAdmin } from "@/lib/admin-guard";
+import { createContestant } from "@/lib/actions/contestants";
 
 type Contestant = Database["public"]["Tables"]["contestants"]["Row"];
-
-async function createContestant(formData: FormData) {
-  "use server";
-  await requireAdmin();
-  const name = (formData.get("name") as string)?.trim();
-  const tribe = (formData.get("tribe") as string)?.trim() || null;
-  const img_url = (formData.get("img_url") as string)?.trim() || null;
-
-  if (!name) return;
-
-  const supabase = await createClient();
-  const { data: activeSeason } = await supabase
-    .from("seasons")
-    .select("id")
-    .eq("is_active", true)
-    .single();
-
-  if (!activeSeason) redirect("/admin/contestants?error=no_season");
-
-  const adminClient = createAdminClient();
-  const { error } = await adminClient.from("contestants").insert({
-    season_id: activeSeason.id,
-    name,
-    tribe,
-    img_url,
-    is_active: true,
-  });
-  if (error) throw new Error(`Failed to create contestant: ${error.message}`);
-  revalidatePath("/admin/contestants");
-}
 
 export default async function ContestantsPage({
   searchParams,
@@ -44,12 +12,7 @@ export default async function ContestantsPage({
 }) {
   const { error } = await searchParams;
   const supabase = await createClient();
-
-  const { data: activeSeason } = await supabase
-    .from("seasons")
-    .select("id, name")
-    .eq("is_active", true)
-    .single();
+  const activeSeason = await getActiveSeason(supabase);
 
   const { data: contestants } = activeSeason
     ? await supabase

@@ -4,6 +4,29 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-03-23 — Server actions extracted to `lib/actions/`, standardized error handling
+
+**Decision:** All server actions moved out of page files into dedicated `lib/actions/*.ts` files (`pools.ts`, `seasons.ts`, `contestants.ts`, `episodes.ts`, `allocations.ts`). Profile action already lived in `lib/actions/profile.ts`. Page files are now pure UI — they import and bind actions rather than defining them inline.
+
+Error handling standardized around two conventions:
+
+- **User-facing actions** (allocations, profile) return a discriminated union `ActionResult = { status: "ok" } | { status: "error"; error: string }` so the UI can display errors inline.
+- **Admin actions** throw on failure (caught by error boundaries). Silent `return` on missing input replaced with explicit throws.
+
+A shared `unwrap()` helper (`lib/supabase/unwrap.ts`) replaces the pattern of destructuring `{ data }` and silently ignoring Supabase errors. Used via `.then(unwrap)` in Promise.all chains.
+
+A `requireActiveSeason()` utility (`lib/season-utils.ts`) replaces the repeated fetch-season-then-redirect pattern that appeared in 3+ files.
+
+Duplicate rank calculation in `dashboard/page.tsx` replaced with `getUserRank()` from `lib/leaderboard.ts`.
+
+HTML sanitizer in profile action changed from regex tag-stripping (`/<[^>]*>/g`) to stripping `<>` characters entirely — more robust against malformed tags.
+
+**Why:** Page files were 200+ lines mixing data fetching, mutations, and UI. Extracting actions makes them independently testable, reusable, and keeps pages focused on rendering. Silent failures (ignored Supabase errors, no-op returns on bad input) masked bugs. The three error-handling patterns (throws, string returns, silent returns) were inconsistent and confusing.
+
+**Alternative considered:** Centralizing all error handling into a single `withAction()` wrapper HOF. Rejected as over-abstraction — the two-convention split (throw for admin, ActionResult for user-facing) maps naturally to the two audiences and their error UX.
+
+---
+
 ## 2026-03-20 — Design polish: scoped transitions, Teko buttons, ember glows
 
 **Decision:** Replaced blanket `* { transition }` with scoped selector list (`body, .card, .btn, .input, ...`). Buttons now use Teko display font with uppercase/letter-spacing instead of inheriting body font. Added `--ember` and `--surface-raised` tokens, radius tokens (`--radius-sm/--radius/--radius-lg`), and utility classes (`.text-display`, `.text-label`, `.text-stat`, `.badge-*`, `.divider-accent`, `.glow-ember`, `.btn-torch`, `.card-torch`).

@@ -10,8 +10,13 @@ const BIO_MAX = 140;
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-function stripHtml(str: string): string {
-  return str.replace(/<[^>]*>/g, "").trim();
+/**
+ * Strips angle brackets entirely — team names and bios have no legitimate use
+ * for < or >, and this is more robust than regex-based tag stripping which can
+ * miss malformed tags like `<img onerror=...>` or unclosed `<script`.
+ */
+function sanitizeText(str: string): string {
+  return str.replace(/[<>]/g, "").trim();
 }
 
 export async function saveProfile(formData: FormData) {
@@ -26,14 +31,14 @@ export async function saveProfile(formData: FormData) {
   if (typeof rawTeamName !== "string" || !rawTeamName.trim()) {
     return { error: "Team name is required." };
   }
-  const teamName = stripHtml(rawTeamName).slice(0, TEAM_NAME_MAX);
+  const teamName = sanitizeText(rawTeamName).slice(0, TEAM_NAME_MAX);
   if (teamName.length < TEAM_NAME_MIN) {
     return { error: `Team name must be at least ${TEAM_NAME_MIN} characters.` };
   }
 
   // --- Validate bio ---
   const rawBio = formData.get("bio");
-  const bio = typeof rawBio === "string" ? stripHtml(rawBio).slice(0, BIO_MAX) : null;
+  const bio = typeof rawBio === "string" ? sanitizeText(rawBio).slice(0, BIO_MAX) : null;
 
   // --- Validate favorite_season ---
   const rawSeason = formData.get("favorite_season");

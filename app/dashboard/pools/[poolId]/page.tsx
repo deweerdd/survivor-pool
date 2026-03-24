@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth-utils";
+import { getNextOpenEpisode } from "@/lib/episode-utils";
 import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
 import { notFound, redirect } from "next/navigation";
 import UserAvatar from "@/components/UserAvatar";
@@ -10,11 +11,7 @@ export default async function PoolLeaderboardPage({
 }) {
   const { poolId } = await params;
   const numericPoolId = Number(poolId);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const { supabase, user } = await requireUser();
 
   const [poolResult, memberCheckResult, allMembersResult, scoresResult] = await Promise.all([
     supabase.from("pools").select("id, name, season_id").eq("id", numericPoolId).single(),
@@ -34,17 +31,7 @@ export default async function PoolLeaderboardPage({
   if (!poolResult.data) notFound();
   if (!memberCheckResult.data) redirect("/dashboard/pools");
 
-  // Check if there's an unlocked episode (for "Allocate Points" link)
-  const { data: unlockedEpisode } = await supabase
-    .from("episodes")
-    .select("id")
-    .eq("season_id", poolResult.data.season_id)
-    .eq("is_locked", false)
-    .order("episode_number")
-    .limit(1)
-    .maybeSingle();
-
-  const hasUnlockedEpisode = !!unlockedEpisode;
+  const hasUnlockedEpisode = !!(await getNextOpenEpisode(supabase, poolResult.data.season_id));
 
   type ProfileJoin = {
     display_name: string | null;

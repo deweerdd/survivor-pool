@@ -71,3 +71,27 @@ export function buildLeaderboard(
 
   return entries;
 }
+
+/**
+ * Computes a single user's rank and total points from an RPC score result.
+ * Avoids duplicating the rank-calculation logic that lives in buildLeaderboard().
+ */
+export function getUserRank(
+  scores: ScoreRow[],
+  userId: string
+): { rank: number | null; totalPoints: number } {
+  const sorted = [...scores].sort((a, b) => b.total_points - a.total_points);
+  let rank: number | null = null;
+  let currentRank = 1;
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && sorted[i].total_points !== sorted[i - 1].total_points) {
+      currentRank = i + 1;
+    }
+    if (sorted[i].user_id === userId) {
+      rank = currentRank;
+      break;
+    }
+  }
+  const me = scores.find((s) => s.user_id === userId);
+  return { rank, totalPoints: me?.total_points ?? 0 };
+}

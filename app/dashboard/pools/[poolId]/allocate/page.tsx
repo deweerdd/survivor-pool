@@ -1,17 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth-utils";
 import { notFound, redirect } from "next/navigation";
 import AllocationForm from "@/components/AllocationForm";
-import { revalidatePath } from "next/cache";
+import { submitAllocation } from "@/lib/actions/allocations";
 
 export default async function AllocatePage({ params }: { params: Promise<{ poolId: string }> }) {
   const { poolId } = await params;
   const numericPoolId = Number(poolId);
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const { supabase, user } = await requireUser();
 
   const [poolResult, memberCheckResult] = await Promise.all([
     supabase.from("pools").select("id, name, season_id").eq("id", numericPoolId).single(),
@@ -74,78 +69,6 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   const contestantsByTribe = Array.from(tribeMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([tribe, members]) => ({ tribe, members }));
-
-  async function submitAllocation(
-    _prevState: string | null,
-    formData: FormData
-  ): Promise<string | null> {
-    "use server";
-    const supabaseSrv = await createClient();
-    const {
-      data: { user: authUser },
-    } = await supabaseSrv.auth.getUser();
-    if (!authUser) return "Not authenticated.";
-
-    const epId = Number(formData.get("episodeId"));
-    const poolIdForm = Number(formData.get("poolId"));
-
-    // Verify membership
-    const { data: memberCheck } = await supabaseSrv
-      .from("pool_members")
-      .select("user_id")
-      .eq("pool_id", poolIdForm)
-      .eq("user_id", authUser.id)
-      .maybeSingle();
-    if (!memberCheck) return "You are not a member of this pool.";
-
-    // Verify episode is still unlocked
-    const { data: ep } = await supabaseSrv
-      .from("episodes")
-      .select("is_locked")
-      .eq("id", epId)
-      .single();
-    if (!ep) return "Episode not found.";
-    if (ep.is_locked) return "This episode is locked.";
-
-    // Collect points from form
-    const entries: { contestant_id: number; points: number }[] = [];
-    for (const [key, value] of formData.entries()) {
-      if (key.startsWith("points_")) {
-        const contestantId = Number(key.slice(7));
-        const pts = Number(value);
-        if (pts > 0) {
-          entries.push({ contestant_id: contestantId, points: pts });
-        }
-      }
-    }
-
-    const totalPoints = entries.reduce((s, e) => s + e.points, 0);
-    if (totalPoints !== 20) return "Total points must equal 20.";
-
-    // Delete existing and insert new
-    await supabaseSrv
-      .from("allocations")
-      .delete()
-      .eq("pool_id", poolIdForm)
-      .eq("episode_id", epId)
-      .eq("user_id", authUser.id);
-
-    if (entries.length > 0) {
-      const { error } = await supabaseSrv.from("allocations").insert(
-        entries.map((e) => ({
-          pool_id: poolIdForm,
-          episode_id: epId,
-          user_id: authUser.id,
-          contestant_id: e.contestant_id,
-          points: e.points,
-        }))
-      );
-      if (error) return error.message;
-    }
-
-    revalidatePath(`/dashboard/pools/${poolIdForm}/allocate`);
-    return "ok";
-  }
 
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto">

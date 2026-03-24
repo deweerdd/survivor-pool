@@ -1,21 +1,14 @@
 // Server component — auth gate handled by app/dashboard/layout.tsx
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth-utils";
+import { getActiveSeason } from "@/lib/season-utils";
+import { getNextOpenEpisode } from "@/lib/episode-utils";
+import { getUserRank, type ScoreRow } from "@/lib/leaderboard";
+import { unwrap } from "@/lib/supabase/unwrap";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Layout guarantees authenticated user
-  if (!user) return null;
-
-  const { data: season } = await supabase
-    .from("seasons")
-    .select("id, name")
-    .eq("is_active", true)
-    .single();
+  const { supabase, user } = await requireUser();
+  const season = await getActiveSeason(supabase);
 
   if (!season) {
     return (
@@ -28,20 +21,17 @@ export default async function DashboardPage() {
     );
   }
 
-  const [{ data: memberships }, { data: openEpisode }] = await Promise.all([
-    supabase.from("pool_members").select("pool_id, pools(id, name)").eq("user_id", user.id),
+  const [memberships, openEpisode] = await Promise.all([
     supabase
-      .from("episodes")
-      .select("id, episode_number")
-      .eq("season_id", season.id)
-      .eq("is_locked", false)
-      .order("episode_number", { ascending: true })
-      .limit(1)
-      .maybeSingle(),
+      .from("pool_members")
+      .select("pool_id, pools(id, name)")
+      .eq("user_id", user.id)
+      .then(unwrap),
+    getNextOpenEpisode(supabase, season.id),
   ]);
 
   const poolsWithScores = await Promise.all(
-    (memberships ?? []).map(async (m) => {
+    memberships.map(async (m) => {
       const pool = m.pools as { id: number; name: string } | null;
       if (!pool) return null;
 
@@ -49,27 +39,13 @@ export default async function DashboardPage() {
         p_pool_id: m.pool_id,
       });
 
-      // compute rank from sorted scores
-      const sorted = [...(scores ?? [])].sort((a, b) => b.total_points - a.total_points);
-      let rank: number | null = null;
-      let currentRank = 1;
-      for (let i = 0; i < sorted.length; i++) {
-        if (i > 0 && sorted[i].total_points !== sorted[i - 1].total_points) {
-          currentRank = i + 1;
-        }
-        if (sorted[i].user_id === user.id) {
-          rank = currentRank;
-          break;
-        }
-      }
-
-      const me = (scores ?? []).find((s) => s.user_id === user.id);
+      const { rank, totalPoints } = getUserRank((scores ?? []) as ScoreRow[], user.id);
 
       return {
         poolId: pool.id,
         poolName: pool.name,
         rank,
-        totalPoints: me?.total_points ?? 0,
+        totalPoints,
       };
     })
   );
