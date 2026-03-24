@@ -44,11 +44,14 @@ describe("buildLeaderboard", () => {
   });
 
   it("tiebreaker — same points, sorted by displayName ascending", () => {
-    const members = [makeMember("u1", "Zara"), makeMember("u2", "Alice")];
+    const members: MemberRow[] = [
+      { user_id: "u1", display_name: "Zara", full_name: "Zara Smith" },
+      { user_id: "u2", display_name: "Alice", full_name: "Alice Jones" },
+    ];
     const scores = [makeScore("u1", 30), makeScore("u2", 30)];
     const result = buildLeaderboard(scores, members, "other");
-    expect(result[0].displayName).toBe("Alice");
-    expect(result[1].displayName).toBe("Zara");
+    expect(result[0].displayName).toContain("Alice");
+    expect(result[1].displayName).toContain("Zara");
   });
 
   it("isCurrentUser flag — only the matching userId has true", () => {
@@ -77,5 +80,21 @@ describe("buildLeaderboard", () => {
     expect(result).toHaveLength(1);
     expect(result[0].rank).toBe(1);
     expect(result[0].totalPoints).toBe(0);
+  });
+
+  it("team_name + full_name → formatted display name", () => {
+    const members: MemberRow[] = [
+      { user_id: "u1", display_name: "John", team_name: "Torch Squad", full_name: "John Doe" },
+    ];
+    const result = buildLeaderboard([], members, "u1");
+    expect(result[0].displayName).toBe("Torch Squad (JD)");
+  });
+
+  it("avatarUrl is passed through from member data", () => {
+    const members: MemberRow[] = [
+      { user_id: "u1", display_name: "John", avatar_url: "/avatars/torch.svg" },
+    ];
+    const result = buildLeaderboard([], members, "u1");
+    expect(result[0].avatarUrl).toBe("/avatars/torch.svg");
   });
 });

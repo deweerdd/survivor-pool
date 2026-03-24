@@ -1,6 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth-utils";
+import { getNextOpenEpisode } from "@/lib/episode-utils";
 import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
 import { notFound, redirect } from "next/navigation";
+import UserAvatar from "@/components/UserAvatar";
 
 export default async function PoolLeaderboardPage({
   params,
@@ -9,11 +11,7 @@ export default async function PoolLeaderboardPage({
 }) {
   const { poolId } = await params;
   const numericPoolId = Number(poolId);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const { supabase, user } = await requireUser();
 
   const [poolResult, memberCheckResult, allMembersResult, scoresResult] = await Promise.all([
     supabase.from("pools").select("id, name, season_id").eq("id", numericPoolId).single(),
@@ -25,7 +23,7 @@ export default async function PoolLeaderboardPage({
       .maybeSingle(),
     supabase
       .from("pool_members")
-      .select("user_id, profiles(display_name)")
+      .select("user_id, profiles(display_name, team_name, full_name, avatar_url)")
       .eq("pool_id", numericPoolId),
     supabase.rpc("get_pool_scores", { p_pool_id: numericPoolId }),
   ]);
@@ -33,22 +31,25 @@ export default async function PoolLeaderboardPage({
   if (!poolResult.data) notFound();
   if (!memberCheckResult.data) redirect("/dashboard/pools");
 
-  // Check if there's an unlocked episode (for "Allocate Points" link)
-  const { data: unlockedEpisode } = await supabase
-    .from("episodes")
-    .select("id")
-    .eq("season_id", poolResult.data.season_id)
-    .eq("is_locked", false)
-    .order("episode_number")
-    .limit(1)
-    .maybeSingle();
+  const hasUnlockedEpisode = !!(await getNextOpenEpisode(supabase, poolResult.data.season_id));
 
-  const hasUnlockedEpisode = !!unlockedEpisode;
+  type ProfileJoin = {
+    display_name: string | null;
+    team_name: string | null;
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 
-  const members: MemberRow[] = (allMembersResult.data ?? []).map((row) => ({
-    user_id: row.user_id,
-    display_name: (row.profiles as { display_name: string | null } | null)?.display_name ?? null,
-  }));
+  const members: MemberRow[] = (allMembersResult.data ?? []).map((row) => {
+    const profile = row.profiles as ProfileJoin;
+    return {
+      user_id: row.user_id,
+      display_name: profile?.display_name ?? null,
+      team_name: profile?.team_name ?? null,
+      full_name: profile?.full_name ?? null,
+      avatar_url: profile?.avatar_url ?? null,
+    };
+  });
 
   const leaderboard = buildLeaderboard((scoresResult.data ?? []) as ScoreRow[], members, user.id);
 
@@ -76,7 +77,7 @@ export default async function PoolLeaderboardPage({
           <thead>
             <tr className="border-b border-border text-left">
               <th className="text-label pb-3 pr-4 pl-5 pt-4">Rank</th>
-              <th className="text-label pb-3 pr-4 pt-4">Name</th>
+              <th className="text-label pb-3 pr-4 pt-4">Player</th>
               <th className="text-label pb-3 pr-5 pt-4 text-right">Points</th>
             </tr>
           </thead>
@@ -110,8 +111,17 @@ export default async function PoolLeaderboardPage({
                   )}
                 </td>
                 <td className="py-3 pr-4">
-                  {entry.displayName}
-                  {entry.isCurrentUser && <span className="badge badge-primary ml-2">you</span>}
+                  <div className="flex items-center gap-2">
+                    <UserAvatar
+                      avatarUrl={entry.avatarUrl}
+                      fullName={entry.displayName}
+                      size="md"
+                    />
+                    <span>
+                      {entry.displayName}
+                      {entry.isCurrentUser && <span className="badge badge-primary ml-2">you</span>}
+                    </span>
+                  </div>
                 </td>
                 <td className="py-3 pr-5 text-right">
                   <span className="text-display text-lg font-bold tabular-nums">

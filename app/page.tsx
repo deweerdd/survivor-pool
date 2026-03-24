@@ -8,6 +8,7 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Landing page: redirect authenticated users to dashboard (not requireUser — unauthenticated is valid here)
   if (user) {
     redirect("/dashboard");
   }
@@ -46,12 +47,10 @@ export default async function Home() {
           </p>
 
           <Link href="/login" className="btn btn-torch landing-cta">
-            Sign in with Google
+            Get Started
           </Link>
 
-          <p className="landing-subtitle">
-            Free to play &middot; No signup form &middot; Just Google
-          </p>
+          <p className="landing-subtitle">Free to play &middot; Sign up in seconds</p>
         </div>
 
         <div className="landing-scroll-hint" aria-hidden="true">

@@ -5,8 +5,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "@/components/ThemeToggle";
+import UserAvatar from "@/components/UserAvatar";
 
-export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: string }) {
+type Props = {
+  isAdmin: boolean;
+  email: string;
+  teamName?: string | null;
+  fullName?: string | null;
+  avatarUrl?: string | null;
+};
+
+export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -31,6 +40,8 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
   function closeDrawer() {
     setDrawerOpen(false);
   }
+
+  const displayLabel = teamName || email;
 
   const links = [
     { href: "/dashboard", label: "Dashboard", active: pathname === "/dashboard" },
@@ -65,7 +76,10 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-label">{email}</span>
+            <Link href="/profile/edit" className="flex items-center gap-2 hover:opacity-80">
+              <UserAvatar avatarUrl={avatarUrl} fullName={fullName || email} size="sm" />
+              <span className="text-label">{displayLabel}</span>
+            </Link>
             <ThemeToggle />
             <button onClick={handleSignOut} className="btn btn-ghost btn-sm">
               Sign Out
@@ -131,6 +145,21 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
             </button>
           </div>
 
+          {/* User info in drawer */}
+          <div className="flex items-center gap-3 mb-2">
+            <UserAvatar avatarUrl={avatarUrl} fullName={fullName || email} size="md" />
+            <div>
+              <p className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>
+                {displayLabel}
+              </p>
+              {teamName && (
+                <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  {email}
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2">
             {links.map((link) => (
               <Link
@@ -142,11 +171,17 @@ export default function NavBar({ isAdmin, email }: { isAdmin: boolean; email: st
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/profile/edit"
+              className={`nav-link text-lg ${pathname.startsWith("/profile") ? "nav-link-active" : ""}`}
+              onClick={closeDrawer}
+            >
+              Edit Profile
+            </Link>
           </div>
 
           <hr className="divider-accent" />
 
-          <span className="text-label">{email}</span>
           <button onClick={handleSignOut} className="btn btn-ghost btn-sm self-start">
             Sign Out
           </button>

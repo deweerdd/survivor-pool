@@ -27,34 +27,50 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/admin"))
-  ) {
+  const { pathname } = request.nextUrl;
+
+  // Unauthenticated users trying to access protected routes → login
+  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Admin route protection: verify is_admin in profiles table
-  if (user && request.nextUrl.pathname.startsWith("/admin")) {
+  // Unauthenticated users on /profile/* → login
+  if (!user && pathname.startsWith("/profile")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Authenticated users: check profile_complete + admin status
+  if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("is_admin")
+      .select("is_admin, profile_complete")
       .eq("id", user.id)
       .single();
 
-    if (!profile?.is_admin) {
+    // Incomplete profile → redirect to setup (unless already there or on /auth)
+    if (
+      profile &&
+      !profile.profile_complete &&
+      !pathname.startsWith("/profile/setup") &&
+      !pathname.startsWith("/auth")
+    ) {
+      return NextResponse.redirect(new URL("/profile/setup", request.url));
+    }
+
+    // Admin route protection
+    if (pathname.startsWith("/admin") && !profile?.is_admin) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
-  }
 
-  if (user && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Authenticated users on /login → dashboard
+    if (pathname === "/login") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/login", "/profile/:path*"],
 };

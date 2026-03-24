@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import ContestantAvatar from "@/components/ContestantAvatar";
+import type { ActionResult } from "@/lib/actions/types";
 
 type Contestant = { id: number; name: string; img_url?: string | null };
 type TribeGroup = { tribe: string; members: Contestant[] };
@@ -13,7 +14,7 @@ type Props = {
   poolId: number;
   episodeNumber: number;
   isLocked: boolean;
-  submitAction: (prevState: string | null, formData: FormData) => Promise<string | null>;
+  submitAction: (prevState: ActionResult | null, formData: FormData) => Promise<ActionResult>;
 };
 
 import { useState } from "react";
@@ -145,8 +146,12 @@ export default function AllocationForm({
           <button type="submit" disabled={total !== 20 || isPending} className="btn btn-torch">
             {isPending ? "Saving…" : isEditing ? "Update Allocation" : "Submit Allocation"}
           </button>
-          {result === "ok" && <div className="callout callout-success">Allocation saved!</div>}
-          {result && result !== "ok" && <div className="callout callout-danger">{result}</div>}
+          {result?.status === "ok" && (
+            <div className="callout callout-success">Allocation saved!</div>
+          )}
+          {result?.status === "error" && (
+            <div className="callout callout-danger">{result.error}</div>
+          )}
         </div>
       )}
     </form>

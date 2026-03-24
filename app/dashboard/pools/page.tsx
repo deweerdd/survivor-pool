@@ -1,69 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { requireUser } from "@/lib/auth-utils";
+import { unwrap } from "@/lib/supabase/unwrap";
+import { isMember, partitionPools, type PoolWithMembers } from "@/lib/pools";
 import {
-  isMember,
-  joinPool,
-  getPoolByInviteCode,
-  createPrivatePool,
-  partitionPools,
-  type PoolWithMembers,
-} from "@/lib/pools";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+  joinPoolAction,
+  joinByInviteCodeAction,
+  createPrivatePoolAction,
+} from "@/lib/actions/pools";
 import Link from "next/link";
-
-async function joinPoolAction(poolId: number) {
-  "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  await joinPool(supabase, poolId, user.id);
-  revalidatePath("/dashboard/pools");
-}
-
-async function joinByInviteCodeAction(formData: FormData) {
-  "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const inviteCode = formData.get("inviteCode") as string;
-  // Use admin client so the lookup works before the user is a member (RLS would block it otherwise)
-  const result = await getPoolByInviteCode(createAdminClient(), inviteCode);
-  if (result.status === "not_found") redirect("/dashboard/pools?error=invalid_code");
-
-  await joinPool(supabase, result.pool.id, user.id);
-  redirect("/dashboard/pools");
-}
-
-async function createPrivatePoolAction(formData: FormData) {
-  "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const name = formData.get("name") as string;
-  const { data: season } = await supabase
-    .from("seasons")
-    .select("id")
-    .eq("is_active", true)
-    .single();
-  if (!season) redirect("/dashboard/pools?error=no_season");
-
-  // Use admin client so the post-INSERT SELECT isn't blocked by the pools_read RLS policy
-  // (user isn't a member yet at the moment of insert, so the anon client can't read back the row)
-  const result = await createPrivatePool(createAdminClient(), name, season.id, user.id);
-  if (result.status === "created") {
-    await joinPool(supabase, result.pool.id, user.id);
-  }
-  revalidatePath("/dashboard/pools");
-}
 
 export default async function PoolsPage({
   searchParams,
@@ -71,12 +14,7 @@ export default async function PoolsPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
+  const { supabase, user } = await requireUser();
 
   const { data: season } = await supabase
     .from("seasons")
@@ -95,22 +33,25 @@ export default async function PoolsPage({
     );
   }
 
-  const [{ data: pools }, { data: memberCounts }] = await Promise.all([
-    supabase.from("pools").select("*, pool_members(user_id)").eq("season_id", season.id),
-    (supabase.rpc as any)("get_pool_member_counts", { p_season_id: season.id }),
+  const [pools, memberCounts] = await Promise.all([
+    supabase
+      .from("pools")
+      .select("*, pool_members(user_id)")
+      .eq("season_id", season.id)
+      .then(unwrap),
+    (supabase.rpc as any)("get_pool_member_counts", {
+      p_season_id: season.id,
+    }).then(unwrap),
   ]);
 
   const countMap = new Map<number, number>(
-    (memberCounts ?? []).map((r: { pool_id: number; member_count: number }) => [
+    (memberCounts as { pool_id: number; member_count: number }[]).map((r) => [
       r.pool_id,
       r.member_count,
     ])
   );
 
-  const { publicPools, myPrivatePools } = partitionPools(
-    (pools ?? []) as PoolWithMembers[],
-    user.id
-  );
+  const { publicPools, myPrivatePools } = partitionPools(pools as PoolWithMembers[], user.id);
 
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-8">
