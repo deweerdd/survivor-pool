@@ -45,11 +45,6 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
 
   const links = [
     { href: "/dashboard", label: "Dashboard", active: pathname === "/dashboard" },
-    {
-      href: "/dashboard/pools",
-      label: "My Pools",
-      active: pathname.startsWith("/dashboard/pools"),
-    },
     ...(isAdmin ? [{ href: "/admin", label: "Admin", active: pathname.startsWith("/admin") }] : []),
   ];
 

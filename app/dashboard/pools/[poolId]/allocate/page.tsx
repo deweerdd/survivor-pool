@@ -19,7 +19,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   ]);
 
   if (!poolResult.data) notFound();
-  if (!memberCheckResult.data) redirect("/dashboard/pools");
+  if (!memberCheckResult.data) redirect("/dashboard");
 
   const seasonId = poolResult.data.season_id;
 

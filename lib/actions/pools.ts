@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 export async function joinPoolAction(poolId: number) {
   const { supabase, user } = await requireUser();
   await joinPool(supabase, poolId, user.id);
-  revalidatePath("/dashboard/pools");
+  revalidatePath("/dashboard");
 }
 
 export async function joinByInviteCodeAction(formData: FormData) {
@@ -22,7 +22,7 @@ export async function joinByInviteCodeAction(formData: FormData) {
   if (result.status === "not_found") redirect("/dashboard/pools?error=invalid_code");
 
   await joinPool(supabase, result.pool.id, user.id);
-  redirect("/dashboard/pools");
+  redirect("/dashboard");
 }
 
 export async function createPrivatePoolAction(formData: FormData) {
@@ -37,5 +37,5 @@ export async function createPrivatePoolAction(formData: FormData) {
   if (result.status === "created") {
     await joinPool(supabase, result.pool.id, user.id);
   }
-  revalidatePath("/dashboard/pools");
+  revalidatePath("/dashboard");
 }

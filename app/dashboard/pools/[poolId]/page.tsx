@@ -29,7 +29,7 @@ export default async function PoolLeaderboardPage({
   ]);
 
   if (!poolResult.data) notFound();
-  if (!memberCheckResult.data) redirect("/dashboard/pools");
+  if (!memberCheckResult.data) redirect("/dashboard");
 
   const hasUnlockedEpisode = !!(await getNextOpenEpisode(supabase, poolResult.data.season_id));
 

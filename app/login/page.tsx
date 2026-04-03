@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
 
 export default async function LoginPage() {
@@ -20,6 +21,14 @@ export default async function LoginPage() {
 
   return (
     <main className="landing">
+      {/* ── Minimal nav ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3">
+        <Link href="/" className="text-display text-lg tracking-wider">
+          <span className="text-primary font-semibold">SURVIVOR</span>
+          <span className="text-foreground font-semibold">POOL</span>
+        </Link>
+      </nav>
+
       <section className="landing-hero" style={{ minHeight: "100vh" }}>
         <div className="landing-hero-bg" aria-hidden="true" />
         <div className="landing-hero-content" style={{ maxWidth: "480px", width: "100%" }}>
