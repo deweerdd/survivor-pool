@@ -46,3 +46,9 @@ next-env.d.ts
 
 # claude code local settings
 .claude/settings.local.json
+
+# playwright MCP snapshots
+.playwright-mcp/
+
+# UI review artifacts
+ui-review/

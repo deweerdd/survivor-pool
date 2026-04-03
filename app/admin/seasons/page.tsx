@@ -1,72 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { revalidatePath } from "next/cache";
 import type { Database } from "@/lib/supabase/database.types";
 import { ScrapeButton } from "./ScrapeButton";
-import { requireAdmin } from "@/lib/admin-guard";
+import { createSeason, activateSeason } from "@/lib/actions/seasons";
 
 type Season = Database["public"]["Tables"]["seasons"]["Row"];
-
-async function createSeason(formData: FormData) {
-  "use server";
-  await requireAdmin();
-  const name = (formData.get("name") as string)?.trim();
-  const wiki_url = (formData.get("wiki_url") as string)?.trim() || null;
-
-  if (!name) return;
-
-  const adminClient = createAdminClient();
-  const { error } = await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
-  if (error) throw new Error(`Failed to create season: ${error.message}`);
-  revalidatePath("/admin/seasons");
-}
-
-async function activateSeason(formData: FormData) {
-  "use server";
-  await requireAdmin();
-  const seasonId = Number(formData.get("seasonId"));
-  if (!seasonId) return;
-
-  const adminClient = createAdminClient();
-  const { error: deactivateErr } = await adminClient
-    .from("seasons")
-    .update({ is_active: false })
-    .neq("id", seasonId);
-  if (deactivateErr) throw new Error(`Failed to deactivate seasons: ${deactivateErr.message}`);
-
-  const { error: activateErr } = await adminClient
-    .from("seasons")
-    .update({ is_active: true })
-    .eq("id", seasonId);
-  if (activateErr) throw new Error(`Failed to activate season: ${activateErr.message}`);
-
-  // Auto-create public pool if one doesn't exist yet
-  const { data: season } = await adminClient
-    .from("seasons")
-    .select("name")
-    .eq("id", seasonId)
-    .single();
-
-  const { data: existingPool } = await adminClient
-    .from("pools")
-    .select("id")
-    .eq("season_id", seasonId)
-    .eq("is_public", true)
-    .maybeSingle();
-
-  if (season && !existingPool) {
-    const { error: poolErr } = await adminClient.from("pools").insert({
-      season_id: seasonId,
-      name: season.name,
-      is_public: true,
-      invite_code: null,
-      created_by: null,
-    });
-    if (poolErr) throw new Error(`Failed to create public pool: ${poolErr.message}`);
-  }
-
-  revalidatePath("/admin/seasons");
-}
 
 export default async function SeasonsPage() {
   const supabase = await createClient();

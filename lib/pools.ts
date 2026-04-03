@@ -83,12 +83,3 @@ export type PoolWithMembers = {
 export function isMember(pool: PoolWithMembers, userId: string): boolean {
   return pool.pool_members.some((m) => m.user_id === userId);
 }
-
-export function partitionPools(
-  pools: PoolWithMembers[],
-  userId: string
-): { publicPools: PoolWithMembers[]; myPrivatePools: PoolWithMembers[] } {
-  const publicPools = pools.filter((p) => p.is_public);
-  const myPrivatePools = pools.filter((p) => !p.is_public && isMember(p, userId));
-  return { publicPools, myPrivatePools };
-}

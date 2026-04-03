@@ -222,9 +222,22 @@ survivor-pool/
 │   │   ├── client.ts               # browser client
 │   │   ├── server.ts               # server client (SSR)
 │   │   ├── admin.ts                # service-role client (server only)
+│   │   ├── unwrap.ts               # unwrap() helper — throws on query error
 │   │   └── database.types.ts       # generated types (supabase gen types)
+│   ├── actions/
+│   │   ├── types.ts                # shared ActionResult type
+│   │   ├── pools.ts                # join, invite code, create private pool
+│   │   ├── seasons.ts              # create, activate season
+│   │   ├── contestants.ts          # create contestant
+│   │   ├── episodes.ts             # lock, create, record elimination
+│   │   ├── allocations.ts          # submit point allocation
+│   │   └── profile.ts              # save profile (avatar, team name)
+│   ├── auth-utils.ts               # requireUser()
+│   ├── admin-guard.ts              # requireAdmin()
+│   ├── season-utils.ts             # getActiveSeason(), requireActiveSeason()
+│   ├── episode-utils.ts            # getNextOpenEpisode()
 │   ├── pools.ts                    # pool + membership logic (TDD)
-│   ├── leaderboard.ts              # leaderboard builder (TDD)
+│   ├── leaderboard.ts              # leaderboard builder + getUserRank() (TDD)
 │   └── scraper.ts                  # wiki scraper (cheerio)
 ├── middleware.ts
 ├── architecture.md
@@ -240,10 +253,15 @@ survivor-pool/
 | --------------------------------- | ------------------------------------------------------ |
 | Server Component (default)        | Data fetching, leaderboards, read-only pages           |
 | Client Component (`'use client'`) | Forms, interactive UI, allocation input                |
-| Server Action                     | Mutations (join pool, submit allocation, admin writes) |
+| Server Action (`lib/actions/`)    | Mutations (join pool, submit allocation, admin writes) |
 | Route Handler                     | Scraper endpoint, webhook-style operations             |
 
-**Rule:** never import service-role client or `SUPABASE_SERVICE_ROLE_KEY` in a Client Component or any file that could be bundled for the browser.
+**Rules:**
+
+- Never import service-role client or `SUPABASE_SERVICE_ROLE_KEY` in a Client Component or any file that could be bundled for the browser.
+- Server actions live in `lib/actions/*.ts`, not inline in page files. Pages import and bind them.
+- User-facing actions return `ActionResult` (`{ status: "ok" } | { status: "error"; error: string }`). Admin actions throw on failure.
+- Use `unwrap()` from `lib/supabase/unwrap.ts` when a Supabase query failure should halt execution (`.then(unwrap)` in Promise.all chains).
 
 ---
 

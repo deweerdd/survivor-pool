@@ -8,12 +8,24 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Landing page: redirect authenticated users to dashboard (not requireUser — unauthenticated is valid here)
   if (user) {
     redirect("/dashboard");
   }
 
   return (
     <main className="landing">
+      {/* ── Minimal nav ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3">
+        <Link href="/" className="text-display text-lg tracking-wider">
+          <span className="text-primary font-semibold">SURVIVOR</span>
+          <span className="text-foreground font-semibold">POOL</span>
+        </Link>
+        <Link href="/login" className="btn btn-ghost btn-sm">
+          Sign In
+        </Link>
+      </nav>
+
       {/* ── Hero ── */}
       <section className="landing-hero">
         <div className="landing-hero-bg" aria-hidden="true" />
@@ -46,12 +58,10 @@ export default async function Home() {
           </p>
 
           <Link href="/login" className="btn btn-torch landing-cta">
-            Sign in with Google
+            Get Started
           </Link>
 
-          <p className="landing-subtitle">
-            Free to play &middot; No signup form &middot; Just Google
-          </p>
+          <p className="landing-subtitle">Free to play &middot; Sign up in seconds</p>
         </div>
 
         <div className="landing-scroll-hint" aria-hidden="true">

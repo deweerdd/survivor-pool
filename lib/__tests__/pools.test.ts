@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import {
   isMember,
-  partitionPools,
   joinPool,
   generateInviteCode,
   createPrivatePool,

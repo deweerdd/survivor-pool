@@ -6,6 +6,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1";
   };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       allocations: {
@@ -265,25 +290,46 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_url: string | null;
+          bio: string | null;
           created_at: string;
           display_name: string | null;
           email: string | null;
+          email_notifications: boolean;
+          favorite_season: string | null;
+          full_name: string | null;
           id: string;
           is_admin: boolean;
+          profile_complete: boolean;
+          team_name: string | null;
         };
         Insert: {
+          avatar_url?: string | null;
+          bio?: string | null;
           created_at?: string;
           display_name?: string | null;
           email?: string | null;
+          email_notifications?: boolean;
+          favorite_season?: string | null;
+          full_name?: string | null;
           id: string;
           is_admin?: boolean;
+          profile_complete?: boolean;
+          team_name?: string | null;
         };
         Update: {
+          avatar_url?: string | null;
+          bio?: string | null;
           created_at?: string;
           display_name?: string | null;
           email?: string | null;
+          email_notifications?: boolean;
+          favorite_season?: string | null;
+          full_name?: string | null;
           id?: string;
           is_admin?: boolean;
+          profile_complete?: boolean;
+          team_name?: string | null;
         };
         Relationships: [];
       };
@@ -316,10 +362,21 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_my_pool_ids: { Args: never; Returns: number[] };
+      get_pool_member_counts: {
+        Args: { p_season_id: number };
+        Returns: {
+          member_count: number;
+          pool_id: number;
+        }[];
+      };
       get_pool_scores: {
         Args: { p_pool_id: number };
         Returns: {
+          avatar_url: string;
           display_name: string;
+          full_name: string;
+          team_name: string;
           total_points: number;
           user_id: string;
         }[];
@@ -450,6 +507,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
