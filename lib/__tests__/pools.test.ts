@@ -36,54 +36,6 @@ describe("isMember", () => {
   });
 });
 
-describe("partitionPools", () => {
-  it("puts a public pool in publicPools regardless of membership", () => {
-    const pool = makePool({ id: 1, is_public: true, pool_members: [] });
-    const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
-    expect(publicPools).toHaveLength(1);
-    expect(myPrivatePools).toHaveLength(0);
-  });
-
-  it("puts a private pool where user is a member in myPrivatePools", () => {
-    const pool = makePool({
-      id: 2,
-      is_public: false,
-      pool_members: [{ user_id: "user-1" }],
-    });
-    const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
-    expect(publicPools).toHaveLength(0);
-    expect(myPrivatePools).toHaveLength(1);
-  });
-
-  it("excludes private pools where user is not a member", () => {
-    const pool = makePool({
-      id: 3,
-      is_public: false,
-      pool_members: [{ user_id: "user-2" }],
-    });
-    const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
-    expect(publicPools).toHaveLength(0);
-    expect(myPrivatePools).toHaveLength(0);
-  });
-
-  it("handles an empty pools list", () => {
-    const { publicPools, myPrivatePools } = partitionPools([], "user-1");
-    expect(publicPools).toHaveLength(0);
-    expect(myPrivatePools).toHaveLength(0);
-  });
-
-  it("a joined public pool appears only in publicPools, not myPrivatePools", () => {
-    const pool = makePool({
-      id: 4,
-      is_public: true,
-      pool_members: [{ user_id: "user-1" }],
-    });
-    const { publicPools, myPrivatePools } = partitionPools([pool], "user-1");
-    expect(publicPools).toHaveLength(1);
-    expect(myPrivatePools).toHaveLength(0);
-  });
-});
-
 describe("generateInviteCode", () => {
   it("returns a string of length 6", () => {
     expect(generateInviteCode()).toHaveLength(6);

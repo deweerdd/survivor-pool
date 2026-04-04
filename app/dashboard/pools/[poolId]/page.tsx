@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth-utils";
 import { getNextOpenEpisode } from "@/lib/episode-utils";
-import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
+import { buildLeaderboard, toMemberRows, type ScoreRow } from "@/lib/leaderboard";
 import { notFound, redirect } from "next/navigation";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -33,23 +33,9 @@ export default async function PoolLeaderboardPage({
 
   const hasUnlockedEpisode = !!(await getNextOpenEpisode(supabase, poolResult.data.season_id));
 
-  type ProfileJoin = {
-    display_name: string | null;
-    team_name: string | null;
-    full_name: string | null;
-    avatar_url: string | null;
-  } | null;
-
-  const members: MemberRow[] = (allMembersResult.data ?? []).map((row) => {
-    const profile = row.profiles as ProfileJoin;
-    return {
-      user_id: row.user_id,
-      display_name: profile?.display_name ?? null,
-      team_name: profile?.team_name ?? null,
-      full_name: profile?.full_name ?? null,
-      avatar_url: profile?.avatar_url ?? null,
-    };
-  });
+  const members = toMemberRows(
+    (allMembersResult.data ?? []) as { user_id: string; profiles: unknown }[]
+  );
 
   const leaderboard = buildLeaderboard((scoresResult.data ?? []) as ScoreRow[], members, user.id);
 

@@ -49,7 +49,7 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
   ];
 
   return (
-    <>
+    <div>
       <nav className="bg-surface border-b border-border px-4 sm:px-6 py-2">
         {/* Desktop */}
         <div className="hidden md:flex items-center justify-between">
@@ -182,6 +182,6 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

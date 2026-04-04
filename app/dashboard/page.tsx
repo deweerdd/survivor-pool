@@ -2,7 +2,7 @@
 import { requireUser } from "@/lib/auth-utils";
 import { getActiveSeason } from "@/lib/season-utils";
 import { getNextOpenEpisode } from "@/lib/episode-utils";
-import { buildLeaderboard, type ScoreRow, type MemberRow } from "@/lib/leaderboard";
+import { buildLeaderboard, toMemberRows, type ScoreRow } from "@/lib/leaderboard";
 import { isMember, type PoolWithMembers } from "@/lib/pools";
 import {
   joinPoolAction,
@@ -75,21 +75,7 @@ export default async function DashboardPage({
           .eq("pool_id", m.pool_id),
       ]);
 
-      const memberRows: MemberRow[] = (members ?? []).map((pm) => {
-        const p = pm.profiles as {
-          display_name: string | null;
-          team_name: string | null;
-          full_name: string | null;
-          avatar_url: string | null;
-        } | null;
-        return {
-          user_id: pm.user_id,
-          display_name: p?.display_name ?? null,
-          team_name: p?.team_name ?? null,
-          full_name: p?.full_name ?? null,
-          avatar_url: p?.avatar_url ?? null,
-        };
-      });
+      const memberRows = toMemberRows((members ?? []) as { user_id: string; profiles: unknown }[]);
 
       const leaderboard = buildLeaderboard((scores ?? []) as ScoreRow[], memberRows, user.id);
       const me = leaderboard.find((e) => e.isCurrentUser);

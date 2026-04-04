@@ -19,7 +19,7 @@ export async function joinByInviteCodeAction(formData: FormData) {
   const inviteCode = formData.get("inviteCode") as string;
   // Use admin client so the lookup works before the user is a member (RLS would block it otherwise)
   const result = await getPoolByInviteCode(createAdminClient(), inviteCode);
-  if (result.status === "not_found") redirect("/dashboard/pools?error=invalid_code");
+  if (result.status === "not_found") redirect("/dashboard?error=invalid_code");
 
   await joinPool(supabase, result.pool.id, user.id);
   redirect("/dashboard");
@@ -29,7 +29,7 @@ export async function createPrivatePoolAction(formData: FormData) {
   const { supabase, user } = await requireUser();
 
   const name = formData.get("name") as string;
-  const season = await requireActiveSeason(supabase, "/dashboard/pools?error=no_season");
+  const season = await requireActiveSeason(supabase, "/dashboard?error=no_season");
 
   // Use admin client so the post-INSERT SELECT isn't blocked by the pools_read RLS policy
   // (user isn't a member yet at the moment of insert, so the anon client can't read back the row)
