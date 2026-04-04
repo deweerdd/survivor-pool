@@ -17,6 +17,27 @@ export type MemberRow = {
   avatar_url?: string | null;
 };
 
+type ProfileJoin = {
+  display_name: string | null;
+  team_name: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+} | null;
+
+/** Converts Supabase pool_members+profiles join rows into MemberRow[]. */
+export function toMemberRows(rows: { user_id: string; profiles: unknown }[]): MemberRow[] {
+  return rows.map((row) => {
+    const p = row.profiles as ProfileJoin;
+    return {
+      user_id: row.user_id,
+      display_name: p?.display_name ?? null,
+      team_name: p?.team_name ?? null,
+      full_name: p?.full_name ?? null,
+      avatar_url: p?.avatar_url ?? null,
+    };
+  });
+}
+
 export type LeaderboardEntry = {
   rank: number;
   userId: string;
@@ -70,28 +91,4 @@ export function buildLeaderboard(
   }
 
   return entries;
-}
-
-/**
- * Computes a single user's rank and total points from an RPC score result.
- * Avoids duplicating the rank-calculation logic that lives in buildLeaderboard().
- */
-export function getUserRank(
-  scores: ScoreRow[],
-  userId: string
-): { rank: number | null; totalPoints: number } {
-  const sorted = [...scores].sort((a, b) => b.total_points - a.total_points);
-  let rank: number | null = null;
-  let currentRank = 1;
-  for (let i = 0; i < sorted.length; i++) {
-    if (i > 0 && sorted[i].total_points !== sorted[i - 1].total_points) {
-      currentRank = i + 1;
-    }
-    if (sorted[i].user_id === userId) {
-      rank = currentRank;
-      break;
-    }
-  }
-  const me = scores.find((s) => s.user_id === userId);
-  return { rank, totalPoints: me?.total_points ?? 0 };
 }

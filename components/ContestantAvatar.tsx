@@ -1,15 +1,10 @@
+import { getInitials } from "@/lib/profile-utils";
+
 type Props = {
   imgUrl?: string | null;
   name: string;
   size?: number;
 };
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-}
 
 export default function ContestantAvatar({ imgUrl, name, size = 32 }: Props) {
   if (imgUrl) {
