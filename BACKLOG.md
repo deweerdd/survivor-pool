@@ -16,6 +16,7 @@ Tasks should be self-contained: include enough context that an agent can start w
 
 ## Priority: Medium
 
+- [x] **Auto-lock episodes before air time** (2026-04-07) — Episodes should auto-lock 1 hour before airing (Wednesdays 8pm ET → lock at 7pm ET). Implement request-time auto-locking: `autoLockEpisodes()` runs on allocate page load, allocation submission, and admin episodes page. Uses `air_date` from the episodes table + ET timezone math to determine lock time. Flips `is_locked = true` via admin client. No cron needed — idempotent, runs server-side on every relevant page load. New files: `lib/lock-utils.ts`, `lib/actions/auto-lock.ts`. Modified: `lib/episode-utils.ts`, `lib/actions/allocations.ts`, `app/admin/episodes/page.tsx`. Plan: `.claude/plans/partitioned-inventing-penguin.md`.
 - [ ] **Security headers (CSP, X-Frame-Options)** — No Content Security Policy or frame protection configured in `next.config.ts`. Add `headers()` config.
 - [ ] **RLS integration tests** — Architecture relies on RLS for data isolation, but no tests confirm policies work as expected. Add tests that verify access as different user roles.
 - [ ] **Admin audit logging** — Admin actions (activate season, record elimination, lock episode) have no audit trail. Log who did what and when — either a DB table or structured logging.

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/actions/types";
+import { autoLockEpisodes } from "@/lib/actions/auto-lock";
 
 export async function submitAllocation(
   _prevState: ActionResult | null,
@@ -25,6 +26,9 @@ export async function submitAllocation(
     .eq("user_id", user.id)
     .maybeSingle();
   if (!memberCheck) return { status: "error", error: "You are not a member of this pool." };
+
+  // Auto-lock any past-deadline episodes before checking
+  await autoLockEpisodes();
 
   // Verify episode is still unlocked
   const { data: ep } = await supabase.from("episodes").select("is_locked").eq("id", epId).single();

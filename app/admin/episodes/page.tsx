@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/season-utils";
 import type { Database } from "@/lib/supabase/database.types";
 import { lockEpisode, createEpisode, recordElimination } from "@/lib/actions/episodes";
+import { autoLockEpisodes } from "@/lib/actions/auto-lock";
 
 type Episode = Database["public"]["Tables"]["episodes"]["Row"];
 type Contestant = Pick<Database["public"]["Tables"]["contestants"]["Row"], "id" | "name">;
@@ -12,6 +13,7 @@ export default async function EpisodesPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
+  await autoLockEpisodes();
   const supabase = await createClient();
   const activeSeason = await getActiveSeason(supabase);
 
