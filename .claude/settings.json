@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\":\"Remember: Run Definition of Done checks (npm run type-check, npx eslint app lib --ext .ts,.tsx, npm run format:check), write a STATUS.md entry, and update BACKLOG.md before finishing.\"}'",
+            "statusMessage": "Checking handoff protocol..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -15,6 +15,21 @@ npm run format:check # Prettier (check only)
 
 No test runner is configured yet.
 
+## Picking Up Work
+
+1. **Read `STATUS.md`** — check the latest entry for unfinished work, blockers, or gotchas from the previous session.
+2. **Read `BACKLOG.md`** — if the user doesn't specify a task, pick the next unchecked item from the highest priority section.
+3. **Check git status** — make sure the working tree is clean or understand what's in progress.
+
+## Handoff Protocol
+
+Before ending a session where work was done:
+
+1. **Write a `STATUS.md` entry** at the top of the file (newest first) with: what was done, what's unfinished/blocked, and any gotchas.
+2. **Update `BACKLOG.md`** — check off completed items with `[x]` and the date. Add new items discovered during the session.
+3. **Update docs** per the Definition of Done section below.
+4. **Commit your work** — don't leave uncommitted changes for the next session unless explicitly told to.
+
 ## Definition of Done
 
 Before marking any feature or phase as complete, all three must pass with zero errors:
@@ -27,9 +42,8 @@ npm run format:check
 
 Do not mark a task done if any command reports errors.
 
-After marking a feature done, also update the relevant docs:
+After completing work, update the relevant docs when necessary:
 
-- **`features.md`** — check off the feature `[x]`, update the `## Progress` section at the bottom (current phase/feature + next task).
 - **`decisions.md`** — add an entry if any non-obvious architectural decision was made (new pattern, tradeoff, why X over Y). Skip if nothing surprising.
 - **`architecture.md`** — update if new tables, files, env vars, or structural patterns were introduced. Skip if no structural change.
 
@@ -59,7 +73,7 @@ Push with: `npm run supabase:push`
 
 ## Skills
 
-**Always use the `frontend-design` skill** (via the Skill tool) when working on any UI/design task — pages, components, layouts, styling, theming, or visual polish. This applies to all Phase 1 (Design) features in `features-v2.md`. Invoke the skill before planning or writing any frontend code.
+**Always use the `frontend-design` skill** (via the Skill tool) when working on any UI/design task — pages, components, layouts, styling, theming, or visual polish. Invoke the skill before planning or writing any frontend code.
 
 ---
 
