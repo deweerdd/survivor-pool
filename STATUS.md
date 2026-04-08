@@ -16,6 +16,24 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-08 — Finale episode mode
+
+**Branch:** master
+**What was done:**
+
+- Added `is_finale` boolean column to `episodes` table (migration pushed)
+- Updated `get_pool_scores` RPC to handle finale scoring: normal episodes earn points on eliminated contestants, finale episodes earn points on non-eliminated contestants (the winner). Uses UNION ALL approach.
+- Admin episodes page: "Finale" checkbox on create form, purple "Finale" badge on episode cards
+- Allocation UI: finale banner explaining the mechanic ("pick who will win"), header changes to "Finale — Pick the Winner"
+- Updated `database.types.ts` with `is_finale` field
+- Fixed pre-existing `drop_avatars_bucket` migration that was blocking pushes (Supabase disallows direct storage table deletes)
+
+**Unfinished / blocked:** Nothing
+**Gotchas:**
+
+- Finale scoring works by inversion: admin records eliminations for all runner-ups (same workflow as normal episodes). The one contestant with no elimination record is the winner. No new "winner" column needed.
+- The `drop_avatars_bucket` migration was blocking all pushes — direct `DELETE FROM storage.objects` is disallowed by Supabase. Fixed by removing the direct deletes and adding a comment to use the dashboard instead.
+
 ## 2026-04-08 — Vercel production deployment
 
 **Branch:** master

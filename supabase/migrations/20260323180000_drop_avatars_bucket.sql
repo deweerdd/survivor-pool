@@ -7,6 +7,5 @@ DROP POLICY IF EXISTS "Users upload own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users update own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users delete own avatar" ON storage.objects;
 
--- Delete all objects in the bucket, then the bucket itself
-DELETE FROM storage.objects WHERE bucket_id = 'avatars';
-DELETE FROM storage.buckets WHERE id = 'avatars';
+-- Bucket cleanup skipped — Supabase disallows direct deletes from storage
+-- tables. Remove the bucket via the Supabase dashboard Storage UI if needed.

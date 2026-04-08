@@ -14,6 +14,7 @@ type Props = {
   poolId: number;
   episodeNumber: number;
   isLocked: boolean;
+  isFinale: boolean;
   submitAction: (prevState: ActionResult | null, formData: FormData) => Promise<ActionResult>;
 };
 
@@ -26,6 +27,7 @@ export default function AllocationForm({
   poolId,
   episodeNumber,
   isLocked,
+  isFinale,
   submitAction,
 }: Props) {
   const [points, setPoints] = useState<Record<number, number>>(() => {
@@ -56,8 +58,20 @@ export default function AllocationForm({
         <input key={id} type="hidden" name={`points_${id}`} value={val} />
       ))}
 
+      {isFinale && (
+        <div className="callout callout-warning mb-6">
+          <strong>Finale!</strong> This is the final episode. Allocate your 20 points to who you
+          think will win Survivor. You can spread points across multiple contestants to play the
+          odds. Only points on the winner will count.
+        </div>
+      )}
+
       <div className="card-torch mb-6">
-        <h2 className="mb-1">Episode {episodeNumber} — Allocate Your 20 Points</h2>
+        <h2 className="mb-1">
+          {isFinale
+            ? `Finale — Pick the Winner`
+            : `Episode ${episodeNumber} — Allocate Your 20 Points`}
+        </h2>
         <div className="flex items-center gap-6 mt-3">
           <div className="shrink-0">
             <p className="text-label">Remaining</p>

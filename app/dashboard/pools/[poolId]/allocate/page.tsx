@@ -26,7 +26,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
   const [episodeResult, contestantsResult] = await Promise.all([
     supabase
       .from("episodes")
-      .select("id, episode_number, is_locked")
+      .select("id, episode_number, is_locked, is_finale")
       .eq("season_id", seasonId)
       .eq("is_locked", false)
       .order("episode_number")
@@ -91,6 +91,7 @@ export default async function AllocatePage({ params }: { params: Promise<{ poolI
           poolId={numericPoolId}
           episodeNumber={episode.episode_number}
           isLocked={episode.is_locked}
+          isFinale={episode.is_finale}
           submitAction={submitAllocation}
         />
       )}

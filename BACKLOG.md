@@ -8,6 +8,7 @@ Tasks should be self-contained: include enough context that an agent can start w
 
 ## Priority: High (before public launch)
 
+- [x] **Finale episode mode** (2026-04-08) — The final episode of a season works differently: instead of picking who gets eliminated, users pick who they think will win. Admin flags an episode as `is_finale` (new boolean column on `episodes`). When `is_finale` is true: (1) allocation UI changes copy to explain "pick who you think will win," (2) users still distribute 20 points across contestants and can spread across multiple to play the odds, (3) scoring inverts — only points placed on the sole winner pay out; points on non-winners are simply ignored (no penalty). Needs: migration to add `is_finale` to episodes, admin UI toggle, allocation page UI changes (banner/messaging), scoring logic update in `get_pool_scores` RPC or `buildLeaderboard`.
 - [ ] **CSRF protection on server actions** — Verify Next.js built-in origin checking is active and not bypassed. All `lib/actions/*.ts` accept bare `FormData` from forms.
 - [ ] **Rate limiting on invite code guessing** — `joinByInviteCodeAction` has no throttle. 6-char alphanumeric codes are brute-forceable without limits. Add rate limiting via middleware or DB-level counter.
 - [ ] **Atomic allocation upsert** — `submitAllocation` does delete-then-insert without a transaction. If the insert fails mid-way, the user loses their allocation. Wrap in a Postgres function or Supabase RPC.

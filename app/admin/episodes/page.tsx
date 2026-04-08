@@ -104,6 +104,10 @@ export default async function EpisodesPage({
               </label>
               <input id="air_date" name="air_date" type="date" className="input" />
             </div>
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input type="checkbox" name="is_finale" value="true" className="checkbox" />
+              Finale
+            </label>
             <button type="submit" className="btn btn-primary btn-sm">
               Add Episode
             </button>
@@ -130,6 +134,11 @@ export default async function EpisodesPage({
                       <span className="text-sm text-gray-500">
                         {episode.air_date ?? <span className="text-gray-400">No date</span>}
                       </span>
+                      {episode.is_finale && (
+                        <span className="inline-block bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded">
+                          Finale
+                        </span>
+                      )}
                       {episode.is_locked ? (
                         <span className="inline-block bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
                           Locked

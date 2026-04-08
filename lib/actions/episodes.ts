@@ -21,6 +21,7 @@ export async function createEpisode(formData: FormData) {
   const episode_number = parseInt(formData.get("episode_number") as string, 10);
   const title = (formData.get("title") as string)?.trim() || null;
   const air_date = (formData.get("air_date") as string)?.trim() || null;
+  const is_finale = formData.get("is_finale") === "true";
 
   if (!episode_number) throw new Error("Episode number is required");
 
@@ -34,6 +35,7 @@ export async function createEpisode(formData: FormData) {
     title,
     air_date,
     is_locked: false,
+    is_finale,
   });
   if (error) throw new Error(`Failed to create episode: ${error.message}`);
   revalidatePath("/admin/episodes");

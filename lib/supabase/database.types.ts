@@ -175,6 +175,7 @@ export type Database = {
           created_at: string;
           episode_number: number;
           id: number;
+          is_finale: boolean;
           is_locked: boolean;
           season_id: number;
           title: string | null;
@@ -184,6 +185,7 @@ export type Database = {
           created_at?: string;
           episode_number: number;
           id?: number;
+          is_finale?: boolean;
           is_locked?: boolean;
           season_id: number;
           title?: string | null;
@@ -193,6 +195,7 @@ export type Database = {
           created_at?: string;
           episode_number?: number;
           id?: number;
+          is_finale?: boolean;
           is_locked?: boolean;
           season_id?: number;
           title?: string | null;
