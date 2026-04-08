@@ -151,12 +151,20 @@ export default async function DashboardPage({
                   </div>
                   <div className="flex items-center gap-2">
                     {openEpisode && (
-                      <Link
-                        href={`/dashboard/pools/${p.poolId}/allocate`}
-                        className="btn btn-torch btn-sm"
-                      >
-                        Allocate Ep. {openEpisode.episode_number}
-                      </Link>
+                      <>
+                        <Link
+                          href={`/dashboard/pools/${p.poolId}/allocate`}
+                          className="btn btn-torch btn-sm"
+                        >
+                          Allocate Ep. {openEpisode.episode_number}
+                        </Link>
+                        <Link
+                          href={`/dashboard/pools/${p.poolId}/sole-survivor`}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          Sole Survivor
+                        </Link>
+                      </>
                     )}
                     <Link href={`/dashboard/pools/${p.poolId}`} className="btn btn-ghost btn-sm">
                       Leaderboard

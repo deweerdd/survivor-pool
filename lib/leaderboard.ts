@@ -38,21 +38,31 @@ export function toMemberRows(rows: { user_id: string; profiles: unknown }[]): Me
   });
 }
 
+export type SoleSurvivorScoreRow = {
+  user_id: string;
+  sole_survivor_points: number;
+};
+
 export type LeaderboardEntry = {
   rank: number;
   userId: string;
   displayName: string;
   avatarUrl: string | null;
   totalPoints: number;
+  soleSurvivorPoints: number;
   isCurrentUser: boolean;
 };
 
 export function buildLeaderboard(
   scores: ScoreRow[],
   members: MemberRow[],
-  currentUserId: string
+  currentUserId: string,
+  soleSurvivorScores?: SoleSurvivorScoreRow[]
 ): LeaderboardEntry[] {
   const scoreMap = new Map<string, number>(scores.map((s) => [s.user_id, s.total_points]));
+  const ssMap = new Map<string, number>(
+    (soleSurvivorScores ?? []).map((s) => [s.user_id, s.sole_survivor_points])
+  );
 
   // Build a lookup for profile data from scores (may have richer data from RPC)
   const scoreProfileMap = new Map(
@@ -66,12 +76,14 @@ export function buildLeaderboard(
     const scoreProfile = scoreProfileMap.get(m.user_id);
     const teamName = m.team_name ?? scoreProfile?.teamName ?? null;
     const fullName = m.full_name ?? scoreProfile?.fullName ?? null;
+    const ssPoints = ssMap.get(m.user_id) ?? 0;
 
     return {
       userId: m.user_id,
       displayName: formatDisplayName(teamName, fullName) || m.display_name || "Unknown",
       avatarUrl: m.avatar_url ?? scoreProfile?.avatarUrl ?? null,
-      totalPoints: scoreMap.get(m.user_id) ?? 0,
+      totalPoints: (scoreMap.get(m.user_id) ?? 0) + ssPoints,
+      soleSurvivorPoints: ssPoints,
       isCurrentUser: m.user_id === currentUserId,
       rank: 0,
     };

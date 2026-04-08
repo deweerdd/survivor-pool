@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { buildLeaderboard, type MemberRow, type ScoreRow } from "@/lib/leaderboard";
+import {
+  buildLeaderboard,
+  type MemberRow,
+  type ScoreRow,
+  type SoleSurvivorScoreRow,
+} from "@/lib/leaderboard";
 
 const makeMember = (userId: string, displayName?: string): MemberRow => ({
   user_id: userId,
@@ -96,5 +101,27 @@ describe("buildLeaderboard", () => {
     ];
     const result = buildLeaderboard([], members, "u1");
     expect(result[0].avatarUrl).toBe("/avatars/torch.svg");
+  });
+
+  it("sole survivor scores are added to total and tracked separately", () => {
+    const members = [makeMember("u1"), makeMember("u2")];
+    const scores = [makeScore("u1", 40), makeScore("u2", 50)];
+    const ssScores: SoleSurvivorScoreRow[] = [{ user_id: "u1", sole_survivor_points: 26 }];
+    const result = buildLeaderboard(scores, members, "other", ssScores);
+    // u1: 40 + 26 = 66, u2: 50 + 0 = 50
+    expect(result[0].userId).toBe("u1");
+    expect(result[0].totalPoints).toBe(66);
+    expect(result[0].soleSurvivorPoints).toBe(26);
+    expect(result[1].userId).toBe("u2");
+    expect(result[1].totalPoints).toBe(50);
+    expect(result[1].soleSurvivorPoints).toBe(0);
+  });
+
+  it("soleSurvivorPoints defaults to 0 when no SS scores provided", () => {
+    const members = [makeMember("u1")];
+    const scores = [makeScore("u1", 10)];
+    const result = buildLeaderboard(scores, members, "u1");
+    expect(result[0].soleSurvivorPoints).toBe(0);
+    expect(result[0].totalPoints).toBe(10);
   });
 });

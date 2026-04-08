@@ -110,6 +110,23 @@ Core game mechanic — player distributes 20 points per episode.
 
 **Invariant:** For a given `(pool_id, episode_id, user_id)`, the sum of `points` across all rows must equal exactly 20. Enforced at the application layer (server action validates before insert).
 
+### `sole_survivor_picks`
+
+One pick per user per pool for who they think will win the season.
+
+| Column              | Type                        | Notes                             |
+| ------------------- | --------------------------- | --------------------------------- |
+| `id`                | `serial` PK                 |                                   |
+| `pool_id`           | `int` FK → `pools.id`       |                                   |
+| `user_id`           | `uuid` FK → `profiles.id`   |                                   |
+| `contestant_id`     | `int` FK → `contestants.id` |                                   |
+| `picked_at_episode` | `int`                       | episode number when pick was made |
+| `created_at`        | `timestamptz`               |                                   |
+| `updated_at`        | `timestamptz`               |                                   |
+| UNIQUE              | `(pool_id, user_id)`        | one active pick per user per pool |
+
+**Scoring:** `2 × (total_episodes − picked_at_episode + 1)` — only if the picked contestant wins the finale. Computed by `get_sole_survivor_scores(p_pool_id)` RPC, which only returns points after the finale is locked.
+
 ---
 
 ## Scoring Logic
