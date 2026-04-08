@@ -336,6 +336,58 @@ export type Database = {
         };
         Relationships: [];
       };
+      sole_survivor_picks: {
+        Row: {
+          contestant_id: number;
+          created_at: string;
+          id: number;
+          picked_at_episode: number;
+          pool_id: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          contestant_id: number;
+          created_at?: string;
+          id?: number;
+          picked_at_episode: number;
+          pool_id: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          contestant_id?: number;
+          created_at?: string;
+          id?: number;
+          picked_at_episode?: number;
+          pool_id?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sole_survivor_picks_contestant_id_fkey";
+            columns: ["contestant_id"];
+            isOneToOne: false;
+            referencedRelation: "contestants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sole_survivor_picks_pool_id_fkey";
+            columns: ["pool_id"];
+            isOneToOne: false;
+            referencedRelation: "pools";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sole_survivor_picks_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       seasons: {
         Row: {
           created_at: string;
@@ -371,6 +423,13 @@ export type Database = {
         Returns: {
           member_count: number;
           pool_id: number;
+        }[];
+      };
+      get_sole_survivor_scores: {
+        Args: { p_pool_id: number };
+        Returns: {
+          user_id: string;
+          sole_survivor_points: number;
         }[];
       };
       get_pool_scores: {

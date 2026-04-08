@@ -9,6 +9,17 @@ Tasks should be self-contained: include enough context that an agent can start w
 ## Priority: High (before public launch)
 
 - [x] **Finale episode mode** (2026-04-08) — The final episode of a season works differently: instead of picking who gets eliminated, users pick who they think will win. Admin flags an episode as `is_finale` (new boolean column on `episodes`). When `is_finale` is true: (1) allocation UI changes copy to explain "pick who you think will win," (2) users still distribute 20 points across contestants and can spread across multiple to play the odds, (3) scoring inverts — only points placed on the sole winner pay out; points on non-winners are simply ignored (no penalty). Needs: migration to add `is_finale` to episodes, admin UI toggle, allocation page UI changes (banner/messaging), scoring logic update in `get_pool_scores` RPC or `buildLeaderboard`.
+- [x] **Sole Survivor pick** (2026-04-08) — Each user can make a separate "Sole Survivor" pick per pool, betting on who will win the season. Worth 2 pts per episode remaining (inclusive of the episode the pick was made on). Picking earlier = more points. Users can change anytime but forfeit earlier-episode value. If their pick is eliminated, they get a nudge to pick a new one. Points only count after the finale once the winner is confirmed by admin.
+  - **Data model:** New `sole_survivor_picks` table: `id`, `pool_id` (FK), `user_id` (FK), `contestant_id` (FK), `picked_at_episode` (int — episode number of the next unlocked episode when pick was made), `created_at`, `updated_at`. Unique on `(pool_id, user_id)` — one active pick per user per pool. Upsert on change.
+  - **Scoring:** If picked contestant wins the finale: `2 × (total_episodes − picked_at_episode + 1)`. If picked contestant did not win (or no pick made): 0. Added to leaderboard total only after finale results are recorded.
+  - **UI:** Pick interface accessible from pool page. Shows active contestants, current pick (if any), and projected points. After elimination of their pick, show a banner/nudge prompting a new pick.
+  - **Sub-tasks:**
+    - [x] Migration: create `sole_survivor_picks` table + RLS policies
+    - [x] Business logic in `lib/sole-survivor.ts` (TDD): `calculateSoleSurvivorPoints`, `isPickEliminated`
+    - [x] Server actions in `lib/actions/sole-survivor.ts`: `makeSoleSurvivorPickAction`
+    - [x] UI: Sole Survivor pick section on pool detail page (`app/dashboard/pools/[poolId]/page.tsx`)
+    - [x] Leaderboard integration: add sole survivor bonus to `buildLeaderboard` after finale
+    - [x] Elimination nudge: detect when user's pick is eliminated and show prompt
 - [ ] **CSRF protection on server actions** — Verify Next.js built-in origin checking is active and not bypassed. All `lib/actions/*.ts` accept bare `FormData` from forms.
 - [ ] **Rate limiting on invite code guessing** — `joinByInviteCodeAction` has no throttle. 6-char alphanumeric codes are brute-forceable without limits. Add rate limiting via middleware or DB-level counter.
 - [ ] **Atomic allocation upsert** — `submitAllocation` does delete-then-insert without a transaction. If the insert fails mid-way, the user loses their allocation. Wrap in a Postgres function or Supabase RPC.
