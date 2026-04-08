@@ -35,12 +35,13 @@ Before ending a session where work was done:
 Before marking any feature or phase as complete, all three must pass with zero errors:
 
 ```bash
+npm run format        # auto-fix formatting first
 npm run type-check
 npx eslint app lib --ext .ts,.tsx
-npm run format:check
+npm run format:check  # verify nothing was missed
 ```
 
-Do not mark a task done if any command reports errors.
+Do not mark a task done if any command reports errors. If `format` fixes files, stage and include them in the commit.
 
 After completing work, update the relevant docs when necessary:
 
