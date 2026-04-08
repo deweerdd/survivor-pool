@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default async function LoginPage() {
   async function signInWithGoogle() {
@@ -10,7 +11,7 @@ export default async function LoginPage() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        redirectTo: `${getSiteUrl()}/auth/callback`,
       },
     });
 

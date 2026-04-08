@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Teko, Barlow } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import Footer from "@/components/Footer";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const teko = Teko({
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   title: { default: "Survivor Pool", template: "%s | Survivor Pool" },
   description:
     "Pick your castaways, earn points when they survive. A Survivor TV show office pool app.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(getSiteUrl()),
   openGraph: {
     title: "Survivor Pool",
     description: "Pick your castaways, earn points when they survive.",
