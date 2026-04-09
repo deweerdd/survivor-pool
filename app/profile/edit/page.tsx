@@ -14,7 +14,7 @@ export default async function ProfileEditPage() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h1>Edit Profile</h1>
-        <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-sm text-muted-foreground">
           Update your team name, avatar, and preferences.
         </p>
       </div>

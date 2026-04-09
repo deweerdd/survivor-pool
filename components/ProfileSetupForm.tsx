@@ -3,7 +3,6 @@
 import { useState, useActionState } from "react";
 import { saveProfile } from "@/lib/actions/profile";
 import { BUILT_IN_AVATARS } from "@/lib/avatars";
-import ThemeToggle from "@/components/ThemeToggle";
 
 type Props = {
   mode: "setup" | "edit";
@@ -39,7 +38,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
       {/* Team Name */}
       <div>
         <label htmlFor="team_name" className="text-label block mb-1.5">
-          Team Name <span style={{ color: "var(--destructive)" }}>*</span>
+          Team Name <span className="text-destructive">*</span>
         </label>
         <input
           id="team_name"
@@ -52,7 +51,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
           placeholder="e.g. Tribal Council Terrors"
           className="input"
         />
-        <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-xs mt-1 text-muted-foreground">
           This is how you appear on leaderboards (2–30 characters).
         </p>
       </div>
@@ -68,16 +67,11 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
               key={avatar.id}
               type="button"
               onClick={() => setSelectedBuiltIn(avatar.path)}
-              className="p-2 rounded-lg border-2 transition-all hover:scale-105"
-              style={{
-                borderColor: selectedBuiltIn === avatar.path ? "var(--primary)" : "var(--border)",
-                backgroundColor:
-                  selectedBuiltIn === avatar.path ? "var(--surface-raised)" : "var(--surface)",
-                boxShadow:
-                  selectedBuiltIn === avatar.path
-                    ? "0 0 12px color-mix(in srgb, var(--ember) 30%, transparent)"
-                    : "none",
-              }}
+              className={`p-2 rounded-lg border-2 transition-all hover:scale-105 ${
+                selectedBuiltIn === avatar.path
+                  ? "border-primary bg-surface-raised glow-ember"
+                  : "border-border bg-surface"
+              }`}
               title={avatar.label}
             >
               <img
@@ -110,9 +104,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
           placeholder="The tribe has spoken... in my favor"
           className="input resize-none"
         />
-        <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>
-          {bio.length}/140
-        </p>
+        <p className="text-xs mt-1 text-muted-foreground">{bio.length}/140</p>
       </div>
 
       {/* Favorite Season */}
@@ -135,9 +127,7 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <span className="text-label block">Email Notifications</span>
-          <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-            Get episode reminders and deadline alerts
-          </p>
+          <p className="text-xs text-muted-foreground">Get episode reminders and deadline alerts</p>
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -148,17 +138,6 @@ export default function ProfileSetupForm({ mode, defaults }: Props) {
           />
           <div className="w-11 h-6 bg-muted rounded-full peer-checked:bg-primary transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-ring after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
         </label>
-      </div>
-
-      {/* Theme Toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-label block">Theme</span>
-          <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-            Light or dark mode
-          </p>
-        </div>
-        <ThemeToggle />
       </div>
 
       {/* Error */}

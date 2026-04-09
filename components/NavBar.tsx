@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import ThemeToggle from "@/components/ThemeToggle";
 import UserAvatar from "@/components/UserAvatar";
 
 type Props = {
@@ -75,7 +74,6 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
               <UserAvatar avatarUrl={avatarUrl} fullName={fullName || email} size="sm" />
               <span className="text-label">{displayLabel}</span>
             </Link>
-            <ThemeToggle />
             <button onClick={handleSignOut} className="btn btn-ghost btn-sm">
               Sign Out
             </button>
@@ -89,28 +87,25 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
             <span className="text-foreground font-semibold">POOL</span>
           </Link>
 
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            <button
-              className="nav-hamburger"
-              onClick={() => setDrawerOpen(true)}
-              aria-label="Open menu"
+          <button
+            className="nav-hamburger"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
-          </div>
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
         </div>
       </nav>
 
@@ -144,14 +139,8 @@ export default function NavBar({ isAdmin, email, teamName, fullName, avatarUrl }
           <div className="flex items-center gap-3 mb-2">
             <UserAvatar avatarUrl={avatarUrl} fullName={fullName || email} size="md" />
             <div>
-              <p className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>
-                {displayLabel}
-              </p>
-              {teamName && (
-                <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  {email}
-                </p>
-              )}
+              <p className="font-semibold text-sm text-foreground">{displayLabel}</p>
+              {teamName && <p className="text-xs text-muted-foreground">{email}</p>}
             </div>
           </div>
 
