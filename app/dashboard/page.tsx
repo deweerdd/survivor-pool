@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/pools";
 import { unwrap } from "@/lib/supabase/unwrap";
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function DashboardPage({
   searchParams,
@@ -126,6 +127,7 @@ export default async function DashboardPage({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="shrink-0 text-primary"
+                aria-hidden="true"
               >
                 <path d="M9 18l6-6-6-6" />
               </svg>
@@ -148,6 +150,7 @@ export default async function DashboardPage({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="opacity-30"
+                aria-hidden="true"
               >
                 <path
                   d="M24 0C24 0 32 12 32 20C32 25 29 28 26 30L28 50H20L22 30C19 28 16 25 16 20C16 12 24 0 24 0Z"
@@ -182,6 +185,7 @@ export default async function DashboardPage({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="shrink-0 text-muted-foreground"
+                    aria-hidden="true"
                   >
                     <path d="M9 18l6-6-6-6" />
                   </svg>
@@ -235,9 +239,9 @@ export default async function DashboardPage({
                       </span>
                     </div>
                     <form action={joinPoolAction.bind(null, pool.id)}>
-                      <button type="submit" className="btn btn-torch">
+                      <SubmitButton className="btn btn-torch" pendingText="Joining...">
                         Join Pool
-                      </button>
+                      </SubmitButton>
                     </form>
                   </li>
                 ))}
@@ -250,16 +254,22 @@ export default async function DashboardPage({
             <h3 className="mb-1">Join a Private Pool</h3>
             <hr className="divider-accent my-4" />
             <form action={joinByInviteCodeAction} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                name="inviteCode"
-                required
-                placeholder="Invite code"
-                className="input flex-1 uppercase"
-              />
-              <button type="submit" className="btn btn-primary">
+              <div className="flex-1">
+                <label htmlFor="inviteCode" className="sr-only">
+                  Invite code
+                </label>
+                <input
+                  id="inviteCode"
+                  type="text"
+                  name="inviteCode"
+                  required
+                  placeholder="Invite code"
+                  className="input uppercase"
+                />
+              </div>
+              <SubmitButton className="btn btn-primary" pendingText="Joining...">
                 Join
-              </button>
+              </SubmitButton>
             </form>
             {error === "invalid_code" && (
               <div className="callout callout-danger mt-3">
@@ -278,16 +288,22 @@ export default async function DashboardPage({
             <h3 className="mb-1">Create a Private Pool</h3>
             <hr className="divider my-3" />
             <form action={createPrivatePoolAction} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Pool name"
-                className="input flex-1"
-              />
-              <button type="submit" className="btn btn-secondary">
+              <div className="flex-1">
+                <label htmlFor="poolName" className="sr-only">
+                  Pool name
+                </label>
+                <input
+                  id="poolName"
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Pool name"
+                  className="input"
+                />
+              </div>
+              <SubmitButton className="btn btn-secondary" pendingText="Creating...">
                 Create Pool
-              </button>
+              </SubmitButton>
             </form>
           </section>
         </div>

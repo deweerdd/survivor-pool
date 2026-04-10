@@ -7,6 +7,7 @@ import {
   type SoleSurvivorScoreRow,
 } from "@/lib/leaderboard";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 
 function RankBadge({ rank }: { rank: number }) {
@@ -85,7 +86,7 @@ export default async function PoolLeaderboardPage({
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-6">
       <div className="animate-fade-up">
-        <a href="/dashboard" className="btn btn-ghost btn-sm mb-3">
+        <Link href="/dashboard" className="btn btn-ghost btn-sm mb-3">
           <svg
             width="16"
             height="16"
@@ -95,17 +96,18 @@ export default async function PoolLeaderboardPage({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <path d="M15 18l-6-6 6-6" />
           </svg>
           Dashboard
-        </a>
+        </Link>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1>{poolResult.data.name}</h1>
           <div className="flex items-center gap-2">
             {hasUnlockedEpisode && (
               <>
-                <a href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-torch">
+                <Link href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-torch">
                   <svg
                     width="16"
                     height="16"
@@ -113,14 +115,15 @@ export default async function PoolLeaderboardPage({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
                     <circle cx="12" cy="12" r="10" />
                     <circle cx="12" cy="12" r="6" />
                     <circle cx="12" cy="12" r="2" />
                   </svg>
                   Allocate
-                </a>
-                <a
+                </Link>
+                <Link
                   href={`/dashboard/pools/${numericPoolId}/sole-survivor`}
                   className="btn btn-secondary"
                 >
@@ -131,11 +134,12 @@ export default async function PoolLeaderboardPage({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                   Sole Survivor
-                </a>
+                </Link>
               </>
             )}
           </div>
@@ -145,12 +149,12 @@ export default async function PoolLeaderboardPage({
       {pickIsEliminated && (
         <div className="callout callout-warning animate-fade-up">
           Your Sole Survivor pick has been eliminated!{" "}
-          <a
+          <Link
             href={`/dashboard/pools/${numericPoolId}/sole-survivor`}
             className="underline font-semibold"
           >
             Pick a new one
-          </a>{" "}
+          </Link>{" "}
           to earn bonus points.
         </div>
       )}
@@ -165,12 +169,20 @@ export default async function PoolLeaderboardPage({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="text-label pb-3 pr-4 pl-5 pt-4">Rank</th>
-              <th className="text-label pb-3 pr-4 pt-4">Player</th>
+              <th scope="col" className="text-label pb-3 pr-4 pl-5 pt-4">
+                Rank
+              </th>
+              <th scope="col" className="text-label pb-3 pr-4 pt-4">
+                Player
+              </th>
               {hasSoleSurvivorScores && (
-                <th className="text-label pb-3 pr-2 pt-4 text-right">SS Bonus</th>
+                <th scope="col" className="text-label pb-3 pr-2 pt-4 text-right">
+                  SS Bonus
+                </th>
               )}
-              <th className="text-label pb-3 pr-5 pt-4 text-right">Points</th>
+              <th scope="col" className="text-label pb-3 pr-5 pt-4 text-right">
+                Points
+              </th>
             </tr>
           </thead>
           <tbody>

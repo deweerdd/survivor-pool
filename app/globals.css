@@ -19,7 +19,7 @@
   --surface-foreground: #1c1917;
   --surface-raised: #faf6f1;
   --muted: #cdc3b5;
-  --muted-foreground: #78716c;
+  --muted-foreground: #57534e;
   --border: #c4b9a8;
   --ring: #c2410c;
   --ember: #f97316;
@@ -334,16 +334,31 @@ h4 {
   transform: translateY(-2px);
 }
 
+.card-hover:active {
+  transform: scale(0.98);
+}
+
 .card-torch {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 3px solid;
-  border-image: linear-gradient(90deg, #dc2626, #f97316, #fbbf24) 1;
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.06),
     0 2px 8px var(--glow);
+  overflow: hidden;
+}
+
+.card-torch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #dc2626, #f97316, #fbbf24);
+  pointer-events: none;
 }
 
 /* ── Pool card — clickable card with left fire accent ── */
@@ -371,6 +386,11 @@ h4 {
     0 4px 16px rgba(0, 0, 0, 0.08),
     0 0 20px var(--glow);
   transform: translateX(2px);
+}
+
+.pool-card:active {
+  transform: scale(0.99);
+  background: var(--surface-raised);
 }
 
 /* ── Callouts ── */
@@ -1064,4 +1084,25 @@ h4 {
 .alloc-row-active {
   border-left: 3px solid var(--primary);
   background: color-mix(in srgb, var(--primary) 5%, var(--surface));
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-torch-icon {
+    animation: none;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--ember) 65%, transparent));
+  }
+
+  .landing-scroll-hint {
+    animation: none;
+  }
 }
