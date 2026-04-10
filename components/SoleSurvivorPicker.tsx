@@ -110,7 +110,7 @@ export default function SoleSurvivorPicker({
                     onClick={() => setSelectedId(c.id)}
                     className={`card-flat p-3 flex flex-col items-center gap-2 text-center cursor-pointer transition-all ${
                       isSelected
-                        ? "border-primary ring-2 ring-primary/30 bg-surface-raised"
+                        ? "border-primary bg-surface-raised glow-ember"
                         : "hover:border-primary/40"
                     }`}
                   >

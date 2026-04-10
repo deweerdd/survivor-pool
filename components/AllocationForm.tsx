@@ -84,7 +84,7 @@ export default function AllocationForm({
           <div className="flex-1 min-w-0">
             <div className="h-3 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full transition-all"
+                className="progress-fire"
                 style={{ width: `${Math.min(100, (total / 20) * 100)}%` }}
               />
             </div>
@@ -103,7 +103,7 @@ export default function AllocationForm({
               return (
                 <div
                   key={c.id}
-                  className={`card-flat p-3 flex items-center justify-between${isLocked ? " opacity-75" : ""}`}
+                  className={`card-flat p-3 flex items-center justify-between${isLocked ? " opacity-75" : ""}${val > 0 ? " alloc-row-active" : ""}`}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <ContestantAvatar imgUrl={c.img_url} name={c.name} size={36} />
@@ -122,7 +122,7 @@ export default function AllocationForm({
                       {val}
                     </span>
                   ) : (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => adjust(c.id, -1)}
@@ -153,7 +153,21 @@ export default function AllocationForm({
 
       {isLocked ? (
         <div className="callout callout-warning mt-4 flex items-center gap-2">
-          <span>🔒</span> Episode is locked — allocations are final.
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Episode is locked — allocations are final.
         </div>
       ) : (
         <div className="mt-4 space-y-3">

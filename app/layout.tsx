@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Teko, Barlow } from "next/font/google";
-import ThemeProvider from "@/components/ThemeProvider";
 import Footer from "@/components/Footer";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
@@ -41,10 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${teko.variable} ${barlow.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
-        <ThemeProvider>
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </ThemeProvider>
+        <div className="flex-1">{children}</div>
+        <Footer />
       </body>
     </html>
   );

@@ -30,11 +30,14 @@ export default async function LoginPage() {
         </Link>
       </nav>
 
-      <section className="landing-hero" style={{ minHeight: "100vh" }}>
+      <section className="landing-hero" style={{ minHeight: "100dvh" }}>
         <div className="landing-hero-bg" aria-hidden="true" />
-        <div className="landing-hero-content" style={{ maxWidth: "480px", width: "100%" }}>
+        <div
+          className="landing-hero-content animate-scale-in"
+          style={{ maxWidth: "420px", width: "100%" }}
+        >
           {/* Torch + Title */}
-          <div className="landing-torch-icon" aria-hidden="true">
+          <div className="landing-torch-icon" aria-hidden="true" style={{ width: 40, height: 66 }}>
             <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M24 0C24 0 32 12 32 20C32 25 29 28 26 30L28 50H20L22 30C19 28 16 25 16 20C16 12 24 0 24 0Z"
@@ -52,7 +55,7 @@ export default async function LoginPage() {
             </svg>
           </div>
 
-          <h1 className="landing-title" style={{ marginBottom: "0.5rem" }}>
+          <h1 className="landing-title" style={{ marginBottom: "0.5rem", fontSize: "3.5rem" }}>
             <span className="landing-title-survivor">Survivor</span>
             <span className="landing-title-pool">Pool</span>
           </h1>

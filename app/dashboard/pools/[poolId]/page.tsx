@@ -7,7 +7,15 @@ import {
   type SoleSurvivorScoreRow,
 } from "@/lib/leaderboard";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+
+function RankBadge({ rank }: { rank: number }) {
+  if (rank === 1) return <span className="rank-gold">1</span>;
+  if (rank === 2) return <span className="rank-silver">2</span>;
+  if (rank === 3) return <span className="rank-bronze">3</span>;
+  return <span className="text-muted-foreground tabular-nums">{rank}</span>;
+}
 
 export default async function PoolLeaderboardPage({
   params,
@@ -77,54 +85,104 @@ export default async function PoolLeaderboardPage({
 
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1>{poolResult.data.name} — Leaderboard</h1>
-        <div className="flex items-center gap-2">
-          {hasUnlockedEpisode && (
-            <>
-              <a href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-torch">
-                Allocate Points
-              </a>
-              <a
-                href={`/dashboard/pools/${numericPoolId}/sole-survivor`}
-                className="btn btn-secondary"
-              >
-                Sole Survivor
-              </a>
-            </>
-          )}
+      <div className="animate-fade-up">
+        <Link href="/dashboard" className="btn btn-ghost btn-sm mb-3">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Dashboard
+        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1>{poolResult.data.name}</h1>
+          <div className="flex items-center gap-2">
+            {hasUnlockedEpisode && (
+              <>
+                <Link href={`/dashboard/pools/${numericPoolId}/allocate`} className="btn btn-torch">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                  Allocate
+                </Link>
+                <Link
+                  href={`/dashboard/pools/${numericPoolId}/sole-survivor`}
+                  className="btn btn-secondary"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  Sole Survivor
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {pickIsEliminated && (
-        <div className="callout callout-warning">
+        <div className="callout callout-warning animate-fade-up">
           Your Sole Survivor pick has been eliminated!{" "}
-          <a
+          <Link
             href={`/dashboard/pools/${numericPoolId}/sole-survivor`}
             className="underline font-semibold"
           >
             Pick a new one
-          </a>{" "}
+          </Link>{" "}
           to earn bonus points.
         </div>
       )}
 
       {noEliminations && (
-        <div className="callout callout-warning">
+        <div className="callout callout-warning animate-fade-up">
           No eliminations recorded yet — all members start at 0 points.
         </div>
       )}
 
-      <div className="card p-0 overflow-hidden">
+      <div className="card p-0 overflow-hidden animate-fade-up delay-200">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="text-label pb-3 pr-4 pl-5 pt-4">Rank</th>
-              <th className="text-label pb-3 pr-4 pt-4">Player</th>
+              <th scope="col" className="text-label pb-3 pr-4 pl-5 pt-4">
+                Rank
+              </th>
+              <th scope="col" className="text-label pb-3 pr-4 pt-4">
+                Player
+              </th>
               {hasSoleSurvivorScores && (
-                <th className="text-label pb-3 pr-2 pt-4 text-right">SS Bonus</th>
+                <th scope="col" className="text-label pb-3 pr-2 pt-4 text-right">
+                  SS Bonus
+                </th>
               )}
-              <th className="text-label pb-3 pr-5 pt-4 text-right">Points</th>
+              <th scope="col" className="text-label pb-3 pr-5 pt-4 text-right">
+                Points
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -138,23 +196,7 @@ export default async function PoolLeaderboardPage({
                 }
               >
                 <td className="py-3 pr-4 pl-5">
-                  {entry.rank === 1 ? (
-                    <span className="badge badge-accent">1</span>
-                  ) : entry.rank === 2 ? (
-                    <span
-                      className="badge"
-                      style={{
-                        background: "var(--muted)",
-                        color: "var(--foreground)",
-                      }}
-                    >
-                      2
-                    </span>
-                  ) : entry.rank === 3 ? (
-                    <span className="badge badge-primary">3</span>
-                  ) : (
-                    <span className="text-muted-foreground">{entry.rank}</span>
-                  )}
+                  <RankBadge rank={entry.rank} />
                 </td>
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-2">
@@ -172,7 +214,7 @@ export default async function PoolLeaderboardPage({
                 {hasSoleSurvivorScores && (
                   <td className="py-3 pr-2 text-right">
                     <span className="text-sm tabular-nums text-muted-foreground">
-                      {entry.soleSurvivorPoints > 0 ? `+${entry.soleSurvivorPoints}` : "—"}
+                      {entry.soleSurvivorPoints > 0 ? `+${entry.soleSurvivorPoints}` : "\u2014"}
                     </span>
                   </td>
                 )}

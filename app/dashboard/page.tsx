@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/pools";
 import { unwrap } from "@/lib/supabase/unwrap";
 import Link from "next/link";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function DashboardPage({
   searchParams,
@@ -105,23 +106,32 @@ export default async function DashboardPage({
     <main className="max-w-2xl mx-auto px-4 py-8 sm:px-6 space-y-8">
       {/* ── Zone 1: Allocate Banner ── */}
       {openEpisode && myPools.length > 0 && (
-        <section className="space-y-3">
+        <section className="stagger-children space-y-3">
           {myPools.map((p) => (
-            <div
+            <Link
               key={p.poolId}
-              className="card-torch flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              href={`/dashboard/pools/${p.poolId}/allocate`}
+              className="card-torch flex items-center justify-between gap-3 no-underline hover:opacity-90 transition-opacity"
             >
-              <p>
+              <p className="text-foreground">
                 Allocate your points for <strong>Episode {openEpisode.episode_number}</strong> in{" "}
                 {p.poolName}
               </p>
-              <Link
-                href={`/dashboard/pools/${p.poolId}/allocate`}
-                className="btn btn-torch shrink-0"
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="shrink-0 text-primary"
+                aria-hidden="true"
               >
-                Allocate Now
-              </Link>
-            </div>
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </Link>
           ))}
         </section>
       )}
@@ -131,16 +141,32 @@ export default async function DashboardPage({
         <h2>My Pools</h2>
 
         {myPools.length === 0 ? (
-          <div className="card-flat py-10 text-center">
-            <p className="text-muted-foreground">
-              You haven&apos;t joined any pools yet. Open &ldquo;Find a Pool&rdquo; below to get
-              started.
-            </p>
+          <div className="card-flat py-12 text-center space-y-4">
+            <div className="flex justify-center">
+              <svg
+                width="48"
+                height="80"
+                viewBox="0 0 48 80"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="opacity-30"
+                aria-hidden="true"
+              >
+                <path
+                  d="M24 0C24 0 32 12 32 20C32 25 29 28 26 30L28 50H20L22 30C19 28 16 25 16 20C16 12 24 0 24 0Z"
+                  fill="currentColor"
+                />
+                <rect x="20" y="50" width="8" height="26" rx="2" fill="#44403c" />
+                <rect x="18" y="74" width="12" height="4" rx="1" fill="#44403c" />
+              </svg>
+            </div>
+            <h3 className="text-muted-foreground">Your torch isn&apos;t lit yet</h3>
+            <p className="text-muted-foreground text-sm">Join a pool below to start playing.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="stagger-children space-y-3">
             {myPools.map((p) => (
-              <div key={p.poolId} className="card card-hover">
+              <Link key={p.poolId} href={`/dashboard/pools/${p.poolId}`} className="pool-card">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-lg">{p.poolName}</h3>
@@ -149,27 +175,20 @@ export default async function DashboardPage({
                       <span className="badge badge-accent">Code: {p.inviteCode}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {openEpisode && (
-                      <>
-                        <Link
-                          href={`/dashboard/pools/${p.poolId}/allocate`}
-                          className="btn btn-torch btn-sm"
-                        >
-                          Allocate Ep. {openEpisode.episode_number}
-                        </Link>
-                        <Link
-                          href={`/dashboard/pools/${p.poolId}/sole-survivor`}
-                          className="btn btn-secondary btn-sm"
-                        >
-                          Sole Survivor
-                        </Link>
-                      </>
-                    )}
-                    <Link href={`/dashboard/pools/${p.poolId}`} className="btn btn-ghost btn-sm">
-                      Leaderboard
-                    </Link>
-                  </div>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
                 </div>
                 <hr className="divider mb-3" />
                 <div className="flex gap-8">
@@ -183,8 +202,15 @@ export default async function DashboardPage({
                     <p className="text-label">Points</p>
                     <p className="text-display text-2xl font-bold">{p.totalPoints}</p>
                   </div>
+                  {openEpisode && (
+                    <div className="ml-auto flex items-center">
+                      <span className="badge badge-primary">
+                        Ep. {openEpisode.episode_number} Open
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -213,9 +239,9 @@ export default async function DashboardPage({
                       </span>
                     </div>
                     <form action={joinPoolAction.bind(null, pool.id)}>
-                      <button type="submit" className="btn btn-torch">
+                      <SubmitButton className="btn btn-torch" pendingText="Joining...">
                         Join Pool
-                      </button>
+                      </SubmitButton>
                     </form>
                   </li>
                 ))}
@@ -228,16 +254,22 @@ export default async function DashboardPage({
             <h3 className="mb-1">Join a Private Pool</h3>
             <hr className="divider-accent my-4" />
             <form action={joinByInviteCodeAction} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                name="inviteCode"
-                required
-                placeholder="Invite code"
-                className="input flex-1 uppercase"
-              />
-              <button type="submit" className="btn btn-primary">
+              <div className="flex-1">
+                <label htmlFor="inviteCode" className="sr-only">
+                  Invite code
+                </label>
+                <input
+                  id="inviteCode"
+                  type="text"
+                  name="inviteCode"
+                  required
+                  placeholder="Invite code"
+                  className="input uppercase"
+                />
+              </div>
+              <SubmitButton className="btn btn-primary" pendingText="Joining...">
                 Join
-              </button>
+              </SubmitButton>
             </form>
             {error === "invalid_code" && (
               <div className="callout callout-danger mt-3">
@@ -256,16 +288,22 @@ export default async function DashboardPage({
             <h3 className="mb-1">Create a Private Pool</h3>
             <hr className="divider my-3" />
             <form action={createPrivatePoolAction} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Pool name"
-                className="input flex-1"
-              />
-              <button type="submit" className="btn btn-secondary">
+              <div className="flex-1">
+                <label htmlFor="poolName" className="sr-only">
+                  Pool name
+                </label>
+                <input
+                  id="poolName"
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Pool name"
+                  className="input"
+                />
+              </div>
+              <SubmitButton className="btn btn-secondary" pendingText="Creating...">
                 Create Pool
-              </button>
+              </SubmitButton>
             </form>
           </section>
         </div>

@@ -15,17 +15,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div>
-      <nav className="border-b px-3 sm:px-6 py-3 flex flex-wrap gap-3 sm:gap-6 text-sm font-medium">
-        <Link href="/admin" className="hover:underline">
+      <nav className="border-b border-border bg-surface px-3 sm:px-6 py-2 flex flex-wrap gap-1 sm:gap-2">
+        <Link href="/admin" className="nav-link text-sm">
           Admin Home
         </Link>
-        <Link href="/admin/seasons" className="hover:underline">
+        <Link href="/admin/seasons" className="nav-link text-sm">
           Seasons
         </Link>
-        <Link href="/admin/contestants" className="hover:underline">
+        <Link href="/admin/contestants" className="nav-link text-sm">
           Contestants
         </Link>
-        <Link href="/admin/episodes" className="hover:underline">
+        <Link href="/admin/episodes" className="nav-link text-sm">
           Episodes
         </Link>
       </nav>
