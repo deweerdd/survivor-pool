@@ -16,6 +16,19 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-10 — Dead code cleanup
+
+**Branch:** feature/ui-redesign
+**What was done:**
+
+- Deleted `components/ThemeProvider.tsx` — orphaned `next-themes` wrapper that was never imported anywhere. Set `forcedTheme="light"` so it wasn't providing any dark-mode behavior either.
+- Uninstalled `next-themes` dependency
+- Removed unused CSS from `app/globals.css`: `@keyframes pulse-glow` (not referenced) and `.delay-100/300/400/500` utility classes (only `.delay-200` is used in the codebase)
+- DoD: format, type-check, lint, format:check, and 37 unit tests all green
+
+**Unfinished / blocked:** Nothing.
+**Gotchas:** None — all removals were verified with grep before deletion.
+
 ## 2026-04-10 — UI/UX audit & accessibility fixes
 
 **Branch:** feature/ui-redesign

@@ -643,16 +643,6 @@ h4 {
   }
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 16px var(--glow);
-  }
-  50% {
-    box-shadow: 0 0 32px rgba(249, 115, 22, 0.25);
-  }
-}
-
 @keyframes torch-flicker {
   0% {
     filter: drop-shadow(0 0 14px color-mix(in srgb, var(--ember) 65%, transparent));
@@ -718,20 +708,8 @@ h4 {
 }
 
 /* Delay utilities */
-.delay-100 {
-  animation-delay: 100ms;
-}
 .delay-200 {
   animation-delay: 200ms;
-}
-.delay-300 {
-  animation-delay: 300ms;
-}
-.delay-400 {
-  animation-delay: 400ms;
-}
-.delay-500 {
-  animation-delay: 500ms;
 }
 
 /* ── Landing page ── */
