@@ -7,7 +7,8 @@ export default function Footer() {
           <span className="text-primary font-semibold">SURVIVOR</span>
           <span className="text-foreground font-semibold">POOL</span>
         </span>
-        <div className="text-center sm:text-right text-xs leading-relaxed">
+        <div className="text-center sm:text-right text-xs leading-relaxed text-muted-foreground">
+          <p>Built for Survivor fans.</p>
           <p>
             &copy; {new Date().getFullYear()} Survivor Pool. Not affiliated with CBS or Survivor.
           </p>

@@ -71,10 +71,9 @@ export default function LoginForm({ signInWithGoogle }: { signInWithGoogle: () =
           </svg>
         </div>
         <h3>Check Your Email</h3>
-        <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
-          We sent a confirmation link to{" "}
-          <strong style={{ color: "var(--foreground)" }}>{email}</strong>. Click the link to
-          activate your account.
+        <p className="text-sm text-muted-foreground">
+          We sent a confirmation link to <strong className="text-foreground">{email}</strong>. Click
+          the link to activate your account.
         </p>
         <button
           onClick={() => {
@@ -167,10 +166,7 @@ export default function LoginForm({ signInWithGoogle }: { signInWithGoogle: () =
       {/* Divider */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-px bg-border" />
-        <span
-          className="text-xs uppercase tracking-widest"
-          style={{ color: "var(--muted-foreground)" }}
-        >
+        <span className="text-xs uppercase tracking-widest text-muted-foreground">
           or continue with
         </span>
         <div className="flex-1 h-px bg-border" />

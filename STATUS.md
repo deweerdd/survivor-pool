@@ -16,6 +16,47 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-10 — Dead code cleanup
+
+**Branch:** feature/ui-redesign
+**What was done:**
+
+- Deleted `components/ThemeProvider.tsx` — orphaned `next-themes` wrapper that was never imported anywhere. Set `forcedTheme="light"` so it wasn't providing any dark-mode behavior either.
+- Uninstalled `next-themes` dependency
+- Removed unused CSS from `app/globals.css`: `@keyframes pulse-glow` (not referenced) and `.delay-100/300/400/500` utility classes (only `.delay-200` is used in the codebase)
+- DoD: format, type-check, lint, format:check, and 37 unit tests all green
+
+**Unfinished / blocked:** Nothing.
+**Gotchas:** None — all removals were verified with grep before deletion.
+
+## 2026-04-10 — UI/UX audit & accessibility fixes
+
+**Branch:** feature/ui-redesign
+**What was done:**
+
+- Ran UI/UX audit using `ui-ux-pro-max` skill against existing pages/components
+- **Accessibility fixes:**
+  - Added `@media (prefers-reduced-motion: reduce)` in `globals.css` to disable all animations (torch flicker, scroll hint, ember particles, transitions)
+  - Darkened `--muted-foreground` from `#78716c` to `#57534e` (stone-600) to meet WCAG AA 4.5:1 contrast on the cream background
+  - Added `sr-only` `<label>` elements to "Invite code" and "Pool name" inputs on dashboard
+  - Added `scope="col"` to leaderboard `<th>` elements
+  - Added `aria-hidden="true"` to decorative SVG icons on dashboard
+- **Touch/interaction:**
+  - Increased `gap-1` → `gap-2` between allocation +/- buttons (meets 8px min spacing)
+  - Added `:active` tap feedback on `.card-hover` and `.pool-card` for mobile press state
+- **Visual fix:** `.card-torch` was using `border-image` for its gradient top stripe, which broke `border-radius` on the top corners in all browsers. Replaced with an absolutely-positioned `::before` pseudo-element + `overflow: hidden`
+- **Routing:** Replaced `<a href>` with Next.js `<Link>` in `app/dashboard/pools/[poolId]/page.tsx` (Dashboard back link, Allocate button, Sole Survivor button, "Pick a new one" inline link) — now client-side navigation
+- **Loading feedback:** Created `components/SubmitButton.tsx` using `useFormStatus`. Wired into Join Pool, Join by Invite Code, and Create Pool forms on dashboard — buttons now disable and show pending text ("Joining..." / "Creating...") during server action
+- DoD: format, type-check, lint, format:check all green
+
+**Unfinished / blocked:** Nothing blocking. Deferred lower-priority audit items tracked in BACKLOG.md (mobile nav focus trap, `:focus-visible` fallback on `.btn`/`.input`, breadcrumbs, dark mode).
+
+**Gotchas:**
+
+- `border-image` silently disables `border-radius` on the bordered side — easy to miss visually because the rest of the card still looks rounded. Pseudo-element approach is the safest workaround.
+- Tailwind v4 ships `sr-only` out of the box, no config needed.
+- `useFormStatus` must be called from a child component inside the `<form>` — that's why `SubmitButton` is its own client component rather than inlined.
+
 ## 2026-04-08 — Finale episode mode
 
 **Branch:** master
