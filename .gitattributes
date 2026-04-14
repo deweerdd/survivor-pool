@@ -1,0 +1,16 @@
+# Normalize all text files to LF in the repo; working tree can be CRLF on Windows
+* text=auto eol=lf
+
+# Force LF for script / config files that would break with CRLF
+*.sh       text eol=lf
+*.sql      text eol=lf
+
+# Binary — never touch
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.ico      binary
+*.webp     binary
+*.woff     binary
+*.woff2    binary
