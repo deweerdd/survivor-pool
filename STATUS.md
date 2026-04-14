@@ -16,6 +16,23 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-14 — Rate-limit chat + allocation submits
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- `lib/actions/chat.ts` — `sendChatMessageAction` now calls `checkRateLimit(admin, user.id, "send_chat_message", { max: 30, windowSec: 60 })` before the pool/membership checks. Over-limit throws a user-facing "too quickly" error surfaced by `withAction`.
+- `lib/actions/allocations.ts` — `submitAllocation` now rate-limited at 60 / 5 min with action key `submit_allocation`. Users routinely tweak allocations, so the cap is generous; it only bites scripted abuse.
+- Both actions use `createAdminClient()` because `rate_limit_attempts` has RLS on with no policies.
+- DoD green.
+
+**Unfinished / blocked:** 2 tech-debt items remain: atomic pool-join + event emission (Postgres function) and RPC return-type generation / runtime guards.
+
+**Gotchas:**
+
+- Picked `max: 30 / 60s` for chat deliberately (not 10/60 or similar). Real conversation in a small pool can spike — a quick back-and-forth between two people easily hits 10–15 msgs/min. The limit is about flooding, not pacing.
+- The rate-limit check runs *before* the pool/membership validation, so an unauthorized user who spams the endpoint still counts toward their own limit. That's fine — it's the same user id either way.
+
 ## 2026-04-14 — Tech debt pass: pool-events logging, PoolChat client hoist, a11y label, server.ts comment
 
 **Branch:** refactor/unify-actions-and-dashboard-rpc

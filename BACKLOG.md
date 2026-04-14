@@ -139,7 +139,7 @@ Tracked items from the 2026-04-14 code review. Tackle opportunistically.
 
 ### Hardening
 
-- [ ] **Rate-limit chat and allocation submits** — `lib/rate-limit.ts` currently only gates invite-code joins. Chat (`actions/chat.ts`) is the obvious spam vector; allocation updates should also be capped.
+- [x] **Rate-limit chat and allocation submits** (2026-04-14) — `sendChatMessageAction` now gated at 30 msgs / 60 sec per user via `checkRateLimit`, and `submitAllocation` at 60 submits / 5 min. Over-limit throws a user-visible error surfaced by `withAction`.
 - [x] **Document `catch {}` in `lib/supabase/server.ts`** (2026-04-14) — Added an explanatory comment in the catch block noting the RSC read-only context + middleware refresh path, with a "do not log" warning.
 
 ### UI / a11y

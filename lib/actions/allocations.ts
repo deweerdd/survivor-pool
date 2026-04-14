@@ -5,6 +5,8 @@ import { requireUserForAction } from "@/lib/auth-utils";
 import { MAX_INT, requireInt } from "@/lib/validation";
 import { type ActionResult, withAction } from "@/lib/actions/types";
 import { autoLockEpisodes } from "@/lib/actions/auto-lock";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function submitAllocation(
   _prevState: ActionResult | null,
@@ -12,6 +14,14 @@ export async function submitAllocation(
 ): Promise<ActionResult> {
   return withAction(async () => {
     const { supabase, user } = await requireUserForAction();
+
+    // Anti-spam: 60 submits / 5 min per user. Users legitimately tweak
+    // allocations many times before lock; this cap only bites scripted abuse.
+    const rl = await checkRateLimit(createAdminClient(), user.id, "submit_allocation", {
+      max: 60,
+      windowSec: 300,
+    });
+    if (!rl.allowed) throw new Error("Too many allocation updates. Try again in a few minutes.");
 
     const poolId = requireInt(formData.get("poolId"), "Pool", { min: 1, max: MAX_INT });
     const epId = requireInt(formData.get("episodeId"), "Episode", { min: 1, max: MAX_INT });

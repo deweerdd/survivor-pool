@@ -5,6 +5,8 @@ import { requireUserForAction } from "@/lib/auth-utils";
 import { MAX_INT, requireInt } from "@/lib/validation";
 import { type ActionResult, withAction } from "@/lib/actions/types";
 import { validateMessageBody } from "@/lib/chat";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function sendChatMessageAction(
   _prevState: ActionResult | null,
@@ -12,6 +14,14 @@ export async function sendChatMessageAction(
 ): Promise<ActionResult> {
   return withAction(async () => {
     const { supabase, user } = await requireUserForAction();
+
+    // Anti-spam: 30 messages / minute per user across all pools. Generous for
+    // real conversation, tight enough to stop scripted flooding.
+    const rl = await checkRateLimit(createAdminClient(), user.id, "send_chat_message", {
+      max: 30,
+      windowSec: 60,
+    });
+    if (!rl.allowed) throw new Error("You're sending messages too quickly. Try again in a moment.");
 
     const poolId = requireInt(formData.get("poolId"), "Pool", { min: 1, max: MAX_INT });
     const rawBody = formData.get("body");
