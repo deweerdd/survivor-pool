@@ -502,6 +502,15 @@ export type Database = {
           user_id: string;
         }[];
       };
+      replace_allocations: {
+        Args: {
+          p_pool_id: number;
+          p_episode_id: number;
+          p_contestant_ids: number[];
+          p_points: number[];
+        };
+        Returns: void;
+      };
     };
     Enums: {
       pool_event_type:

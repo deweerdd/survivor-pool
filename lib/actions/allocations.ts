@@ -50,26 +50,15 @@ export async function submitAllocation(
   const totalPoints = entries.reduce((s, e) => s + e.points, 0);
   if (totalPoints !== 20) return { status: "error", error: "Total points must equal 20." };
 
-  // Delete existing and insert new
-  await supabase
-    .from("allocations")
-    .delete()
-    .eq("pool_id", poolId)
-    .eq("episode_id", epId)
-    .eq("user_id", user.id);
-
-  if (entries.length > 0) {
-    const { error } = await supabase.from("allocations").insert(
-      entries.map((e) => ({
-        pool_id: poolId,
-        episode_id: epId,
-        user_id: user.id,
-        contestant_id: e.contestant_id,
-        points: e.points,
-      }))
-    );
-    if (error) return { status: "error", error: error.message };
-  }
+  // Atomic replace via Postgres function — delete + insert run in a single
+  // transaction, so a failed insert cannot leave the user empty-handed.
+  const { error } = await supabase.rpc("replace_allocations", {
+    p_pool_id: poolId,
+    p_episode_id: epId,
+    p_contestant_ids: entries.map((e) => e.contestant_id),
+    p_points: entries.map((e) => e.points),
+  });
+  if (error) return { status: "error", error: error.message };
 
   revalidatePath(`/dashboard/pools/${poolId}/allocate`);
   return { status: "ok" };

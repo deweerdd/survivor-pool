@@ -16,6 +16,24 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-13 — Atomic allocation upsert
+
+**Branch:** master
+**What was done:**
+
+- New migration `20260413120000_create_replace_allocations_rpc.sql` — creates `replace_allocations(p_pool_id, p_episode_id, p_contestant_ids[], p_points[])` plpgsql function. `security invoker` so existing RLS policies on `allocations` still enforce unlock + ownership. Validates total=20 and equal-length arrays; deletes then inserts in a single transaction.
+- `lib/actions/allocations.ts` — swapped the unsafe delete-then-insert pair for a single `supabase.rpc("replace_allocations", ...)` call. The auth/membership/lock pre-checks are preserved as fast-fail guards; the RPC re-validates as defense in depth.
+- Regenerated `database.types.ts` by hand (added `replace_allocations` to `Functions`).
+- Migration pushed to remote via `npm run supabase:push`.
+- DoD green: format, type-check, eslint, format:check, 49 unit tests.
+
+**Unfinished / blocked:** Nothing.
+
+**Gotchas:**
+
+- `security invoker` is important here — if we had used `security definer` the RLS lock check would have been bypassed, letting users mutate allocations on locked episodes. The pre-check in the action is not sufficient on its own because a race could lock between check and write.
+- `unnest(arr1, arr2)` only works when both arrays have the same length, so the function validates that up front to give a clear error rather than a cryptic "query returned no rows".
+
 ## 2026-04-10 — Dead code cleanup
 
 **Branch:** feature/ui-redesign
