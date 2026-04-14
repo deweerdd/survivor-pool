@@ -1,65 +1,60 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import type { ActionResult } from "@/lib/actions/types";
+import { requireUserForAction } from "@/lib/auth-utils";
+import { MAX_INT, requireInt } from "@/lib/validation";
+import { type ActionResult, withAction } from "@/lib/actions/types";
 import { autoLockEpisodes } from "@/lib/actions/auto-lock";
 
 export async function submitAllocation(
   _prevState: ActionResult | null,
   formData: FormData
 ): Promise<ActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", error: "Not authenticated." };
+  return withAction(async () => {
+    const { supabase, user } = await requireUserForAction();
 
-  const epId = Number(formData.get("episodeId"));
-  const poolId = Number(formData.get("poolId"));
+    const poolId = requireInt(formData.get("poolId"), "Pool", { min: 1, max: MAX_INT });
+    const epId = requireInt(formData.get("episodeId"), "Episode", { min: 1, max: MAX_INT });
 
-  // Verify membership
-  const { data: memberCheck } = await supabase
-    .from("pool_members")
-    .select("user_id")
-    .eq("pool_id", poolId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!memberCheck) return { status: "error", error: "You are not a member of this pool." };
+    const { data: memberCheck } = await supabase
+      .from("pool_members")
+      .select("user_id")
+      .eq("pool_id", poolId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!memberCheck) throw new Error("You are not a member of this pool.");
 
-  // Auto-lock any past-deadline episodes before checking
-  await autoLockEpisodes();
+    await autoLockEpisodes();
 
-  // Verify episode is still unlocked
-  const { data: ep } = await supabase.from("episodes").select("is_locked").eq("id", epId).single();
-  if (!ep) return { status: "error", error: "Episode not found." };
-  if (ep.is_locked) return { status: "error", error: "This episode is locked." };
+    const { data: ep } = await supabase
+      .from("episodes")
+      .select("is_locked")
+      .eq("id", epId)
+      .single();
+    if (!ep) throw new Error("Episode not found.");
+    if (ep.is_locked) throw new Error("This episode is locked.");
 
-  // Collect points from form
-  const entries: { contestant_id: number; points: number }[] = [];
-  for (const [key, value] of formData.entries()) {
-    if (key.startsWith("points_")) {
-      const contestantId = Number(key.slice(7));
-      const pts = Number(value);
-      if (pts > 0) {
-        entries.push({ contestant_id: contestantId, points: pts });
-      }
+    const entries: { contestant_id: number; points: number }[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (!key.startsWith("points_")) continue;
+      const contestantId = requireInt(key.slice(7), "Contestant", { min: 1, max: MAX_INT });
+      const pts = requireInt(value, "Points", { min: 0, max: 20 });
+      if (pts > 0) entries.push({ contestant_id: contestantId, points: pts });
     }
-  }
 
-  const totalPoints = entries.reduce((s, e) => s + e.points, 0);
-  if (totalPoints !== 20) return { status: "error", error: "Total points must equal 20." };
+    const totalPoints = entries.reduce((s, e) => s + e.points, 0);
+    if (totalPoints !== 20) throw new Error("Total points must equal 20.");
 
-  // Atomic replace via Postgres function — delete + insert run in a single
-  // transaction, so a failed insert cannot leave the user empty-handed.
-  const { error } = await supabase.rpc("replace_allocations", {
-    p_pool_id: poolId,
-    p_episode_id: epId,
-    p_contestant_ids: entries.map((e) => e.contestant_id),
-    p_points: entries.map((e) => e.points),
+    // Atomic replace via Postgres function — delete + insert run in a single
+    // transaction, so a failed insert cannot leave the user empty-handed.
+    const { error } = await supabase.rpc("replace_allocations", {
+      p_pool_id: poolId,
+      p_episode_id: epId,
+      p_contestant_ids: entries.map((e) => e.contestant_id),
+      p_points: entries.map((e) => e.points),
+    });
+    if (error) throw new Error(error.message);
+
+    revalidatePath(`/dashboard/pools/${poolId}/allocate`);
   });
-  if (error) return { status: "error", error: error.message };
-
-  revalidatePath(`/dashboard/pools/${poolId}/allocate`);
-  return { status: "ok" };
 }

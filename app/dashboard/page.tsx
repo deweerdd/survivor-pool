@@ -2,7 +2,6 @@
 import { requireUser } from "@/lib/auth-utils";
 import { getActiveSeason } from "@/lib/season-utils";
 import { getNextOpenEpisode } from "@/lib/episode-utils";
-import { buildLeaderboard, toMemberRows, type ScoreRow } from "@/lib/leaderboard";
 import { isMember, type PoolWithMembers } from "@/lib/pools";
 import {
   joinPoolAction,
@@ -33,67 +32,28 @@ export default async function DashboardPage({
     );
   }
 
-  const [memberships, openEpisode, allPools, memberCounts] = await Promise.all([
-    supabase
-      .from("pool_members")
-      .select("pool_id, pools(id, name, is_public, invite_code)")
-      .eq("user_id", user.id)
-      .then(unwrap),
+  const [mySummaries, openEpisode, allPools, memberCounts] = await Promise.all([
+    supabase.rpc("get_user_pool_summaries", { p_user_id: user.id }).then(unwrap),
     getNextOpenEpisode(supabase, season.id),
     supabase
       .from("pools")
       .select("*, pool_members(user_id)")
       .eq("season_id", season.id)
       .then(unwrap),
-    (supabase.rpc as any)("get_pool_member_counts", {
-      p_season_id: season.id,
-    }).then(unwrap),
+    supabase.rpc("get_pool_member_counts", { p_season_id: season.id }).then(unwrap),
   ]);
 
-  const countMap = new Map<number, number>(
-    (memberCounts as { pool_id: number; member_count: number }[]).map((r) => [
-      r.pool_id,
-      r.member_count,
-    ])
-  );
+  const countMap = new Map<number, number>(memberCounts.map((r) => [r.pool_id, r.member_count]));
 
-  // Build per-pool leaderboard data for user's pools
-  const poolsWithScores = await Promise.all(
-    memberships.map(async (m) => {
-      const pool = m.pools as {
-        id: number;
-        name: string;
-        is_public: boolean;
-        invite_code: string | null;
-      } | null;
-      if (!pool) return null;
-
-      const [{ data: scores }, { data: members }] = await Promise.all([
-        supabase.rpc("get_pool_scores", { p_pool_id: m.pool_id }),
-        supabase
-          .from("pool_members")
-          .select("user_id, profiles(display_name, team_name, full_name, avatar_url)")
-          .eq("pool_id", m.pool_id),
-      ]);
-
-      const memberRows = toMemberRows((members ?? []) as { user_id: string; profiles: unknown }[]);
-
-      const leaderboard = buildLeaderboard((scores ?? []) as ScoreRow[], memberRows, user.id);
-      const me = leaderboard.find((e) => e.isCurrentUser);
-
-      return {
-        poolId: pool.id,
-        poolName: pool.name,
-        isPublic: pool.is_public,
-        inviteCode: pool.invite_code,
-        rank: me?.rank ?? null,
-        totalPoints: me?.totalPoints ?? 0,
-        memberCount: countMap.get(pool.id) ?? 0,
-      };
-    })
-  );
-
-  const myPools = poolsWithScores.filter((p): p is NonNullable<typeof p> => p !== null);
+  const myPools = mySummaries.map((s) => ({
+    poolId: s.pool_id,
+    poolName: s.pool_name,
+    isPublic: s.is_public,
+    inviteCode: s.invite_code,
+    rank: s.user_rank,
+    totalPoints: s.user_points ?? 0,
+    memberCount: s.member_count,
+  }));
 
   // Public pools user hasn't joined yet
   const unjoinedPublicPools = (allPools as PoolWithMembers[]).filter(

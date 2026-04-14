@@ -269,27 +269,6 @@ export type Database = {
           },
         ];
       };
-      rate_limit_attempts: {
-        Row: {
-          id: number;
-          user_id: string;
-          action: string;
-          attempted_at: string;
-        };
-        Insert: {
-          id?: number;
-          user_id: string;
-          action: string;
-          attempted_at?: string;
-        };
-        Update: {
-          id?: number;
-          user_id?: string;
-          action?: string;
-          attempted_at?: string;
-        };
-        Relationships: [];
-      };
       pool_members: {
         Row: {
           id: number;
@@ -416,6 +395,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      rate_limit_attempts: {
+        Row: {
+          action: string;
+          attempted_at: string;
+          id: number;
+          user_id: string;
+        };
+        Insert: {
+          action: string;
+          attempted_at?: string;
+          id?: number;
+          user_id: string;
+        };
+        Update: {
+          action?: string;
+          attempted_at?: string;
+          id?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       seasons: {
         Row: {
           created_at: string;
@@ -523,14 +523,26 @@ export type Database = {
           user_id: string;
         }[];
       };
+      get_user_pool_summaries: {
+        Args: { p_user_id: string };
+        Returns: {
+          invite_code: string;
+          is_public: boolean;
+          member_count: number;
+          pool_id: number;
+          pool_name: string;
+          user_points: number;
+          user_rank: number;
+        }[];
+      };
       replace_allocations: {
         Args: {
-          p_pool_id: number;
-          p_episode_id: number;
           p_contestant_ids: number[];
+          p_episode_id: number;
           p_points: number[];
+          p_pool_id: number;
         };
-        Returns: void;
+        Returns: undefined;
       };
     };
     Enums: {

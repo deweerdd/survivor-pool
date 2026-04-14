@@ -4,10 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { requireActiveSeason } from "@/lib/season-utils";
-import { requireString, requireInt, optionalDate } from "@/lib/validation";
+import { MAX_INT, requireString, requireInt, optionalDate } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
-
-const MAX_INT = 2_147_483_647;
 
 export async function lockEpisode(formData: FormData) {
   await requireAdmin();
