@@ -9,6 +9,9 @@ import {
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+import PoolChat, { type MemberInfo } from "@/components/PoolChat";
+import type { ChatMessageRow, PoolEventRow } from "@/lib/chat";
+import { formatDisplayName } from "@/lib/profile-utils";
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span className="rank-gold">1</span>;
@@ -19,16 +22,23 @@ function RankBadge({ rank }: { rank: number }) {
 
 export default async function PoolLeaderboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ poolId: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { poolId } = await params;
+  const { tab } = await searchParams;
   const numericPoolId = Number(poolId);
   const { supabase, user } = await requireUser();
 
   const [poolResult, memberCheckResult, allMembersResult, scoresResult, ssScoresResult] =
     await Promise.all([
-      supabase.from("pools").select("id, name, season_id").eq("id", numericPoolId).single(),
+      supabase
+        .from("pools")
+        .select("id, name, season_id, is_public")
+        .eq("id", numericPoolId)
+        .single(),
       supabase
         .from("pool_members")
         .select("user_id")
@@ -82,6 +92,43 @@ export default async function PoolLeaderboardPage({
   const hasSoleSurvivorScores = soleSurvivorScores.length > 0;
 
   const noEliminations = leaderboard.every((e) => e.totalPoints === 0);
+
+  // Chat tab: only for private pools
+  const isPrivate = poolResult.data.is_public === false;
+  const activeTab: "leaderboard" | "chat" = isPrivate && tab === "chat" ? "chat" : "leaderboard";
+
+  let chatInitialMessages: ChatMessageRow[] = [];
+  let chatInitialEvents: PoolEventRow[] = [];
+  let chatMemberMap: Record<string, MemberInfo> = {};
+
+  if (activeTab === "chat") {
+    const [messagesResult, eventsResult] = await Promise.all([
+      supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("pool_id", numericPoolId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("pool_events")
+        .select("*")
+        .eq("pool_id", numericPoolId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+    chatInitialMessages = ((messagesResult.data ?? []) as ChatMessageRow[]).slice().reverse();
+    chatInitialEvents = ((eventsResult.data ?? []) as PoolEventRow[]).slice().reverse();
+
+    chatMemberMap = Object.fromEntries(
+      members.map((m) => {
+        const displayName =
+          formatDisplayName(m.team_name ?? null, m.full_name ?? null) ||
+          m.display_name ||
+          "Unknown";
+        return [m.user_id, { displayName, avatarUrl: m.avatar_url ?? null } as MemberInfo];
+      })
+    );
+  }
 
   return (
     <main className="px-4 py-6 sm:p-8 max-w-2xl mx-auto space-y-6">
@@ -159,75 +206,109 @@ export default async function PoolLeaderboardPage({
         </div>
       )}
 
-      {noEliminations && (
-        <div className="callout callout-warning animate-fade-up">
-          No eliminations recorded yet — all members start at 0 points.
-        </div>
+      {isPrivate && (
+        <nav
+          className="flex gap-1 border-b border-border animate-fade-up"
+          aria-label="Pool sections"
+        >
+          <Link
+            href={`/dashboard/pools/${numericPoolId}`}
+            className={activeTab === "leaderboard" ? "nav-link nav-link-active" : "nav-link"}
+          >
+            Leaderboard
+          </Link>
+          <Link
+            href={`/dashboard/pools/${numericPoolId}?tab=chat`}
+            className={activeTab === "chat" ? "nav-link nav-link-active" : "nav-link"}
+          >
+            Chat
+          </Link>
+        </nav>
       )}
 
-      <div className="card p-0 overflow-hidden animate-fade-up delay-200">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="text-label pb-3 pr-4 pl-5 pt-4">
-                Rank
-              </th>
-              <th scope="col" className="text-label pb-3 pr-4 pt-4">
-                Player
-              </th>
-              {hasSoleSurvivorScores && (
-                <th scope="col" className="text-label pb-3 pr-2 pt-4 text-right">
-                  SS Bonus
-                </th>
-              )}
-              <th scope="col" className="text-label pb-3 pr-5 pt-4 text-right">
-                Points
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboard.map((entry) => (
-              <tr
-                key={entry.userId}
-                className={
-                  entry.isCurrentUser
-                    ? "border-b border-border bg-surface-raised font-semibold border-l-[3px] border-l-primary"
-                    : "border-b border-border hover:bg-surface-raised transition-colors"
-                }
-              >
-                <td className="py-3 pr-4 pl-5">
-                  <RankBadge rank={entry.rank} />
-                </td>
-                <td className="py-3 pr-4">
-                  <div className="flex items-center gap-2">
-                    <UserAvatar
-                      avatarUrl={entry.avatarUrl}
-                      fullName={entry.displayName}
-                      size="md"
-                    />
-                    <span>
-                      {entry.displayName}
-                      {entry.isCurrentUser && <span className="badge badge-primary ml-2">you</span>}
-                    </span>
-                  </div>
-                </td>
-                {hasSoleSurvivorScores && (
-                  <td className="py-3 pr-2 text-right">
-                    <span className="text-sm tabular-nums text-muted-foreground">
-                      {entry.soleSurvivorPoints > 0 ? `+${entry.soleSurvivorPoints}` : "\u2014"}
-                    </span>
-                  </td>
-                )}
-                <td className="py-3 pr-5 text-right">
-                  <span className="text-display text-lg font-bold tabular-nums">
-                    {entry.totalPoints}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {activeTab === "chat" ? (
+        <PoolChat
+          poolId={numericPoolId}
+          currentUserId={user.id}
+          initialMessages={chatInitialMessages}
+          initialEvents={chatInitialEvents}
+          members={chatMemberMap}
+        />
+      ) : (
+        <>
+          {noEliminations && (
+            <div className="callout callout-warning animate-fade-up">
+              No eliminations recorded yet — all members start at 0 points.
+            </div>
+          )}
+
+          <div className="card p-0 overflow-hidden animate-fade-up delay-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th scope="col" className="text-label pb-3 pr-4 pl-5 pt-4">
+                    Rank
+                  </th>
+                  <th scope="col" className="text-label pb-3 pr-4 pt-4">
+                    Player
+                  </th>
+                  {hasSoleSurvivorScores && (
+                    <th scope="col" className="text-label pb-3 pr-2 pt-4 text-right">
+                      SS Bonus
+                    </th>
+                  )}
+                  <th scope="col" className="text-label pb-3 pr-5 pt-4 text-right">
+                    Points
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry) => (
+                  <tr
+                    key={entry.userId}
+                    className={
+                      entry.isCurrentUser
+                        ? "border-b border-border bg-surface-raised font-semibold border-l-[3px] border-l-primary"
+                        : "border-b border-border hover:bg-surface-raised transition-colors"
+                    }
+                  >
+                    <td className="py-3 pr-4 pl-5">
+                      <RankBadge rank={entry.rank} />
+                    </td>
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-2">
+                        <UserAvatar
+                          avatarUrl={entry.avatarUrl}
+                          fullName={entry.displayName}
+                          size="md"
+                        />
+                        <span>
+                          {entry.displayName}
+                          {entry.isCurrentUser && (
+                            <span className="badge badge-primary ml-2">you</span>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    {hasSoleSurvivorScores && (
+                      <td className="py-3 pr-2 text-right">
+                        <span className="text-sm tabular-nums text-muted-foreground">
+                          {entry.soleSurvivorPoints > 0 ? `+${entry.soleSurvivorPoints}` : "\u2014"}
+                        </span>
+                      </td>
+                    )}
+                    <td className="py-3 pr-5 text-right">
+                      <span className="text-display text-lg font-bold tabular-nums">
+                        {entry.totalPoints}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </main>
   );
 }
