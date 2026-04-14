@@ -6,31 +6,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1";
   };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       allocations: {
@@ -85,6 +60,48 @@ export type Database = {
           },
           {
             foreignKeyName: "allocations_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chat_messages: {
+        Row: {
+          body: string;
+          created_at: string;
+          edited_at: string | null;
+          id: number;
+          pool_id: number;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          edited_at?: string | null;
+          id?: number;
+          pool_id: number;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          edited_at?: string | null;
+          id?: number;
+          pool_id?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_pool_id_fkey";
+            columns: ["pool_id"];
+            isOneToOne: false;
+            referencedRelation: "pools";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_messages_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -206,6 +223,48 @@ export type Database = {
             columns: ["season_id"];
             isOneToOne: false;
             referencedRelation: "seasons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      pool_events: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          id: number;
+          payload: Json;
+          pool_id: number;
+          type: Database["public"]["Enums"]["pool_event_type"];
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          id?: number;
+          payload?: Json;
+          pool_id: number;
+          type: Database["public"]["Enums"]["pool_event_type"];
+        };
+        Update: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          id?: number;
+          payload?: Json;
+          pool_id?: number;
+          type?: Database["public"]["Enums"]["pool_event_type"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pool_events_actor_user_id_fkey";
+            columns: ["actor_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pool_events_pool_id_fkey";
+            columns: ["pool_id"];
+            isOneToOne: false;
+            referencedRelation: "pools";
             referencedColumns: ["id"];
           },
         ];
@@ -336,6 +395,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      seasons: {
+        Row: {
+          created_at: string;
+          id: number;
+          is_active: boolean;
+          name: string;
+          wiki_url: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          is_active?: boolean;
+          name: string;
+          wiki_url?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          is_active?: boolean;
+          name?: string;
+          wiki_url?: string | null;
+        };
+        Relationships: [];
+      };
       sole_survivor_picks: {
         Row: {
           contestant_id: number;
@@ -388,30 +471,6 @@ export type Database = {
           },
         ];
       };
-      seasons: {
-        Row: {
-          created_at: string;
-          id: number;
-          is_active: boolean;
-          name: string;
-          wiki_url: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: number;
-          is_active?: boolean;
-          name: string;
-          wiki_url?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: number;
-          is_active?: boolean;
-          name?: string;
-          wiki_url?: string | null;
-        };
-        Relationships: [];
-      };
     };
     Views: {
       [_ in never]: never;
@@ -425,13 +484,6 @@ export type Database = {
           pool_id: number;
         }[];
       };
-      get_sole_survivor_scores: {
-        Args: { p_pool_id: number };
-        Returns: {
-          user_id: string;
-          sole_survivor_points: number;
-        }[];
-      };
       get_pool_scores: {
         Args: { p_pool_id: number };
         Returns: {
@@ -443,9 +495,20 @@ export type Database = {
           user_id: string;
         }[];
       };
+      get_sole_survivor_scores: {
+        Args: { p_pool_id: number };
+        Returns: {
+          sole_survivor_points: number;
+          user_id: string;
+        }[];
+      };
     };
     Enums: {
-      [_ in never]: never;
+      pool_event_type:
+        | "pick_changed"
+        | "achievement_earned"
+        | "elimination_recap"
+        | "member_joined";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -569,10 +632,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
-    Enums: {},
+    Enums: {
+      pool_event_type: ["pick_changed", "achievement_earned", "elimination_recap", "member_joined"],
+    },
   },
 } as const;

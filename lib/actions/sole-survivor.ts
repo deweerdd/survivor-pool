@@ -1,9 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/actions/types";
 import { getNextOpenEpisode } from "@/lib/episode-utils";
+import { emitEventForPrivatePoolsInSeason } from "@/lib/pool-events";
 
 export async function makeSoleSurvivorPickAction(
   _prevState: ActionResult | null,
@@ -38,7 +40,7 @@ export async function makeSoleSurvivorPickAction(
   // Verify contestant is active in this season
   const { data: contestant } = await supabase
     .from("contestants")
-    .select("id, is_active")
+    .select("id, name, is_active")
     .eq("id", contestantId)
     .eq("season_id", pool.season_id)
     .single();
@@ -51,6 +53,19 @@ export async function makeSoleSurvivorPickAction(
   if (!nextEpisode) {
     return { status: "error", error: "No open episodes — picks are locked for this season." };
   }
+
+  // Look up the previous pick (if any) to detect actual changes and build
+  // a descriptive pool_events payload.
+  const { data: previousPick } = await supabase
+    .from("sole_survivor_picks")
+    .select("contestant_id, contestants(name)")
+    .eq("pool_id", poolId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const previousContestantId = previousPick?.contestant_id ?? null;
+  const previousContestantName =
+    (previousPick?.contestants as { name: string } | null)?.name ?? null;
 
   // Upsert: one pick per user per pool
   const { error } = await supabase.from("sole_survivor_picks").upsert(
@@ -65,6 +80,21 @@ export async function makeSoleSurvivorPickAction(
   );
 
   if (error) return { status: "error", error: error.message };
+
+  // Emit pick_changed event to every private pool the user is in for this
+  // season, but only if the contestant actually changed (or is brand new).
+  if (previousContestantId !== contestantId) {
+    await emitEventForPrivatePoolsInSeason(createAdminClient(), {
+      userId: user.id,
+      seasonId: pool.season_id,
+      type: "pick_changed",
+      payload: {
+        contestant_name: contestant.name,
+        previous_contestant_name: previousContestantName,
+        episode_number: nextEpisode.episode_number,
+      },
+    });
+  }
 
   revalidatePath(`/dashboard/pools/${poolId}`);
   return { status: "ok" };

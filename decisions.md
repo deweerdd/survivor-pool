@@ -4,6 +4,26 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-04-10 — Realtime chat pattern, admin-client event inserts
+
+**Decision:** Pool chat + activity feed (private pools only) is the first realtime feature. Pattern locked in for future uses of `supabase.channel()`:
+
+- **Channel naming:** `pool:<poolId>`. One channel per pool page, subscribed in a client component's `useEffect` with cleanup that calls `supabase.removeChannel(channel)` on unmount.
+- **Row filter:** `pool_id=eq.<N>` on each `postgres_changes` subscription. Supabase evaluates row filters against the publication, so the client only receives rows for the current pool.
+- **Two-table merge:** `chat_messages` and `pool_events` are merged client-side via `mergeTimeline` (`lib/chat.ts`) ordered by `created_at` ascending, messages-before-events on ties. Both tables were added to the `supabase_realtime` publication in the migration.
+- **Event inserts via admin client only:** `pool_events` has a SELECT-for-members RLS policy but no INSERT/UPDATE/DELETE policies. All writes go through `createAdminClient()` from server actions (`lib/pool-events.ts` helpers). This enforces the BACKLOG's "server-action / trigger only" rule without trusting the user JWT — the anon client simply cannot insert, so there's no way for a client to forge an event.
+- **Chat message inserts via user client:** `chat_messages` uses standard per-row RLS (`user_id = auth.uid()` + membership check), mirroring `sole_survivor_picks`. Authors can delete their own messages; hard delete, no soft-delete column.
+
+**Why this shape:**
+
+- Admin-client-for-events keeps the event feed a system-of-record. If users could insert their own events, the whole "activity feed" abstraction breaks down — it would just be another message stream with extra metadata.
+- User-client-for-messages preserves the existing RLS convention and lets Postgres enforce authorship. No special server-side checks needed for deletes.
+- Channel-per-pool (rather than one global channel with server-side filtering) scales to many pools without fan-out waste and makes the cleanup story trivial.
+
+**Alternative considered:** A single `pool_messages` table with a `kind` column discriminating chat vs. event. Rejected because chat messages and system events have very different access patterns (users write chat; server writes events) and putting them in the same table would have required per-row column-level checks to prevent users from forging `kind = 'event'` rows.
+
+---
+
 ## 2026-03-23 — Removed custom avatar upload, kept built-in SVG avatars
 
 **Decision:** Removed the custom file upload path from profile setup/edit. Users select from built-in SVG avatars only (`lib/avatars.ts`). The Supabase `avatars` storage bucket and its RLS policies are dropped via migration. The `avatar_url` column remains — it stores local paths like `/avatars/torch.svg`.
