@@ -16,6 +16,22 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-14 — Security headers + middleware profile cache
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- **Security headers (`next.config.ts`):** added `Content-Security-Policy`, `Strict-Transport-Security`, and `Permissions-Policy` alongside the existing X-Frame-Options / X-Content-Type-Options / Referrer-Policy. CSP derives the Supabase host from `NEXT_PUBLIC_SUPABASE_URL` at build time for `img-src` / `connect-src` (incl. `wss:` for realtime). Dev also allows `'unsafe-eval'` for Next.js HMR; prod does not.
+- **Middleware caching (`middleware.ts`):** early-return on `/login` (no profile query needed once we know `user` exists), and added a module-level `Map<userId, {profile, expires}>` with a 30s TTL for the `is_admin`/`profile_complete` lookup. On profile-query error, we now fall through to the page instead of redirecting — a transient Supabase blip no longer 500s every protected route.
+- DoD green: format, type-check, eslint, format:check, 49 unit tests.
+
+**Unfinished / blocked:** CSP uses `'unsafe-inline'` for scripts because Next.js emits inline hydration scripts; switching to nonces would require `headers()` → middleware nonce injection and is a separate chunk of work.
+
+**Gotchas:**
+
+- The profile cache is per-Node-instance (module-level `Map`). That's fine for a single Vercel lambda but means a user who toggles `is_admin` may still see the old value for up to 30s on another instance. Acceptable for now since admin assignment is infrequent and admin actions are re-checked server-side inside each admin action/page.
+- CSP `connect-src` must include `wss://` for the Supabase realtime channel used by `PoolChat`. Dropping the wss entry silently breaks chat in prod while leaving the rest of the app functional — watch for that if anyone edits the policy.
+
 ## 2026-04-13 — High-priority security: CSRF, rate limit, input validation
 
 **Branch:** master
