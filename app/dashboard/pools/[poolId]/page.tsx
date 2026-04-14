@@ -243,7 +243,7 @@ export default async function PoolLeaderboardPage({
           )}
 
           <div className="card p-0 overflow-hidden animate-fade-up delay-200">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Pool leaderboard">
               <thead>
                 <tr className="border-b border-border text-left">
                   <th scope="col" className="text-label pb-3 pr-4 pl-5 pt-4">

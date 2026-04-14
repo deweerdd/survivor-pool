@@ -131,7 +131,7 @@ Tracked items from the 2026-04-14 code review. Tackle opportunistically.
 ### Atomicity
 
 - [ ] **Pool join + event emission are non-atomic** — `lib/actions/pools.ts` inserts into `pool_members` then separately inserts a `pool_events` row; failure between the two diverges pool state from the chat timeline. Same pattern in `lib/actions/sole-survivor.ts` for `pick_changed`. Wrap both in a Postgres function.
-- [ ] **`pool-events` insert errors are swallowed** — `lib/pool-events.ts` fire-and-forgets the insert. At minimum log the error; better, return it so the caller can decide.
+- [x] **`pool-events` insert errors are swallowed** (2026-04-14) — `emitPoolEvent` and `emitEventForPrivatePoolsInSeason` in `lib/pool-events.ts` now capture the error return from Supabase and `console.error` with the event type + pool context. Still non-fatal (the primary action has already committed) but the divergence is now traceable.
 
 ### Type safety
 
@@ -140,9 +140,9 @@ Tracked items from the 2026-04-14 code review. Tackle opportunistically.
 ### Hardening
 
 - [ ] **Rate-limit chat and allocation submits** — `lib/rate-limit.ts` currently only gates invite-code joins. Chat (`actions/chat.ts`) is the obvious spam vector; allocation updates should also be capped.
-- [ ] **Document `catch {}` in `lib/supabase/server.ts:21`** — The swallow is intentional (cookie writes from RSC render), but unannotated — add a one-line comment so nobody "helpfully" adds a log that fires on every render.
+- [x] **Document `catch {}` in `lib/supabase/server.ts`** (2026-04-14) — Added an explanatory comment in the catch block noting the RSC read-only context + middleware refresh path, with a "do not log" warning.
 
 ### UI / a11y
 
-- [ ] **Leaderboard table lacks a11y affordances** — Add `<caption>` or `aria-label="Pool leaderboard"` to the `<table>` in `app/dashboard/pools/[poolId]/page.tsx`.
-- [ ] **`PoolChat` creates a Supabase client inside `useEffect`** — Hoist to module scope or `useMemo` so it's not recreated on every render. `components/PoolChat.tsx:112`.
+- [x] **Leaderboard table lacks a11y affordances** (2026-04-14) — Added `aria-label="Pool leaderboard"` to the table in `app/dashboard/pools/[poolId]/page.tsx`.
+- [x] **`PoolChat` creates a Supabase client inside `useEffect`** (2026-04-14) — Hoisted to a `useMemo(() => createClient(), [])` at the top of the component; the subscription effect now reuses it and lists `supabase` in its deps array.

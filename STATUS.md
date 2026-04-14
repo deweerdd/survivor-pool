@@ -16,6 +16,23 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-14 — Tech debt pass: pool-events logging, PoolChat client hoist, a11y label, server.ts comment
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- `lib/pool-events.ts` — both emitters now capture the Supabase error return and `console.error` with pool/type context. Non-fatal (primary action already committed) but the divergence is now traceable instead of silent.
+- `components/PoolChat.tsx` — hoisted `createClient()` out of the subscription `useEffect` into a `useMemo(() => createClient(), [])`. No more per-render client instantiation; effect deps updated to include `supabase`.
+- `app/dashboard/pools/[poolId]/page.tsx` — added `aria-label="Pool leaderboard"` to the leaderboard `<table>`.
+- `lib/supabase/server.ts` — documented the `catch {}` in `setAll` with an explicit "do not log" warning (fires on every RSC render).
+- BACKLOG updated (4 tech-debt items checked off). DoD green: format, type-check, eslint (app/lib), format:check, 49 unit tests.
+
+**Unfinished / blocked:** 3 tech-debt items remain in BACKLOG: atomic pool-join + event emission (Postgres function), rate-limit chat/allocation submits, generate/guard RPC return types.
+
+**Gotchas:**
+
+- Running eslint against `components/` surfaces a pre-existing error in `PoolChat.tsx:41` (setState in effect inside `TimeLabel`). Not introduced by this pass — CLAUDE.md's DoD only lints `app lib`, so it hasn't been caught. Worth adding `components` to the DoD command separately.
+
 ## 2026-04-14 — Security headers + middleware profile cache
 
 **Branch:** refactor/unify-actions-and-dashboard-rpc
