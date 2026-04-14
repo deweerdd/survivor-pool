@@ -276,6 +276,11 @@ export default async function DashboardPage({
                 Invalid invite code. Please try again.
               </div>
             )}
+            {error === "rate_limited" && (
+              <div className="callout callout-danger mt-3">
+                Too many attempts. Please wait a few minutes and try again.
+              </div>
+            )}
             {error === "no_season" && (
               <div className="callout callout-danger mt-3">
                 No active season. Cannot create a pool right now.

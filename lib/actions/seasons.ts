@@ -2,14 +2,13 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin-guard";
+import { requireString, requireInt, optionalUrl } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
 
 export async function createSeason(formData: FormData) {
   await requireAdmin();
-  const name = (formData.get("name") as string)?.trim();
-  const wiki_url = (formData.get("wiki_url") as string)?.trim() || null;
-
-  if (!name) throw new Error("Season name is required");
+  const name = requireString(formData.get("name"), "Season name", { min: 2, max: 100 })!;
+  const wiki_url = optionalUrl(formData.get("wiki_url"), "Wiki URL", 500);
 
   const adminClient = createAdminClient();
   const { error } = await adminClient.from("seasons").insert({ name, wiki_url, is_active: false });
@@ -19,8 +18,10 @@ export async function createSeason(formData: FormData) {
 
 export async function activateSeason(formData: FormData) {
   await requireAdmin();
-  const seasonId = Number(formData.get("seasonId"));
-  if (!seasonId) throw new Error("Season ID is required");
+  const seasonId = requireInt(formData.get("seasonId"), "Season ID", {
+    min: 1,
+    max: 2_147_483_647,
+  });
 
   const adminClient = createAdminClient();
   const { error: deactivateErr } = await adminClient

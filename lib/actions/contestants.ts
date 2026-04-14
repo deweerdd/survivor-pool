@@ -4,15 +4,18 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { requireActiveSeason } from "@/lib/season-utils";
+import { requireString, optionalUrl } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
 
 export async function createContestant(formData: FormData) {
   await requireAdmin();
-  const name = (formData.get("name") as string)?.trim();
-  const tribe = (formData.get("tribe") as string)?.trim() || null;
-  const img_url = (formData.get("img_url") as string)?.trim() || null;
-
-  if (!name) throw new Error("Contestant name is required");
+  const name = requireString(formData.get("name"), "Contestant name", { min: 2, max: 100 })!;
+  const tribe = requireString(formData.get("tribe"), "Tribe", {
+    min: 1,
+    max: 50,
+    required: false,
+  });
+  const img_url = optionalUrl(formData.get("img_url"), "Image URL", 1000);
 
   const supabase = await createClient();
   const activeSeason = await requireActiveSeason(supabase, "/admin/contestants?error=no_season");

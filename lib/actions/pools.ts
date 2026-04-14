@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth-utils";
 import { requireActiveSeason } from "@/lib/season-utils";
 import { joinPool, getPoolByInviteCode, createPrivatePool } from "@/lib/pools";
 import { emitPoolEvent } from "@/lib/pool-events";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { redirect } from "next/navigation";
@@ -51,6 +52,16 @@ export async function joinByInviteCodeAction(formData: FormData) {
   const inviteCode = formData.get("inviteCode") as string;
   // Use admin client so the lookup works before the user is a member (RLS would block it otherwise)
   const admin = createAdminClient();
+
+  // Rate limit: 10 attempts per 10 minutes per user. 6-char alphanumeric codes
+  // have ~2B combinations, so 10/10min keeps guessing infeasible while
+  // allowing legitimate retries for typos.
+  const rl = await checkRateLimit(admin, user.id, "join_by_invite_code", {
+    max: 10,
+    windowSec: 600,
+  });
+  if (!rl.allowed) redirect("/dashboard?error=rate_limited");
+
   const result = await getPoolByInviteCode(admin, inviteCode);
   if (result.status === "not_found") redirect("/dashboard?error=invalid_code");
 

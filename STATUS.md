@@ -16,6 +16,23 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-13 — High-priority security: CSRF, rate limit, input validation
+
+**Branch:** master
+**What was done:**
+
+- **Input validation (`lib/validation.ts`):** new `requireString` / `requireInt` / `optionalUrl` / `optionalDate` helpers. Wired into all admin actions in `lib/actions/seasons.ts`, `contestants.ts`, `episodes.ts`. `optionalUrl` parses via `new URL()` and restricts to `http:` / `https:` — blocks `javascript:` / `data:` URLs landing in `wiki_url` / `img_url`.
+- **Rate limiting:** migration `20260413130000_create_rate_limit_attempts.sql` adds a policy-less (admin-only) table. New `lib/rate-limit.ts#checkRateLimit` does a count-within-window check then logs. `joinByInviteCodeAction` now throttles at 10 / 10 min, redirecting over-limit attempts to `/dashboard?error=rate_limited`. Dashboard UI shows a callout for the new error. Types added manually to `database.types.ts`.
+- **CSRF:** verified Next.js 16 enforces `Origin`-header checking on server actions by default. No `experimental.serverActions.allowedOrigins` override in `next.config.ts`, so same-origin-only is the posture. Documented in `decisions.md`.
+- DoD: format, type-check, eslint, format:check, 49 unit tests all green. Migration pushed to remote.
+
+**Unfinished / blocked:** Item #4 in the High section (middleware profile query caching) deliberately skipped — user asked to stop at items 1–3.
+
+**Gotchas:**
+
+- `rate_limit_attempts` must be accessed through the service-role (admin) client — RLS is on with no policies, so the anon client gets zero rows back. Calling it from the user client would silently count as 0 and never trigger the limit.
+- 10 attempts / 10 min is deliberately generous for legitimate typo retries; the real protection comes from the ~2B combination space of the 6-char code. If we ever shorten codes, the limit needs to tighten.
+
 ## 2026-04-13 — Atomic allocation upsert
 
 **Branch:** master

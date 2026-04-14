@@ -269,6 +269,27 @@ export type Database = {
           },
         ];
       };
+      rate_limit_attempts: {
+        Row: {
+          id: number;
+          user_id: string;
+          action: string;
+          attempted_at: string;
+        };
+        Insert: {
+          id?: number;
+          user_id: string;
+          action: string;
+          attempted_at?: string;
+        };
+        Update: {
+          id?: number;
+          user_id?: string;
+          action?: string;
+          attempted_at?: string;
+        };
+        Relationships: [];
+      };
       pool_members: {
         Row: {
           id: number;

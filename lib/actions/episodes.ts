@@ -4,12 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/admin-guard";
 import { requireActiveSeason } from "@/lib/season-utils";
+import { requireString, requireInt, optionalDate } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
+
+const MAX_INT = 2_147_483_647;
 
 export async function lockEpisode(formData: FormData) {
   await requireAdmin();
-  const id = parseInt(formData.get("episode_id") as string, 10);
-  if (!id) throw new Error("Episode ID is required");
+  const id = requireInt(formData.get("episode_id"), "Episode ID", { min: 1, max: MAX_INT });
   const adminClient = createAdminClient();
   const { error } = await adminClient.from("episodes").update({ is_locked: true }).eq("id", id);
   if (error) throw new Error(`Failed to lock episode: ${error.message}`);
@@ -18,12 +20,17 @@ export async function lockEpisode(formData: FormData) {
 
 export async function createEpisode(formData: FormData) {
   await requireAdmin();
-  const episode_number = parseInt(formData.get("episode_number") as string, 10);
-  const title = (formData.get("title") as string)?.trim() || null;
-  const air_date = (formData.get("air_date") as string)?.trim() || null;
+  const episode_number = requireInt(formData.get("episode_number"), "Episode number", {
+    min: 1,
+    max: 100,
+  });
+  const title = requireString(formData.get("title"), "Title", {
+    min: 1,
+    max: 200,
+    required: false,
+  });
+  const air_date = optionalDate(formData.get("air_date"), "Air date");
   const is_finale = formData.get("is_finale") === "true";
-
-  if (!episode_number) throw new Error("Episode number is required");
 
   const supabase = await createClient();
   const activeSeason = await requireActiveSeason(supabase, "/admin/episodes?error=no_season");
@@ -43,9 +50,14 @@ export async function createEpisode(formData: FormData) {
 
 export async function recordElimination(formData: FormData) {
   await requireAdmin();
-  const episode_id = parseInt(formData.get("episode_id") as string, 10);
-  const contestant_id = parseInt(formData.get("contestant_id") as string, 10);
-  if (!episode_id || !contestant_id) throw new Error("Episode ID and contestant ID are required");
+  const episode_id = requireInt(formData.get("episode_id"), "Episode ID", {
+    min: 1,
+    max: MAX_INT,
+  });
+  const contestant_id = requireInt(formData.get("contestant_id"), "Contestant ID", {
+    min: 1,
+    max: MAX_INT,
+  });
 
   const adminClient = createAdminClient();
   const { error: elimErr } = await adminClient

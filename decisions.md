@@ -4,6 +4,24 @@ Captures key decisions, the alternatives considered, and the reasoning. Newest f
 
 ---
 
+## 2026-04-13 — CSRF, rate-limit, and input-validation posture
+
+**Decision:** Relied on Next.js 16's built-in server-action origin check for CSRF, added a DB-backed rate limiter keyed by `(user_id, action)`, and centralized form input validation in `lib/validation.ts`.
+
+- **CSRF:** Next.js 16 validates the `Origin` header on every server-action request against the deployment host and rejects mismatches. It is on by default and not disabled here — `next.config.ts` sets no `experimental.serverActions.allowedOrigins` override. Actions in `lib/actions/*.ts` accept `FormData` from same-origin forms, which is the intended path. If a server action ever needs to be called cross-origin (e.g. from a different Vercel preview URL used by an embedded iframe), add the origin to `allowedOrigins` rather than disabling the check.
+- **Rate limiting:** New `rate_limit_attempts` table + `lib/rate-limit.ts` helper using a count-within-window approach. RLS is enabled with **no policies** — only the service-role client can read or write. First use: `joinByInviteCodeAction` at 10 attempts / 10 min, which keeps 6-char alphanumeric invite codes (~2B combinations) infeasible to brute-force while allowing typo retries. Add more actions here by calling `checkRateLimit(admin, userId, "<action>", { max, windowSec })`.
+- **Input validation:** `lib/validation.ts` exposes `requireString`, `requireInt`, `optionalUrl`, `optionalDate`. Admin actions (`createSeason`, `createContestant`, `createEpisode`, `recordElimination`, `lockEpisode`, `activateSeason`) now reject empty/oversized/malformed input before touching the DB. URLs are parsed with `new URL()` and restricted to `http(s)` to prevent `javascript:` or `data:` URLs from landing in `wiki_url` / `img_url` columns.
+
+**Why this shape:**
+
+- In-memory rate limiting is useless on Vercel's serverless runtime — every invocation is potentially a cold instance. Putting the counter in Postgres means a single source of truth across all lambdas.
+- Keeping the `rate_limit_attempts` table policy-less (rather than writing "deny all" policies) matches the `pool_events` pattern: RLS on + no policies = admin-only access, nothing for a future contributor to accidentally loosen.
+- Validators live outside the actions (not inline) so the rules are reusable and the action bodies stay focused on business logic.
+
+**Alternative considered:** Upstash/Redis for rate limiting. Rejected for now — Postgres is already hot in every request, the extra ~5ms round-trip is negligible for form submissions, and not adding a third backing service keeps ops simple. Revisit if we need sub-second limits on high-frequency endpoints.
+
+---
+
 ## 2026-04-10 — Realtime chat pattern, admin-client event inserts
 
 **Decision:** Pool chat + activity feed (private pools only) is the first realtime feature. Pattern locked in for future uses of `supabase.channel()`:
