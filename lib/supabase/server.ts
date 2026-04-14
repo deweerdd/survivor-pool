@@ -18,7 +18,11 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch {}
+          } catch {
+            // cookies().set() throws when called from a Server Component render
+            // (read-only context). Safe to ignore: the middleware refresh path
+            // handles cookie rotation. Do not log — this fires on every RSC render.
+          }
         },
       },
     }

@@ -1,6 +1,11 @@
 // Small validators for server-action input. Throws Error on invalid input so
 // the action surfaces a clean message to the caller.
 
+// Postgres int4 ceiling — matches the default integer column type used for
+// surrogate keys (episodes.id, pools.id, contestants.id, etc.). Use as the
+// default `max` for `requireInt` when parsing a surrogate-key form field.
+export const MAX_INT = 2_147_483_647;
+
 export function requireString(
   value: FormDataEntryValue | null,
   field: string,

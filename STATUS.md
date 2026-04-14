@@ -16,6 +16,56 @@ Format:
 
 <!-- Newest entries at the top -->
 
+## 2026-04-14 — Rate-limit chat + allocation submits
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- `lib/actions/chat.ts` — `sendChatMessageAction` now calls `checkRateLimit(admin, user.id, "send_chat_message", { max: 30, windowSec: 60 })` before the pool/membership checks. Over-limit throws a user-facing "too quickly" error surfaced by `withAction`.
+- `lib/actions/allocations.ts` — `submitAllocation` now rate-limited at 60 / 5 min with action key `submit_allocation`. Users routinely tweak allocations, so the cap is generous; it only bites scripted abuse.
+- Both actions use `createAdminClient()` because `rate_limit_attempts` has RLS on with no policies.
+- DoD green.
+
+**Unfinished / blocked:** 2 tech-debt items remain: atomic pool-join + event emission (Postgres function) and RPC return-type generation / runtime guards.
+
+**Gotchas:**
+
+- Picked `max: 30 / 60s` for chat deliberately (not 10/60 or similar). Real conversation in a small pool can spike — a quick back-and-forth between two people easily hits 10–15 msgs/min. The limit is about flooding, not pacing.
+- The rate-limit check runs *before* the pool/membership validation, so an unauthorized user who spams the endpoint still counts toward their own limit. That's fine — it's the same user id either way.
+
+## 2026-04-14 — Tech debt pass: pool-events logging, PoolChat client hoist, a11y label, server.ts comment
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- `lib/pool-events.ts` — both emitters now capture the Supabase error return and `console.error` with pool/type context. Non-fatal (primary action already committed) but the divergence is now traceable instead of silent.
+- `components/PoolChat.tsx` — hoisted `createClient()` out of the subscription `useEffect` into a `useMemo(() => createClient(), [])`. No more per-render client instantiation; effect deps updated to include `supabase`.
+- `app/dashboard/pools/[poolId]/page.tsx` — added `aria-label="Pool leaderboard"` to the leaderboard `<table>`.
+- `lib/supabase/server.ts` — documented the `catch {}` in `setAll` with an explicit "do not log" warning (fires on every RSC render).
+- BACKLOG updated (4 tech-debt items checked off). DoD green: format, type-check, eslint (app/lib), format:check, 49 unit tests.
+
+**Unfinished / blocked:** 3 tech-debt items remain in BACKLOG: atomic pool-join + event emission (Postgres function), rate-limit chat/allocation submits, generate/guard RPC return types.
+
+**Gotchas:**
+
+- Running eslint against `components/` surfaces a pre-existing error in `PoolChat.tsx:41` (setState in effect inside `TimeLabel`). Not introduced by this pass — CLAUDE.md's DoD only lints `app lib`, so it hasn't been caught. Worth adding `components` to the DoD command separately.
+
+## 2026-04-14 — Security headers + middleware profile cache
+
+**Branch:** refactor/unify-actions-and-dashboard-rpc
+**What was done:**
+
+- **Security headers (`next.config.ts`):** added `Content-Security-Policy`, `Strict-Transport-Security`, and `Permissions-Policy` alongside the existing X-Frame-Options / X-Content-Type-Options / Referrer-Policy. CSP derives the Supabase host from `NEXT_PUBLIC_SUPABASE_URL` at build time for `img-src` / `connect-src` (incl. `wss:` for realtime). Dev also allows `'unsafe-eval'` for Next.js HMR; prod does not.
+- **Middleware caching (`middleware.ts`):** early-return on `/login` (no profile query needed once we know `user` exists), and added a module-level `Map<userId, {profile, expires}>` with a 30s TTL for the `is_admin`/`profile_complete` lookup. On profile-query error, we now fall through to the page instead of redirecting — a transient Supabase blip no longer 500s every protected route.
+- DoD green: format, type-check, eslint, format:check, 49 unit tests.
+
+**Unfinished / blocked:** CSP uses `'unsafe-inline'` for scripts because Next.js emits inline hydration scripts; switching to nonces would require `headers()` → middleware nonce injection and is a separate chunk of work.
+
+**Gotchas:**
+
+- The profile cache is per-Node-instance (module-level `Map`). That's fine for a single Vercel lambda but means a user who toggles `is_admin` may still see the old value for up to 30s on another instance. Acceptable for now since admin assignment is infrequent and admin actions are re-checked server-side inside each admin action/page.
+- CSP `connect-src` must include `wss://` for the Supabase realtime channel used by `PoolChat`. Dropping the wss entry silently breaks chat in prod while leaving the rest of the app functional — watch for that if anyone edits the policy.
+
 ## 2026-04-13 — High-priority security: CSRF, rate limit, input validation
 
 **Branch:** master

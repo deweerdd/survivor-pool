@@ -24,7 +24,7 @@ Tasks should be self-contained: include enough context that an agent can start w
 - [x] **Rate limiting on invite code guessing** (2026-04-13) — New `rate_limit_attempts` table (RLS on, no policies — admin-client only) + `lib/rate-limit.ts#checkRateLimit`. `joinByInviteCodeAction` now throttles at 10 attempts / 10 min per user; over-limit redirects to `/dashboard?error=rate_limited` with a UI callout. Migration `20260413130000_create_rate_limit_attempts.sql`.
 - [x] **Atomic allocation upsert** (2026-04-13) — Wrapped delete+insert in a new `replace_allocations(p_pool_id, p_episode_id, p_contestant_ids[], p_points[])` Postgres function (security invoker, so existing RLS still applies). `submitAllocation` in `lib/actions/allocations.ts` now calls the RPC — a failed insert rolls back the delete, so users can no longer be left with no allocation.
 - [x] **Input validation on admin forms** (2026-04-13) — New `lib/validation.ts` (`requireString`, `requireInt`, `optionalUrl`, `optionalDate`) wired into `createSeason`, `activateSeason`, `createContestant`, `createEpisode`, `lockEpisode`, `recordElimination`. URLs are restricted to `http(s)` via `new URL()` parse. Length caps: season/contestant name 2–100, tribe 50, title 200, URLs 500/1000.
-- [ ] **Cache or move middleware profile query** — Every protected route queries `profiles` for `is_admin` and `profile_complete`. No caching — latency/cost concern at scale, and a Supabase outage breaks all protected routes. Consider moving checks to layout level or caching via headers.
+- [x] **Cache or move middleware profile query** (2026-04-14) — `middleware.ts` now skips the profile query on `/login` (only needs the user existence check) and caches `{is_admin, profile_complete}` in a module-level `Map` for 30s per user. If the profile query fails (Supabase blip), the middleware falls through to the page instead of hard-redirecting, so a transient outage no longer breaks every protected route.
 - [x] **Pool chat & activity feed (private pools)** (2026-04-13) — Shipped in PR #6. Migration `20260410120000_create_chat_messages_and_pool_events.sql` adds both tables, RLS, indexes, and publishes to `supabase_realtime`. `lib/chat.ts` (validation + merge-sort), `lib/actions/chat.ts` (send/delete with private-pool gate), `lib/pool-events.ts` (emit helpers), `components/PoolChat.tsx` (realtime INSERT/DELETE subscription, hover-to-delete own messages), and tab switcher on pool page. `member_joined` emitted from `lib/actions/pools.ts`, `pick_changed` from `lib/actions/sole-survivor.ts`. `elimination_recap` and `achievement_earned` intentionally deferred — they belong to the still-open Weekly Recap Card and Achievements items.
   - **Scope:** Private pools only (`pools.is_public = false`). Gate all reads/writes on that check + membership.
   - **Data model:**
@@ -52,7 +52,7 @@ Tasks should be self-contained: include enough context that an agent can start w
 ## Priority: Medium
 
 - [x] **Auto-lock episodes before air time** (2026-04-07) — Episodes should auto-lock 1 hour before airing (Wednesdays 8pm ET → lock at 7pm ET). Implement request-time auto-locking: `autoLockEpisodes()` runs on allocate page load, allocation submission, and admin episodes page. Uses `air_date` from the episodes table + ET timezone math to determine lock time. Flips `is_locked = true` via admin client. No cron needed — idempotent, runs server-side on every relevant page load. New files: `lib/lock-utils.ts`, `lib/actions/auto-lock.ts`. Modified: `lib/episode-utils.ts`, `lib/actions/allocations.ts`, `app/admin/episodes/page.tsx`. Plan: `.claude/plans/partitioned-inventing-penguin.md`.
-- [ ] **Security headers (CSP, X-Frame-Options)** — No Content Security Policy or frame protection configured in `next.config.ts`. Add `headers()` config.
+- [x] **Security headers (CSP, X-Frame-Options)** (2026-04-14) — `next.config.ts` now emits CSP, HSTS, and Permissions-Policy in addition to the existing X-Frame-Options/X-Content-Type-Options/Referrer-Policy. CSP derives the Supabase host from `NEXT_PUBLIC_SUPABASE_URL` for `img-src` / `connect-src` (incl. `wss:` for realtime). `script-src`/`style-src` use `'unsafe-inline'` (Next.js inline hydration scripts + Tailwind); a nonce-based tightening is future work.
 - [ ] **RLS integration tests** — Architecture relies on RLS for data isolation, but no tests confirm policies work as expected. Add tests that verify access as different user roles.
 - [ ] **Admin audit logging** — Admin actions (activate season, record elimination, lock episode) have no audit trail. Log who did what and when — either a DB table or structured logging.
 - [ ] **Weekly recap card on pool page** — Dismissible card above the leaderboard summarizing the most recent locked episode for the current user. Lives with the leaderboard.
@@ -123,3 +123,26 @@ Tasks should be self-contained: include enough context that an agent can start w
 - [ ] **Breadcrumbs on deep pool pages** — Pool > Leaderboard > Allocate is 3 levels deep. Current back buttons work but don't show hierarchy. Add a breadcrumb component above the `<h1>` on `/dashboard/pools/[poolId]/allocate` and `/dashboard/pools/[poolId]/sole-survivor`.
 - [ ] **Dark mode** — All color tokens in `globals.css` are light-only. Add a dark variant via `@media (prefers-color-scheme: dark)` or a `[data-theme="dark"]` class. Design dark values together with light to keep contrast parity. Test torch theme still reads well.
 - [ ] **Landing nav background on scroll** — Fixed nav at top of `/` (`app/page.tsx`) has no background, so text overlaps hero content when scrolling. Add a subtle blur/fill that appears after scroll.
+
+## Tech Debt
+
+Tracked items from the 2026-04-14 code review. Tackle opportunistically.
+
+### Atomicity
+
+- [ ] **Pool join + event emission are non-atomic** — `lib/actions/pools.ts` inserts into `pool_members` then separately inserts a `pool_events` row; failure between the two diverges pool state from the chat timeline. Same pattern in `lib/actions/sole-survivor.ts` for `pick_changed`. Wrap both in a Postgres function.
+- [x] **`pool-events` insert errors are swallowed** (2026-04-14) — `emitPoolEvent` and `emitEventForPrivatePoolsInSeason` in `lib/pool-events.ts` now capture the error return from Supabase and `console.error` with the event type + pool context. Still non-fatal (the primary action has already committed) but the divergence is now traceable.
+
+### Type safety
+
+- [ ] **Unsafe casts in pool detail page** — `app/dashboard/pools/[poolId]/page.tsx` uses `as unknown as ScoreRow[]` for RPC return rows. Generate RPC return types via `supabase gen types`, or add runtime guards in `lib/supabase/unwrap.ts`.
+
+### Hardening
+
+- [x] **Rate-limit chat and allocation submits** (2026-04-14) — `sendChatMessageAction` now gated at 30 msgs / 60 sec per user via `checkRateLimit`, and `submitAllocation` at 60 submits / 5 min. Over-limit throws a user-visible error surfaced by `withAction`.
+- [x] **Document `catch {}` in `lib/supabase/server.ts`** (2026-04-14) — Added an explanatory comment in the catch block noting the RSC read-only context + middleware refresh path, with a "do not log" warning.
+
+### UI / a11y
+
+- [x] **Leaderboard table lacks a11y affordances** (2026-04-14) — Added `aria-label="Pool leaderboard"` to the table in `app/dashboard/pools/[poolId]/page.tsx`.
+- [x] **`PoolChat` creates a Supabase client inside `useEffect`** (2026-04-14) — Hoisted to a `useMemo(() => createClient(), [])` at the top of the component; the subscription effect now reuses it and lists `supabase` in its deps array.

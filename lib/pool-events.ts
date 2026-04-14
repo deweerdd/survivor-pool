@@ -15,12 +15,21 @@ type EmitArgs = {
 };
 
 export async function emitPoolEvent(admin: AdminClient, args: EmitArgs): Promise<void> {
-  await admin.from("pool_events").insert({
+  const { error } = await admin.from("pool_events").insert({
     pool_id: args.poolId,
     type: args.type,
     actor_user_id: args.actorUserId,
     payload: args.payload,
   });
+  if (error) {
+    // Non-fatal: the primary action (pool join, pick change, etc.) has already
+    // succeeded. Log so the divergence is traceable rather than silent.
+    console.error("[pool-events] emitPoolEvent failed", {
+      poolId: args.poolId,
+      type: args.type,
+      error: error.message,
+    });
+  }
 }
 
 type SeasonEmitArgs = {
@@ -60,5 +69,14 @@ export async function emitEventForPrivatePoolsInSeason(
     payload: args.payload,
   }));
 
-  await admin.from("pool_events").insert(rows);
+  const { error } = await admin.from("pool_events").insert(rows);
+  if (error) {
+    console.error("[pool-events] emitEventForPrivatePoolsInSeason failed", {
+      userId: args.userId,
+      seasonId: args.seasonId,
+      type: args.type,
+      poolCount: targetPoolIds.length,
+      error: error.message,
+    });
+  }
 }

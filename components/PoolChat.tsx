@@ -106,10 +106,10 @@ export default function PoolChat({
   const formRef = useRef<HTMLFormElement>(null);
 
   const timeline = useMemo(() => mergeTimeline(messages, events), [messages, events]);
+  const supabase = useMemo(() => createClient(), []);
 
   // Realtime subscription
   useEffect(() => {
-    const supabase = createClient();
     const channel = supabase.channel(`pool:${poolId}`);
 
     channel.on(
@@ -160,7 +160,7 @@ export default function PoolChat({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [poolId]);
+  }, [poolId, supabase]);
 
   // Auto-scroll to bottom when timeline grows
   useEffect(() => {
